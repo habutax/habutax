@@ -4,16 +4,26 @@ import configparser
 from enum import Enum
 
 class ConfigInput(object):
-    def __init__(self, section, name, description=None):
-        self.section = section
-        self.name = name
-        self.description = description if description is not None else name
+    def __init__(self, name, description=None):
+        assert("." not in name)
+        self._name = name
+        self._description = description if description is not None else name
+
+    def __form_init__(self, form):
+        """Called when this ConfigInput is associated with a form instance"""
+        self._form = form
+
+    def section(self):
+        return self._form.name()
+
+    def name(self):
+        return f'{self.section()}.{self._name}'
 
     def help(self):
-        return self.description + '\n'
+        return self._description + '\n'
 
     def provided(self, config):
-        return config.has_option(self.section, self.name)
+        return config.has_option(self.section(), self._name)
 
     def value(self, config):
         raise NotImplementedError()
@@ -27,22 +37,22 @@ class ConfigInput(object):
 
 class StringInput(ConfigInput):
     def value(self, config):
-        return config.get(self.section, self.name)
+        return config.get(self.section(), self._name)
 
 class BooleanInput(ConfigInput):
     def value(self, config):
-        return config.getboolean(self.section, self.name)
+        return config.getboolean(self.section(), self._name)
 
 class IntegerInput(ConfigInput):
     def value(self, config):
-        return config.getint(self.section, self.name)
+        return config.getint(self.section(), self._name)
 
 class FloatInput(ConfigInput):
     def value(self, config):
-        return config.getfloat(self.section, self.name)
+        return config.getfloat(self.section(), self._name)
 
 class EnumInput(StringInput):
-    def __init__(self, section, name, options, description=""):
+    def __init__(self, name, options, description=""):
         """
         Create an instance to read/validate an input that can be one of a
         limited number of choices. The `options` parameter can be a list of
@@ -59,9 +69,12 @@ class EnumInput(StringInput):
                 description += f'    {opt}\n'
         description = description.strip()
 
-        super().__init__(section, name, description=description)
+        super().__init__(name, description=description)
         self.options = options
-        self.enum = Enum(".".join([section, name]), self.options)
+
+    def __form_init__(self, form):
+        super().__form_init__(form)
+        self.enum = Enum(self.name(), self.options)
 
     def __getattr__(self, attribute):
         return self.enum[attribute]
@@ -107,6 +120,10 @@ class InputStore(MutableMapping):
         self.config.read(filename)
         self.input_specs = input_specs
 
+    def write(self, filename):
+        with open(filename, 'w') as outfile:
+            self.config.write(outfile)
+
     def update_input_spec(self, input_specs):
         self.input_specs = input_specs
 
@@ -118,14 +135,16 @@ class InputStore(MutableMapping):
         if not i.provided(self.config):
             raise MissingInput(key)
         elif not i.valid(self.config):
-            raise InvalidInput(key, self.config.get(i.section, key))
+            raise InvalidInput(key, self.config.get(i.section(), key))
         return i.value(self.config)
 
     def __setitem__(self, key, value):
         if key not in self.input_specs:
             raise MissingInputSpecification(key)
         i = self.input_specs[key]
-        self.config.set(i.section, key, value)
+        if i.section() not in self.config.sections():
+            self.config.add_section(i.section())
+        self.config.set(i.section(), key, value)
 
     def __delitem__(self, key):
         raise NotImplementedError()
