@@ -1,20 +1,19 @@
 from collections.abc import Mapping
 
-from inputs import *
-from fields import *
+from pytax.inputs import *
+from pytax.fields import *
 
 class Form(object):
     def __init__(self,
-                 form_name,
-                 tax_year,
+                 child_cls,
                  inputs,
                  required_fields,
-                 optional_fields=[],
+                 optional_fields,
                  instance=None):
 
-        assert("." not in form_name)
-        self._name = form_name
-        self._tax_year = tax_year
+        self._name = child_cls.form_name
+        assert("." not in self._name)
+        self._tax_year = child_cls.tax_year
         self._inputs = inputs
         self._required_fields = required_fields
         self._optional_fields = optional_fields
@@ -54,7 +53,10 @@ class FormAccessor(Mapping):
         return len(self.mapping)
 
 class Form1040(Form):
-    def __init__(self):
+    form_name = "1040"
+    tax_year = 2021
+
+    def __init__(self, **kwargs):
         self.FILING_STATUS = EnumInput('filing_status', ['Single', 'MarriedFilingJointly', 'MarriedFilingSeparately', 'HeadOfHousehold', 'QualifyingWidow(er)'], description="Filing Status")
         inputs = [
             self.FILING_STATUS,
@@ -98,7 +100,7 @@ class Form1040(Form):
             #Add lines 1, 2b, 3b, 4b, 5b, 6b, 7, and 8. This is your total income
             SimpleField('9', lambda s, i, v: v['1'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
         ]
-        super().__init__("1040", 2021, inputs, fields)
+        super().__init__(__class__, inputs, fields, [], **kwargs)
 
 available = {
     2021: [
