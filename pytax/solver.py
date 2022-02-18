@@ -1,6 +1,6 @@
 import sys
 
-from pytax import forms
+from pytax import form
 from pytax import values
 from pytax import inputs
 
@@ -132,8 +132,8 @@ class Solver(object):
 
     def _attempt_field(self, field):
         try:
-            form_inputs = forms.FormAccessor(self.i, field.form)
-            form_values = forms.FormAccessor(self.v, field.form)
+            form_inputs = form.FormAccessor(self.i, field.form)
+            form_values = form.FormAccessor(self.v, field.form)
             self.v[field.name()] = field.value(form_inputs, form_values)
             self.field_dependencies.meet(field.name())
         except values.UnmetDependency as ud:

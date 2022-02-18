@@ -3,9 +3,9 @@ import unittest
 from .context import pytax
 inputs = pytax.inputs
 fields = pytax.fields
-forms = pytax.forms
+form = pytax.form
 
-class TestForm(forms.Form):
+class TestForm(form.Form):
     form_name = "test"
     tax_year = 1970
 

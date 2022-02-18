@@ -17,7 +17,7 @@ def main():
     args = parser.parse_args()
 
     input_store = inputs.InputStore(args.input_file.name)
-    s = solver.Solver(input_store, forms.available[args.year])
+    s = solver.Solver(input_store, forms.available_forms[args.year])
     s.solve(args.forms)
 
     if args.writeback:
