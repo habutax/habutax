@@ -1,5 +1,11 @@
 from types import MethodType
 
+class FieldNotImplemented(Exception):
+    def __init__(self, field_name, message_fmt="Encountered scenario we do not implement for {field_name}"):
+        self.field_name = field_name
+        self.message = message_fmt.format(field_name=field_name)
+        super().__init__(self.message)
+
 class Field(object):
     def __init__(self, name):
         assert("." not in name)
@@ -11,6 +17,11 @@ class Field(object):
 
     def name(self):
         return f'{self.form.name()}.{self._name}'
+
+    def not_implemented(self):
+        """Can be called by a field it encounters a scenario which it does not
+        have the logic to return a value for"""
+        raise FieldNotImplemented(self.name())
 
     def value(self, inputs, values):
         raise NotImplementedError()

@@ -16,14 +16,18 @@ class ConfigInput(object):
     def section(self):
         return self._form.name()
 
+    def base_name(self):
+        """Return the name relative to the form it is in"""
+        return self._name
+
     def name(self):
-        return f'{self.section()}.{self._name}'
+        return f'{self.section()}.{self.base_name()}'
 
     def help(self):
         return self._description + '\n'
 
     def provided(self, config):
-        return config.has_option(self.section(), self._name)
+        return config.has_option(self.section(), self.base_name())
 
     def value(self, config):
         raise NotImplementedError()
@@ -37,19 +41,25 @@ class ConfigInput(object):
 
 class StringInput(ConfigInput):
     def value(self, config):
-        return config.get(self.section(), self._name)
+        return config.get(self.section(), self.base_name())
 
 class BooleanInput(ConfigInput):
     def value(self, config):
-        return config.getboolean(self.section(), self._name)
+        return config.getboolean(self.section(), self.base_name())
 
 class IntegerInput(ConfigInput):
     def value(self, config):
-        return config.getint(self.section(), self._name)
+        string = config.get(self.section(), self.base_name())
+        if len(string) == 0:
+            return 0
+        return config.getint(self.section(), self.base_name())
 
 class FloatInput(ConfigInput):
     def value(self, config):
-        return config.getfloat(self.section(), self._name)
+        string = config.get(self.section(), self.base_name())
+        if len(string) == 0:
+            return 0
+        return config.getfloat(self.section(), self.base_name())
 
 class EnumInput(StringInput):
     def __init__(self, name, options, description=""):
@@ -135,7 +145,7 @@ class InputStore(MutableMapping):
         if not i.provided(self.config):
             raise MissingInput(key)
         elif not i.valid(self.config):
-            raise InvalidInput(key, self.config.get(i.section(), key))
+            raise InvalidInput(key, self.config.get(i.section(), i.base_name()))
         return i.value(self.config)
 
     def __setitem__(self, key, value):
@@ -144,7 +154,7 @@ class InputStore(MutableMapping):
         i = self.input_specs[key]
         if i.section() not in self.config.sections():
             self.config.add_section(i.section())
-        self.config.set(i.section(), key, value)
+        self.config.set(i.section(), i.base_name(), value)
 
     def __delitem__(self, key):
         raise NotImplementedError()

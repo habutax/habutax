@@ -1,5 +1,7 @@
 from collections.abc import Mapping
 
+from pytax.fields import SimpleField
+
 class Form(object):
     def __init__(self,
                  child_cls,
@@ -22,7 +24,10 @@ class Form(object):
             f.__form_init__(self)
 
     def name(self):
-        return self._name
+        if self._instance is None:
+            return self._name
+        else:
+            return f'{self._name}:{self._instance}'
 
     def inputs(self):
         return self._inputs
@@ -32,6 +37,22 @@ class Form(object):
 
     def fields(self):
         return self.required_fields() + self._optional_fields
+
+class InputForm(Form):
+    """Convenience class to create a form which creates fields for each
+    input"""
+    def __init__(self,
+                 child_cls,
+                 inputs,
+                 **kwargs):
+
+        fields = []
+        for i in inputs:
+            base_name = i.base_name()
+            field = SimpleField(base_name, lambda s, i, v, base_name=base_name: i[base_name])
+            fields.append(field)
+
+        super().__init__(child_cls, inputs, fields, [], **kwargs)
 
 class FormAccessor(Mapping):
     def __init__(self, mapping, form):
