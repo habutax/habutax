@@ -58,7 +58,7 @@ class FloatInput(ConfigInput):
     def value(self, config):
         string = config.get(self.section(), self.base_name())
         if len(string) == 0:
-            return 0
+            return 0.0
         return config.getfloat(self.section(), self.base_name())
 
 class EnumInput(StringInput):

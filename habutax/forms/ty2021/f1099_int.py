@@ -1,5 +1,5 @@
-from pytax.form import InputForm
-from pytax.inputs import *
+from habutax.form import InputForm
+from habutax.inputs import *
 
 class Form1099INT(InputForm):
     form_name = "1099-int"

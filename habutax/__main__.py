@@ -3,10 +3,10 @@
 import argparse
 import sys
 
-from pytax import forms
-from pytax import inputs
-from pytax import solver
-from pytax import values
+from habutax import forms
+from habutax import inputs
+from habutax import solver
+from habutax import values
 
 def main():
     parser = argparse.ArgumentParser()

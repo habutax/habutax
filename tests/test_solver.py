@@ -1,9 +1,9 @@
 import unittest
 
-from .context import pytax
-inputs = pytax.inputs
-fields = pytax.fields
-form = pytax.form
+from .context import habutax
+inputs = habutax.inputs
+fields = habutax.fields
+form = habutax.form
 
 class TestForm(form.Form):
     form_name = "test"
@@ -23,7 +23,7 @@ class TestForm(form.Form):
 class DependencyTrackerTestCase(unittest.TestCase):
     def setUp(self):
         self.form = TestForm()
-        self.dep = pytax.solver.DependencyTracker() 
+        self.dep = habutax.solver.DependencyTracker()
 
     def test_add_unmet(self):
         self.dep.add_unmet('test.bar', self.form.required_fields()[0])

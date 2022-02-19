@@ -1,6 +1,6 @@
-from pytax.form import Form
-from pytax.inputs import *
-from pytax.fields import *
+from habutax.form import Form
+from habutax.inputs import *
+from habutax.fields import *
 
 class Form1040(Form):
     form_name = "1040"
