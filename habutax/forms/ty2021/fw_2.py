@@ -9,6 +9,7 @@ class FormW2(InputForm):
         # FIXME go through these inputs and prohibit those we don't handle
         # (fail loudly)
         box_12 = {
+            '_': 'The box was left blank',
             'A': 'Uncollected social security or RRTA tax on tips. Include this tax on Form 1040 or 1040-SR. See the Form 1040 instructions.',
             'B': 'Uncollected Medicare tax on tips. Include this tax on Form 1040 or 1040-SR. See the Form 1040 instructions.',
             'C': 'Taxable cost of group-term life insurance over $50,000 (included in boxes 1, 3 (up to the social security wage base), and 5)',
@@ -56,7 +57,6 @@ class FormW2(InputForm):
             FloatInput('box_7', description="Social security tips"),
             FloatInput('box_8', description="Allocated tips"),
             FloatInput('box_10', description="Dependent care benefits"),
-            FloatInput('box_11', description="Nonqualified plans"),
             FloatInput('box_11', description="Nonqualified plans"),
             BooleanInput('box_13_statutory', description="Box 13 statutory employee checked"),
             BooleanInput('box_13_retirement', description="Box 13 Retirement plan checked"),

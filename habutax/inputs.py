@@ -72,7 +72,7 @@ class EnumInput(StringInput):
         description = "" if (len(description) == 0 or description == None) else (description + '\n\n')
         description += "Valid values:\n"
         if isinstance(options, dict):
-            for k, v in options:
+            for k, v in options.items():
                 description += f'    {k}: {v}\n'
         else:
             for opt in options:

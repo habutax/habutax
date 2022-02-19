@@ -128,13 +128,17 @@ class Solver(object):
         prompt += missing.help()
         prompt += f'\n{missing.name()} (Ctrl-C to refuse to input): '
 
-        try:
-            text = input(prompt)
-            self.i[missing.name()] = text
-            self.input_dependencies.meet(missing.name())
-            return True
-        except KeyboardInterrupt:
-            return False
+        while not missing.provided(self.i.config) or not missing.valid(self.i.config):
+            try:
+                if missing.provided(self.i.config):
+                    prompt = "Invalid input, try again?: "
+                text = input(prompt)
+                self.i[missing.name()] = text
+            except KeyboardInterrupt:
+                return False
+
+        self.input_dependencies.meet(missing.name())
+        return True
 
     def _attempt_field(self, field):
         try:
