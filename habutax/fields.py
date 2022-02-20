@@ -12,11 +12,19 @@ class Field(object):
         self._name = name
 
     def __form_init__(self, form):
-        """Called when this ConfigInput is associated with a form instance"""
-        self.form = form
+        """Called when this ConfigInput is associated with a form instance.
+        This must be called before any other methods are called on the
+        Field."""
+        self._form = form
+
+    def form(self, form_name=None):
+        if form_name is None:
+            return self._form
+        else:
+            return self._form.solver().forms[form_name]
 
     def name(self):
-        return f'{self.form.name()}.{self._name}'
+        return f'{self._form.name()}.{self._name}'
 
     def not_implemented(self):
         """Can be called by a field it encounters a scenario which it does not

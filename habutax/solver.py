@@ -72,7 +72,7 @@ class Solver(object):
     def __init__(self, input_config, form_list, prompt=False):
         self.prompt = prompt
 
-        # Create a map to easily look up the forms we have available by name
+        # Create a map to easily look up the available forms by name
         self.form_map = {f.form_name: f for f in form_list}
 
         # Map all available input and field names to their objects
@@ -83,8 +83,9 @@ class Solver(object):
         # interactively)
         self.i = input_config
 
-        # Current state of solver, including values calculated, any unmet
-        # field/input dependencies
+        # Current state of solver, including form instances, values calculated,
+        # any unmet field/input dependencies
+        self.forms = {}
         self.v = values.ValueStore()
         self.unattempted_fields = []
         self.solving_fields = set()
@@ -104,7 +105,8 @@ class Solver(object):
         if form_name not in self.form_map:
             raise NotImplementedError(f'Form {form_name} is not supported.')
 
-        form = self.form_map[form_name](instance=form_instance)
+        form = self.form_map[form_name](solver=self, instance=form_instance)
+        self.forms[form.name()] = form
 
         # Add new inputs to our internal map of names to input objects, update
         # the input mapper so it understands how to read these inputs
@@ -142,8 +144,8 @@ class Solver(object):
 
     def _attempt_field(self, field):
         try:
-            form_inputs = form.FormAccessor(self.i, field.form)
-            form_values = form.FormAccessor(self.v, field.form)
+            form_inputs = form.FormAccessor(self.i, field.form())
+            form_values = form.FormAccessor(self.v, field.form())
             self.v[field.name()] = field.value(form_inputs, form_values)
             self.field_dependencies.meet(field.name())
         except values.UnmetDependency as ud:

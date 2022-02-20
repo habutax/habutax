@@ -8,7 +8,8 @@ class Form(object):
                  inputs,
                  required_fields,
                  optional_fields,
-                 instance=None):
+                 instance=None,
+                 solver=None):
 
         self._name = child_cls.form_name
         assert("." not in self._name)
@@ -17,6 +18,8 @@ class Form(object):
         self._required_fields = required_fields
         self._optional_fields = optional_fields
         self._instance = instance
+        self._solver = solver
+        assert(self._solver)
 
         for i in self._inputs:
             i.__form_init__(self)
@@ -28,6 +31,9 @@ class Form(object):
             return self._name
         else:
             return f'{self._name}:{self._instance}'
+
+    def solver(self):
+        return self._solver
 
     def inputs(self):
         return self._inputs
