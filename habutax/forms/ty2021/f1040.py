@@ -69,10 +69,12 @@ class Form1040(Form):
         def line_2b(self, i, v):
             """taxable interest"""
             total = sum([v[f'1099-int:{n}.box_1'] for n in range(i['number_1099-int'])])
-            if total > 1500.0 or i['number_1099-oid'] > 0:
-                # Schedule B
+            if total > 1500.0:
+                return v['1040_sb.4'] # Schedule B
+            elif i['number_1099-oid'] > 0:
                 self.not_implemented()
-            return total
+            else:
+                return total
 
         def line_3a(self, i, v):
             """qualified dividends"""
@@ -84,8 +86,9 @@ class Form1040(Form):
         def line_3b(self, i, v):
             """ordinary dividends"""
             total = sum([v[f'1099-div:{n}.box_1a'] for n in range(i['number_1099-div'])])
-            if total > 1500.0 or i['ordinary_dividends_incorrect']:
-                # Schedule B
+            if total > 1500.0:
+                return v['1040_sb.6'] # Schedule B
+            elif i['ordinary_dividends_incorrect']:
                 self.not_implemented()
             return total
 
