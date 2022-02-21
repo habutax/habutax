@@ -50,7 +50,8 @@ class Form1040(Form):
             BooleanInput('social_security_benefits', description=f'Did you receive any Social Security benefits in tax year {Form1040.tax_year}? These would likely have been reported on Form(s) SSA-1099 or RRB-1099.'),
             BooleanInput('schedule_d_required', description="Are you required to complete Schedule D? See the line 7 instructions for Form 1040 if you are not sure."),
             BooleanInput('form_8949_required', description="Are you required to complete form 8949? See the line 7 instructions for Form 1040 if you are not sure."),
-            BooleanInput('schedule_1_required', description="Are you required to complete Schedule 1? See the instructions for Schedule 1 for Form 1040 if you are not sure."),
+            BooleanInput('schedule_1_additional_income', description="Do you need to report additional income on Schedule 1? See the instructions for Schedule 1 for Form 1040 if you are not sure."),
+            BooleanInput('schedule_1_income_adjustments', description="Do you need to report adjustments to income on Schedule 1? See the instructions for Schedule 1 for Form 1040 if you are not sure."),
             BooleanInput('itemize', description="Would you like to itemize? In most cases, your federal income tax will be less if you take the larger of your itemized deductions or standard deduction. Standard deductions by filing status: Single or Married filing separately: $12,550, Married filing jointly or Qualifying widow(er): $25,100,  Head of household: $18,800."),
             FloatInput('charitable_contributions_std_ded', description=f'Enter the total amount of any charitable cash contributions made in {Form1040.tax_year}'),
         ]
@@ -180,9 +181,9 @@ class Form1040(Form):
             SimpleField('6a', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else 0),
             SimpleField('6b', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else 0),
             SimpleField('7', lambda s, i, v: s.not_implemented() if i['schedule_d_required'] or i['form_8949_required'] else 0),
-            SimpleField('8', lambda s, i, v: v['1040_s1.10'] if i['schedule_1_required'] else 0),
+            SimpleField('8', lambda s, i, v: v['1040_s1.10'] if i['schedule_1_additional_income'] else 0),
             SimpleField('9', lambda s, i, v: v['1'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
-            SimpleField('10', lambda s, i, v: v['1040_s1.26'] if i['schedule_1_required'] else 0),
+            SimpleField('10', lambda s, i, v: v['1040_s1.26'] if i['schedule_1_income_adjustments'] else 0),
             SimpleField('11', lambda s, i, v: v['9'] - v['10']), # AGI
             SimpleField('12a', line_12a),
             SimpleField('12b', line_12b),
