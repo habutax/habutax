@@ -27,7 +27,7 @@ class Form1040SB(Form):
         for line in range(NUM_FIELDS):
             int_payer = StringField(f'1_payer_{line}', lambda s, i, v: v[f'1099-int:{s.which_1099int}.payer'] if s.which_1099int < i['1040.number_1099-int'] else None)
             int_payer.which_1099int = line
-            int_amount = FloatField(f'1_amount_{line}', lambda s, i, v: v[f'1099-int:{s.which_1099int}.box_1'] if s.which_1099int < i['1040.number_1099-int'] else None)
+            int_amount = FloatField(f'1_amount_{line}', lambda s, i, v: v[f'1099-int:{s.which_1099int}.box_1'] + v[f'1099-int:{s.which_1099int}.box_3'] if s.which_1099int < i['1040.number_1099-int'] else None)
             int_amount.which_1099int = line
             div_payer = StringField(f'5_payer_{line}', lambda s, i, v: v[f'1099-div:{s.which_1099div}.payer'] if s.which_1099div < i['1040.number_1099-div'] else None)
             div_payer.which_1099div = line

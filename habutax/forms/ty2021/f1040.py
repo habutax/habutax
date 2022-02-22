@@ -74,7 +74,7 @@ class Form1040(Form):
 
         def line_2b(self, i, v):
             """taxable interest"""
-            total = sum([v[f'1099-int:{n}.box_1'] for n in range(i['number_1099-int'])])
+            total = sum([v[f'1099-int:{n}.box_1'] + v[f'1099-int:{n}.box_3'] for n in range(i['number_1099-int'])])
             if total > 1500.0:
                 return v['1040_sb.4'] # Schedule B
             elif i['number_1099-oid'] > 0:
