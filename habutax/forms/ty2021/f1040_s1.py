@@ -70,7 +70,6 @@ class Form1040S1(Form):
             FloatField('8n', lambda s, i, v: s.not_implemented() if i['uncommon_income'] else None),
             FloatField('8o', lambda s, i, v: s.not_implemented() if i['uncommon_income'] else None),
             FloatField('8p', lambda s, i, v: s.not_implemented() if i['uncommon_income'] else None),
-            StringField('8z_type', lambda s, i, v: i['other_income_type'] if i['need_other_income'] else None),
             FloatField('8z', lambda s, i, v: i['other_income_amount'] if i['need_other_income'] else None),
             FloatField('9', lambda s, i, v: sum([v[f'8{l}'] for l in "abcdefghijklmnopz"])),
             FloatField('10', lambda s, i, v: v['1'] + v['2a'] + sum([v[f'{n}'] for n in range(3,8)]) + v['9']),
@@ -100,10 +99,13 @@ class Form1040S1(Form):
             FloatField('24i', lambda s, i, v: s.not_implemented() if i['uncommon_deductions'] else None),
             FloatField('24j', lambda s, i, v: s.not_implemented() if i['uncommon_deductions'] else None),
             FloatField('24k', lambda s, i, v: s.not_implemented() if i['uncommon_deductions'] else None),
-            StringField('24z_type', lambda s, i, v: i['other_adjustments_type'] if i['need_other_adjustments'] else None),
             FloatField('24z', lambda s, i, v: i['other_adjustments_amount'] if i['need_other_adjustments'] else None),
             FloatField('25', lambda s, i, v: sum([v[f'24{l}'] for l in "abcdefghijkz"])),
             FloatField('26', lambda s, i, v: sum([v[f'{n}'] for n in range(11,19) + range(20,24)]) + v['19a'] + v['25']),
         ]
+        required_fields = [
+            StringField('8z_type', lambda s, i, v: i['other_income_type'] if i['need_other_income'] else None),
+            StringField('24z_type', lambda s, i, v: i['other_adjustments_type'] if i['need_other_adjustments'] else None),
+        ]
 
-        super().__init__(__class__, inputs, [], optional_fields, **kwargs)
+        super().__init__(__class__, inputs, required_fields, optional_fields, **kwargs)

@@ -48,7 +48,7 @@ class Form1040SB(Form):
                 v['8']
             # Also double-check that we don't have too many forms 1099-int or
             # 1099-div that we're trying to report here
-            if v['1040.number_1099-int'] > NUM_FIELDS or v['1040.number_1099-div'] > NUM_FIELDS:
+            if i['1040.number_1099-int'] > NUM_FIELDS or i['1040.number_1099-div'] > NUM_FIELDS:
                 self.not_implemented()
             return None
         part_3_required = StringField('part_3', part_3)
