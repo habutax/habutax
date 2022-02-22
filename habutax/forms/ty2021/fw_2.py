@@ -1,3 +1,4 @@
+import habutax.enum as enum
 from habutax.form import InputForm
 from habutax.inputs import *
 
@@ -8,7 +9,7 @@ class FormW2(InputForm):
     def __init__(self, **kwargs):
         # FIXME go through these inputs and prohibit those we don't handle
         # (fail loudly)
-        box_12 = {
+        box_12 = enum.make("W-2, box 12 code", {
             '_': 'The box was left blank',
             'A': 'Uncollected social security or RRTA tax on tips. Include this tax on Form 1040 or 1040-SR. See the Form 1040 instructions.',
             'B': 'Uncollected Medicare tax on tips. Include this tax on Form 1040 or 1040-SR. See the Form 1040 instructions.',
@@ -39,7 +40,7 @@ class FormW2(InputForm):
             'FF': 'Permitted benefits under a qualified small employer health reimbursement arrangement',
             'GG': 'Income from qualified equity grants under section 83(i)',
             'HH': 'Aggregate deferrals under section 83(i) elections as of the close of the calendar year',
-        }
+        })
         inputs = []
         for letter in 'abcd':
             inputs.append(EnumInput(f'box_12{letter}_code', box_12, description=f'Box 12{letter} alphabetic code'))

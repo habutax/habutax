@@ -1,7 +1,8 @@
 from collections.abc import MutableMapping
 
 import configparser
-from enum import Enum
+
+from habutax.enum import StringyEnum
 
 class ConfigInput(object):
     def __init__(self, name, description=None):
@@ -62,7 +63,7 @@ class FloatInput(ConfigInput):
         return config.getfloat(self.section(), self.base_name())
 
 class EnumInput(StringInput):
-    def __init__(self, name, options, description=""):
+    def __init__(self, name, enum, description=""):
         """
         Create an instance to read/validate an input that can be one of a
         limited number of choices. The `options` parameter can be a list of
@@ -71,20 +72,15 @@ class EnumInput(StringInput):
         """
         description = "" if (len(description) == 0 or description == None) else (description + '\n\n')
         description += "Valid values:\n"
-        if isinstance(options, dict):
-            for k, v in options.items():
-                description += f'    {k}: {v}\n'
-        else:
-            for opt in options:
-                description += f'    {opt}\n'
+        for k, v in enum.__members__.items():
+            description += f'    {k}: {v.value}\n'
         description = description.strip()
 
         super().__init__(name, description=description)
-        self.options = options
+        self.enum = enum
 
     def __form_init__(self, form):
         super().__form_init__(form)
-        self.enum = Enum(self.name(), self.options)
 
     def __getattr__(self, attribute):
         return self.enum[attribute]
@@ -104,6 +100,24 @@ class EnumInput(StringInput):
     def value(self, config):
         string = super().value(config)
         return self.enum[string]
+
+class SSNInput(StringInput):
+    def value(self, config):
+        v = super().value(config)
+        return v.replace("-", "")
+
+    def valid(self, config):
+        try:
+            ssn = self.value(config)
+        except (ValueError, configparser.NoOptionError):
+            return False
+
+        if len(ssn) != 10:
+            return False
+        for n in ssn:
+            if n not in "0123456789":
+                return False
+        return True
 
 class MissingInputSpecification(Exception):
     def __init__(self, input_name, message_fmt="Missing input specification for {input_name}"):

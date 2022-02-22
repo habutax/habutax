@@ -1,3 +1,4 @@
+from habutax import enum
 from habutax import fields
 from habutax import form
 from habutax import forms

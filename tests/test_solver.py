@@ -11,12 +11,12 @@ class TestForm(form.Form):
 
     def __init__(self, **kwargs):
         test_inputs = [
-            inputs.StringInput('bar', description="I don't know"),
+            inputs.IntegerInput('bar', description="I don't know"),
         ]
         test_fields = [
-            fields.SimpleField('foo', lambda s, i, v: i['bar']),
-            fields.SimpleField('something', lambda s, i, v: i['bar']),
-            fields.SimpleField('else', lambda s, i, v: v['something'] - i['bar']),
+            fields.IntegerField('foo', lambda s, i, v: i['bar']),
+            fields.IntegerField('something', lambda s, i, v: i['bar']),
+            fields.IntegerField('else', lambda s, i, v: v['something'] - i['bar']),
         ]
         super().__init__(__class__, test_inputs, test_fields, [], **kwargs)
 

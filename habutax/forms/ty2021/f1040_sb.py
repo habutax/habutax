@@ -15,23 +15,23 @@ class Form1040SB(Form):
         ]
 
         optional_fields = [
-            SimpleField('2', lambda s, i, v: sum([v[f'1_amount_{line}'] for line in range(NUM_FIELDS)])),
-            SimpleField('3', lambda s, i, v: s.not_implemented() if i['excludable_us_bond_interest'] else ""),
-            SimpleField('4', lambda s, i, v: v['2'] - v['3']),
-            SimpleField('6', lambda s, i, v: sum([v[f'5_amount_{line}'] for line in range(NUM_FIELDS)])),
-            SimpleField('7a', lambda s, i, v: s.not_implemented() if i['financial_interest'] else False),
-            SimpleField('7b', lambda s, i, v: s.not_implemented() if i['financial_interest'] else ""),
-            SimpleField('8', lambda s, i, v: s.not_implemented() if i['foreign_trust'] else False),
+            FloatField('2', lambda s, i, v: sum([v[f'1_amount_{line}'] for line in range(NUM_FIELDS)])),
+            FloatField('3', lambda s, i, v: s.not_implemented() if i['excludable_us_bond_interest'] else None),
+            FloatField('4', lambda s, i, v: v['2'] - v['3']),
+            FloatField('6', lambda s, i, v: sum([v[f'5_amount_{line}'] for line in range(NUM_FIELDS)])),
+            BooleanField('7a', lambda s, i, v: s.not_implemented() if i['financial_interest'] else False),
+            BooleanField('7b', lambda s, i, v: s.not_implemented() if i['financial_interest'] else None),
+            BooleanField('8', lambda s, i, v: s.not_implemented() if i['foreign_trust'] else False),
         ]
 
         for line in range(NUM_FIELDS):
-            int_payer = SimpleField(f'1_payer_{line}', lambda s, i, v: v[f'1099-int:{s.which_1099int}.payer'] if s.which_1099int < i['1040.number_1099-int'] else "")
+            int_payer = StringField(f'1_payer_{line}', lambda s, i, v: v[f'1099-int:{s.which_1099int}.payer'] if s.which_1099int < i['1040.number_1099-int'] else None)
             int_payer.which_1099int = line
-            int_amount = SimpleField(f'1_amount_{line}', lambda s, i, v: v[f'1099-int:{s.which_1099int}.box_1'] if s.which_1099int < i['1040.number_1099-int'] else "")
+            int_amount = FloatField(f'1_amount_{line}', lambda s, i, v: v[f'1099-int:{s.which_1099int}.box_1'] if s.which_1099int < i['1040.number_1099-int'] else None)
             int_amount.which_1099int = line
-            div_payer = SimpleField(f'5_payer_{line}', lambda s, i, v: v[f'1099-div:{s.which_1099div}.payer'] if s.which_1099div < i['1040.number_1099-div'] else "")
+            div_payer = StringField(f'5_payer_{line}', lambda s, i, v: v[f'1099-div:{s.which_1099div}.payer'] if s.which_1099div < i['1040.number_1099-div'] else None)
             div_payer.which_1099div = line
-            div_amount = SimpleField(f'5_amount_{line}', lambda s, i, v: v[f'1099-div:{s.which_1099div}.box_1a'] if s.which_1099div < i['1040.number_1099-div'] else "")
+            div_amount = FloatField(f'5_amount_{line}', lambda s, i, v: v[f'1099-div:{s.which_1099div}.box_1a'] if s.which_1099div < i['1040.number_1099-div'] else None)
             div_amount.which_1099div = line
 
             optional_fields += [int_payer, int_amount, div_payer, div_amount]
@@ -50,7 +50,7 @@ class Form1040SB(Form):
             # 1099-div that we're trying to report here
             if v['1040.number_1099-int'] > NUM_FIELDS or v['1040.number_1099-div'] > NUM_FIELDS:
                 self.not_implemented()
-            return ""
-        part_3_required = SimpleField('part_3', part3)
+            return None
+        part_3_required = StringField('part_3', part_3)
 
         super().__init__(__class__, inputs, [part_3_required], optional_fields, **kwargs)

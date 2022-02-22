@@ -1,6 +1,7 @@
 from collections.abc import Mapping
 
-from habutax.fields import SimpleField
+from habutax.inputs import StringInput, BooleanInput, IntegerInput, FloatInput, EnumInput
+from habutax.fields import StringField, BooleanField, IntegerField, FloatField, EnumField
 
 class Form(object):
     def __init__(self,
@@ -19,7 +20,6 @@ class Form(object):
         self._optional_fields = optional_fields
         self._instance = instance
         self._solver = solver
-        assert(self._solver)
 
         for i in self._inputs:
             i.__form_init__(self)
@@ -33,6 +33,7 @@ class Form(object):
             return f'{self._name}:{self._instance}'
 
     def solver(self):
+        assert(self._solver)
         return self._solver
 
     def inputs(self):
@@ -55,8 +56,20 @@ class InputForm(Form):
         fields = []
         for i in inputs:
             base_name = i.base_name()
-            field = SimpleField(base_name, lambda s, i, v, base_name=base_name: i[base_name])
-            fields.append(field)
+            fn = lambda s, i, v, base_name=base_name: i[base_name]
+
+            if type(i) is StringInput:
+                fields.append(StringField(base_name, fn))
+            elif type(i) is BooleanInput:
+                fields.append(BooleanField(base_name, fn))
+            elif type(i) is IntegerInput:
+                fields.append(IntegerField(base_name, fn))
+            elif type(i) is FloatInput:
+                fields.append(FloatField(base_name, fn))
+            elif type(i) is EnumInput:
+                fields.append(EnumField(base_name, i.enum, fn))
+            else:
+                raise TypeError(f'Unexpected input type in InputForm: {type(i)}')
 
         super().__init__(child_cls, inputs, fields, [], **kwargs)
 

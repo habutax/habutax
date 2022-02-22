@@ -1,3 +1,4 @@
+import habutax.enum as enum
 from habutax.form import Form
 from habutax.inputs import *
 from habutax.fields import *
@@ -7,9 +8,14 @@ class Form1040(Form):
     tax_year = 2021
 
     def __init__(self, **kwargs):
-        self.FILING_STATUS = EnumInput('filing_status', ['Single', 'MarriedFilingJointly', 'MarriedFilingSeparately', 'HeadOfHousehold', 'QualifyingWidowWidower'], description="Filing Status")
+        self.FILING_STATUS = enum.make('1040 Filing Status', {
+            'Single': "single, unmarried, or legally separated",
+            'MarriedFilingJointly': "married and filing a joint return",
+            'MarriedFilingSeparately': "married and file a separate return",
+            'HeadOfHousehold': "unmarried and provide a home for certain other person",
+            'QualifyingWidowWidower': "generally filed if your spouse died in 2019 or 2020 and you didn't remarry before the end of 2021 and you have a child or stepchild whom you can claim as a dependent (see Form 1040 instructions for more)"})
         inputs = [
-            self.FILING_STATUS,
+            EnumInput('filing_status', self.FILING_STATUS, description="Filing Status"),
             StringInput('first_name_middle_initial', description="Your first name and middle initial"),
             StringInput('last_name', description="Your last name"),
             StringInput('spouse_first_name_middle_initial', description="If joint return, spouse's first name and middle initial"),
@@ -52,19 +58,19 @@ class Form1040(Form):
             BooleanInput('form_8949_required', description="Are you required to complete form 8949? See the line 7 instructions for Form 1040 if you are not sure."),
             BooleanInput('schedule_1_additional_income', description="Do you need to report additional income on Schedule 1? See the instructions for Schedule 1 for Form 1040 if you are not sure."),
             BooleanInput('schedule_1_income_adjustments', description="Do you need to report adjustments to income on Schedule 1? See the instructions for Schedule 1 for Form 1040 if you are not sure."),
-            BooleanInput('itemize', description="Would you like to itemize? In most cases, your federal income tax will be less if you take the larger of your itemized deductions or standard deduction. Standard deductions by filing status: Single or Married filing separately: $12,550, Married filing jointly or Qualifying widow(er): $25,100,  Head of household: $18,800."),
+            BooleanInput('itemize', description="Would you like to itemize? In most cases, your federal income tax will be less if you take the larger of your itemized deductions or standard deduction. Standard deductions by filing status: Single or Married filing separately: $12,550, Married filing jointly or Qualifying widow(er): $25,100, Head of household: $18,800."),
             FloatInput('charitable_contributions_std_ded', description=f'Enter the total amount of any charitable cash contributions made in {Form1040.tax_year}'),
         ]
 
         def line_1(self, i, v):
-            """tax-exempt interest"""
+            """Wages, salaries, tips, etc."""
             statutory = False
             for n in range(i['number_w-2']):
                 if v[f'w-2:{n}.box_13_statutory']:
                     statutory = True
             if i['unhandled_income'] or statutory:
                 s.not_implemented()
-            return sum([v[f'w-2:{n}.box_1'] for n in range(i['number_w-2'])])
+            return sum([v[f'w-2:{n}.box_1'] for n in range(i['number_w-2'])]) if i['number_w-2'] > 0 else None
 
         def line_2b(self, i, v):
             """taxable interest"""
@@ -74,14 +80,14 @@ class Form1040(Form):
             elif i['number_1099-oid'] > 0:
                 self.not_implemented()
             else:
-                return total
+                return total if i['number_1099-int'] + i['number_1099-oid'] > 0 else None
 
         def line_3a(self, i, v):
             """qualified dividends"""
             total = sum([v[f'1099-div:{n}.box_1b'] for n in range(i['number_1099-div'])])
             if total > 0.0 and i['qualified_dividends_incorrect']:
                 self.not_implemented()
-            return total
+            return total if i['number_1099-div'] > 0 else None
 
         def line_3b(self, i, v):
             """ordinary dividends"""
@@ -90,7 +96,7 @@ class Form1040(Form):
                 return v['1040_sb.6'] # Schedule B
             elif i['ordinary_dividends_incorrect']:
                 self.not_implemented()
-            return total
+            return total if i['number_1099-div'] > 0 else None
 
         def line_4a_4b(self, i, v):
             line_4a = 0.0
@@ -137,16 +143,16 @@ class Form1040(Form):
                 else:
                     line_4b += ira_distributions_spouse
 
-            return (line_4a, line_4b)
+            return (line_4a, line_4b) if ira_distributions_you + ira_distributions_spouse > 0.001 else (None, None)
 
         def standard_deduction(self, i):
             statuses = self.form().FILING_STATUS
             if i['filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
-                return 12550
+                return 12550.00
             elif i['filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
-                return 25100
+                return 25100.00
             elif i['filing_status'] == statuses.HeadOfHousehold:
-                return 18800
+                return 18800.00
             else:
                 self.not_implemented()
 
@@ -165,34 +171,34 @@ class Form1040(Form):
             if itemizing(self, i, v):
                 return 0
             max_contrib = 600 if i['filing_status'] == self.form().FILING_STATUS.MarriedFilingJointly else 300
-            return min(i['charitable_contributions_std_ded'], max_contrib)
+            return min(i['charitable_contributions_std_ded'], max_contrib) if i['charitable_contributions_std_ded'] > 0.001 else None
 
         fields = [
-            SimpleField('first_name', lambda s, i, v: i['first_name_middle_initial']),
-            SimpleField('last_name', lambda s, i, v: i['last_name']),
-            SimpleField('spouse_first_name', lambda s, i, v: i['spouse_first_name_middle_initial'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
-            SimpleField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
-            SimpleField('1', line_1),
-            SimpleField('2a', lambda s, i, v: sum([v[f'1099-int:{n}.box_8'] for n in range(i['number_1099-int'])])),
-            SimpleField('2b', line_2b),
-            SimpleField('3a', line_3a),
-            SimpleField('3b', line_3b),
-            SimpleField('4a', lambda s, i, v: line_4a_4b(s, i, v)[0]),
-            SimpleField('4b', lambda s, i, v: line_4a_4b(s, i, v)[1]),
-            SimpleField('5a', lambda s, i, v: s.not_implemented() if i['pensions_annuities'] else 0),
-            SimpleField('5b', lambda s, i, v: s.not_implemented() if i['pensions_annuities'] else 0),
-            SimpleField('6a', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else 0),
-            SimpleField('6b', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else 0),
-            SimpleField('7', lambda s, i, v: s.not_implemented() if i['schedule_d_required'] or i['form_8949_required'] else 0),
-            SimpleField('8', lambda s, i, v: v['1040_s1.10'] if i['schedule_1_additional_income'] else 0),
-            SimpleField('9', lambda s, i, v: v['1'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
-            SimpleField('10', lambda s, i, v: v['1040_s1.26'] if i['schedule_1_income_adjustments'] else 0),
-            SimpleField('11', lambda s, i, v: v['9'] - v['10']), # AGI
-            SimpleField('12a', line_12a),
-            SimpleField('12b', line_12b),
-            SimpleField('12c', lambda s, i, v: v['12a'] + v['12b']),
-            SimpleField('13', lambda s, i, v: s.not_implemented()),
-            SimpleField('14', lambda s, i, v: v['12c'] + v['13']),
-            SimpleField('15', lambda s, i, v: max(0, v['11'] - v['14'])), # Taxable income
+            StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
+            StringField('last_name', lambda s, i, v: i['last_name']),
+            StringField('spouse_first_name', lambda s, i, v: i['spouse_first_name_middle_initial'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
+            StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
+            FloatField('1', line_1),
+            FloatField('2a', lambda s, i, v: sum([v[f'1099-int:{n}.box_8'] for n in range(i['number_1099-int'])])),
+            FloatField('2b', line_2b),
+            FloatField('3a', line_3a),
+            FloatField('3b', line_3b),
+            FloatField('4a', lambda s, i, v: line_4a_4b(s, i, v)[0]),
+            FloatField('4b', lambda s, i, v: line_4a_4b(s, i, v)[1]),
+            FloatField('5a', lambda s, i, v: s.not_implemented() if i['pensions_annuities'] else None),
+            FloatField('5b', lambda s, i, v: s.not_implemented() if i['pensions_annuities'] else None),
+            FloatField('6a', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
+            FloatField('6b', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
+            FloatField('7', lambda s, i, v: s.not_implemented() if i['schedule_d_required'] or i['form_8949_required'] else None),
+            FloatField('8', lambda s, i, v: v['1040_s1.10'] if i['schedule_1_additional_income'] else None),
+            FloatField('9', lambda s, i, v: v['1'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
+            FloatField('10', lambda s, i, v: v['1040_s1.26'] if i['schedule_1_income_adjustments'] else None),
+            FloatField('11', lambda s, i, v: v['9'] - v['10']), # AGI
+            FloatField('12a', line_12a),
+            FloatField('12b', line_12b),
+            FloatField('12c', lambda s, i, v: v['12a'] + v['12b']),
+            FloatField('13', lambda s, i, v: s.not_implemented()),
+            FloatField('14', lambda s, i, v: v['12c'] + v['13']),
+            FloatField('15', lambda s, i, v: max(0, v['11'] - v['14'])), # Taxable income
         ]
         super().__init__(__class__, inputs, fields, [], **kwargs)
