@@ -18,7 +18,8 @@ def main():
     parser.add_argument('--writeback', action='store_true', default=False, help='Write any interactively-supplied input back to the config file when done (loses any comments/formatting present in file)')
     args = parser.parse_args()
 
-    Path(args.input_file).touch() # Ensure the input file exists (this allows writing back without the user having to manually touch it first)
+    if args.writeback:
+        Path(args.input_file).touch() # Ensure the input file exists (this allows writing back without the user having to manually touch it first)
 
     input_store = inputs.InputStore(args.input_file)
     s = solver.Solver(input_store, forms.available_forms[args.year], prompt=args.prompt_missing)
