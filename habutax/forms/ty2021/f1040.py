@@ -157,7 +157,7 @@ class Form1040(Form):
                 self.not_implemented()
 
         def itemizing(self, i, v):
-            return i['itemize'] and (v['1040_sa.17'] > standard_deduction(self, i) or v['1040_sa.itemize_though_less'])
+            return i['itemize'] and (v['1040_sa.17'] >= standard_deduction(self, i) or v['1040_sa.itemize_though_less'])
 
         def line_12a(self, i, v):
             if itemizing(self, i, v):
