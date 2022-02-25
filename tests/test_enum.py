@@ -1,7 +1,8 @@
 import unittest
 
-from .context import habutax
-enum = habutax.enum
+from . import context
+
+from habutax import enum
 
 class EnumTestCase(unittest.TestCase):
     def test_enum_make(self):

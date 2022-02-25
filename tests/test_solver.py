@@ -1,29 +1,31 @@
 import unittest
 
-from .context import habutax
-inputs = habutax.inputs
-fields = habutax.fields
-form = habutax.form
+from . import context
 
-class TestForm(form.Form):
+from habutax.inputs import *
+from habutax.fields import *
+from habutax.form import *
+from habutax.solver import DependencyTracker
+
+class TestForm(Form):
     form_name = "test"
     tax_year = 1970
 
     def __init__(self, **kwargs):
         test_inputs = [
-            inputs.IntegerInput('bar', description="I don't know"),
+            IntegerInput('bar', description="I don't know"),
         ]
         test_fields = [
-            fields.IntegerField('foo', lambda s, i, v: i['bar']),
-            fields.IntegerField('something', lambda s, i, v: i['bar']),
-            fields.IntegerField('else', lambda s, i, v: v['something'] - i['bar']),
+            IntegerField('foo', lambda s, i, v: i['bar']),
+            IntegerField('something', lambda s, i, v: i['bar']),
+            IntegerField('else', lambda s, i, v: v['something'] - i['bar']),
         ]
         super().__init__(__class__, test_inputs, test_fields, [], **kwargs)
 
 class DependencyTrackerTestCase(unittest.TestCase):
     def setUp(self):
         self.form = TestForm()
-        self.dep = habutax.solver.DependencyTracker()
+        self.dep = DependencyTracker()
 
     def test_add_unmet(self):
         self.dep.add_unmet('test.bar', self.form.required_fields()[0])

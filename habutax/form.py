@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 
-from habutax.inputs import StringInput, BooleanInput, IntegerInput, FloatInput, EnumInput
+from habutax.inputs import StringInput, BooleanInput, IntegerInput, FloatInput, EnumInput, SSNInput
 from habutax.fields import StringField, BooleanField, IntegerField, FloatField, EnumField
 
 class Form(object):
@@ -58,7 +58,7 @@ class InputForm(Form):
             base_name = i.base_name()
             fn = lambda s, i, v, base_name=base_name: i[base_name]
 
-            if type(i) is StringInput:
+            if type(i) in [StringInput, SSNInput]:
                 fields.append(StringField(base_name, fn))
             elif type(i) is BooleanInput:
                 fields.append(BooleanField(base_name, fn))
