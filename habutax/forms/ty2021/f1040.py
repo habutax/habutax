@@ -204,8 +204,7 @@ class Form1040(Form):
             if i['uncommon_tax'] or i['need_8615'] or i['schedule_d_required']:
                 self.not_implemented()
             if v['3a'] > 0.001 or v['7'] > 0.001:
-                self.not_implemented()
-#                return qualified_dividends_cap_gain_tax_worksheet(self, i, v)
+                return v['1040_qualdiv_capgain_tax_wkst.25']
             return figure_tax(v['15'], i['filing_status'], self.form().FILING_STATUS)
 
         required_fields = [

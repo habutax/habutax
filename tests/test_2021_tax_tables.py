@@ -18,6 +18,7 @@ class FigureTaxTestCase(unittest.TestCase):
         scenarios = (
             (75047.08, self.FILING_STATUS.Single, 12254),
             (98325.84, self.FILING_STATUS.MarriedFilingJointly, 13129),
+            (99999.99, self.FILING_STATUS.HeadOfHousehold, 16563.00),
             (100000.00, self.FILING_STATUS.HeadOfHousehold, 16569.00),
             (588939, self.FILING_STATUS.QualifyingWidowWidower, 155217.15),
             (588939, self.FILING_STATUS.MarriedFilingJointly, 155217.15),

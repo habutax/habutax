@@ -8,7 +8,7 @@ class Form1040S1(Form):
 
     def __init__(self, **kwargs):
         inputs = [
-            BooleanInput('state_local_income_tax_adjust', description="Do you have any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report which you have not already reported via entered 1099-G forms, or adjustments to make to the amounts on your entered 1099-Gs??"),
+            BooleanInput('state_local_income_tax_adjust', description="Do you have any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report which you have not already reported via entered 1099-G forms, or adjustments to make to the amounts on your entered 1099-Gs?"),
             FloatInput('state_local_income_tax', description="Enter the total amount of any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report (see instructions). This typically includes amounts you received on form 1099-G. Please include the amounts even from Forms 1099-G you have entered into HabuTax separately."),
             FloatInput('alimony_received', description="Enter amounts received as alimony or separate maintenance pursuant to a divorce or separation agreement entered into on or before December 31, 2018, unless that agreement was changed after December 31, 2018, to expressly provide that alimony received isn't included in your income"),
             StringInput('alimony_received_date', description="Date of original divorce or separation agreement for alimony received."),
