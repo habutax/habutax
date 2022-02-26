@@ -88,6 +88,7 @@ class Solver(object):
         self.forms = {}
         self.v = values.ValueStore()
         self.unattempted_fields = []
+        self.unimplemented_fields = []
         self.solving_fields = set()
         self.field_dependencies = DependencyTracker()
         self.input_dependencies = DependencyTracker()
@@ -165,10 +166,7 @@ class Solver(object):
         except inputs.MissingInput as mi:
             self.input_dependencies.add_unmet(mi.input_name, field)
         except fields.FieldNotImplemented as fni:
-            # TODO should we handle this differently? Currently, it will
-            # silently fail here, and then the solver will later report that it
-            # could not satisfy a dependency (but will not report why)
-            pass
+            self.unimplemented_fields.append(fni.field_name)
 
     def solve(self, form_names):
         for form_name in form_names:
@@ -202,7 +200,8 @@ class Solver(object):
         assert(not self.field_dependencies.has_met())
 
         if self.field_dependencies.has_unmet() \
-                or self.input_dependencies.has_unmet():
+                or self.input_dependencies.has_unmet() \
+                or len(self.unimplemented_fields) > 0:
             print("Failed to solve - missing dependencies follow:")
             if self.field_dependencies.has_unmet():
                 print("Missing field [needed by]:")
@@ -214,6 +213,8 @@ class Solver(object):
                 for dep in self.input_dependencies.unmet_dependencies():
                     dependents = [i.name() for i in self.input_dependencies.unmet_dependents(dep)]
                     print(f'{dep}: {dependents}')
+            for unimplemented in self.unimplemented_fields:
+                print(f'{unimplemented}: unimplemented (encountered behavior it cannot handle)')
             print("\nProgress so far:")
         else:
             print("Successfully solved:")
