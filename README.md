@@ -32,6 +32,8 @@ forms).
 * 1040, Schedule A
 * 1040, Schedule B
 * 8606
+* 8995 (currently only Section 199a dividends, but additional Qualified Business
+  Income support could be added upon request)
 
 ### Inputs
 
@@ -51,7 +53,6 @@ provided to you by your employer or financial institution:
 * 2441
 * 8283
 * 8889
-* 8995
 * 8959
 * NC state forms
 

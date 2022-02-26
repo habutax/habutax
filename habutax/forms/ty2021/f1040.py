@@ -180,6 +180,22 @@ class Form1040(Form):
             max_contrib = 600 if i['filing_status'] == self.form().FILING_STATUS.MarriedFilingJointly else 300
             return min(i['charitable_contributions_std_ded'], max_contrib) if i['charitable_contributions_std_ded'] > 0.001 else None
 
+        def line_13(self, i, v):
+            section_199a = sum([v[f'1099-div:{n}.box_5'] for n in range(i['number_1099-div'])])
+
+            statuses = self.form().FILING_STATUS
+            income_limit = 164900.00
+            if i['filing_status'] is statuses.MarriedFilingSeparately:
+                income_limit = 64925.00
+            elif i['filing_status'] is statuses.MarriedFilingJointly:
+                income_limit = 329800.00
+
+            if section_199a > 0.001:
+                if (v['11'] - v['12c']) > income_limit:
+                    self.not_implemented()
+                return v['8995.15']
+            return None
+
         required_fields = [
             StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
             StringField('last_name', lambda s, i, v: i['last_name']),
@@ -204,7 +220,7 @@ class Form1040(Form):
             FloatField('12a', line_12a),
             FloatField('12b', line_12b),
             FloatField('12c', lambda s, i, v: v['12a'] + v['12b']),
-            FloatField('13', lambda s, i, v: s.not_implemented()),
+            FloatField('13', line_13),
             FloatField('14', lambda s, i, v: v['12c'] + v['13']),
             FloatField('15', lambda s, i, v: max(0, v['11'] - v['14'])), # Taxable income
         ]
