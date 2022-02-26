@@ -1,5 +1,9 @@
 # HabuTax
 
+<p align="center">
+<img src="doc/habutax_logo.svg" alt="HabuTax Logo" title="HabuTax Logo" width="384"/>
+</p>
+
 HabuTax is a package designed to help you compute your United States income tax
 return. It aims to be simple (both in implementation and ease of use) and
 extensible (to make it easy for contributors to expand the existing set of
