@@ -16,8 +16,8 @@ class Form1098(InputForm):
             FloatInput('box_5', description="Mortgage insurance premiums"),
             FloatInput('box_6', description="Points paid on purchase of principal residence"),
             BooleanInput('box_7', description="Is the checkbox on box 7 checked?"),
-            StringInput('box_8', description="Address or description of proprety securing mortgage"),
-            IntegerInput('box_9', description="Number of properties securint the mortgage"),
+            StringInput('box_8', description="Address or description of property securing mortgage"),
+            IntegerInput('box_9', description="Number of properties securing the mortgage"),
             FloatInput('box_10', description="Other"),
             StringInput('box_11', description="Mortgage acquisition date"),
         ]

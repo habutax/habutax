@@ -176,8 +176,8 @@ class Form1040(Form):
 
         def line_12b(self, i, v):
             if itemizing(self, i, v):
-                return 0
-            max_contrib = 600 if i['filing_status'] == self.form().FILING_STATUS.MarriedFilingJointly else 300
+                return None
+            max_contrib = 600.0 if i['filing_status'] == self.form().FILING_STATUS.MarriedFilingJointly else 300.0
             return min(i['charitable_contributions_std_ded'], max_contrib) if i['charitable_contributions_std_ded'] > 0.001 else None
 
         def line_13(self, i, v):
