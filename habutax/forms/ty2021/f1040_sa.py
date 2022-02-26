@@ -21,6 +21,13 @@ class Form1040SA(Form):
             FloatInput('other_mortgage_points', description="Enter any home mortgage points not reported to you on Form 1098. Limits may apply, see Pub. 936 for details."),
             BooleanInput('mortgage_insurance_premiums_special', description="Did you share the costs for mortgage insurance premiums reported on form 1098 with someone (other than your spouse if married filing jointly), or pay mortgage insurance premiums in 2021 for a year other than 2021?"),
             BooleanInput('investment_interest', description="Did you pay interest on money you borrowed that is allocable to property held for investment in 2021?"),
+            FloatInput('charitable_cash_check', description="Enter the total amount of all charitable gifts to Qualified Charitable Organizations you made in 2021 via cash or check. Ensure you have (and save for your records) contempotaneous written acknowledgement of any individual gift over $250. See the instructions for line 11 of Form 1040, Schedule A if you have any questions."),
+            FloatInput('charitable_other_than_cash_check', description="Enter the total amount of all charitable gifts to Qualified Charitable Organizations you made in 2021 via methods *other than* cash or check. Ensure you have (and save for your records) contempotaneous written acknowledgement of any individual gift over $250. See the instructions for line 12 of Form 1040, Schedule A and/or Pub. 526 if you have any questions."),
+            IntegerInput('number_8283', description="You indicated you gave a charitable gift in 2021 of over $500, and the IRS requires you to fill out at least one Form 8283. How many do you need to submit? See the instructions for line 12 of Form 1040, Schedule A and Pub. 526."),
+            FloatInput('charitable_carryover', description="Enter any carryover for any charitable giving you were not allowed to deduct in the previous 5 years because it exceeded the amount you were allowed to decuct. See the instructions for line 12 of Form 1040, Schedule A and Pub. 526."),
+            BooleanInput('casualty_theft', description="Do you have any casualty and theft loss(es) from a federally declared disaster (other than net qualified disaster losses) to report?"),
+            FloatInput('other_itemized', description="Enter the amount of any other itemized deductions you want to claim. See instructions for Form 1040, Schedule A, line 13"),
+            StringInput('other_itemized_type', description="Enter the type of any other itemized deductions you are claiming. See instructions for Form 1040, Schedule A, line 13"),
         ]
 
         def line_5a(self, i, v):
@@ -48,6 +55,11 @@ class Form1040SA(Form):
             if mortgage_insurance_premiums > 0.001 and i['mortgage_insurance_premiums_special'] and v['1040:11'] > premium_limit:
                 self.not_implemented()
             return mortgage_insurance_premiums
+
+        def line_12(self, i, v):
+            if i['charitable_other_than_cash_check'] > 500:
+                [v[f'8283:{n}.name'] for n in range(i['number_8283'])]
+            return i['charitable_other_than_cash_check']
 
         def line_18(self, i, v):
             penalties = sum([v[f'1099-int:{n}.box_2'] for n in range(i['number_1099-int'])])
@@ -83,11 +95,16 @@ class Form1040SA(Form):
             FloatField('10', lambda s, i, v: v['8e'] + v['9']),
 
             # Gifts to Charity
-            # TODO
+            FloatField('11', lambda s, i, v: i['charitable_cash_check']),
+            FloatField('12', line_12),
+            FloatField('13', lambda s, i, v: i['charitable_carryover'] if i['charitable_carfyover'] > 0.001 else None),
+            FloatField('14', lambda s, i, v: v['11'] + v['12'] + v['13']),
+
             # Casualty and Theft Losses
-            # TODO
+            FloatField('15', lambda s, i, v: s.not_implemented() if i['casualty_theft'] else None),
+
             # Other Itemized Deductions
-            # TODO
+            FloatField('16', lambda s, i, v: i['other_itemized'] if i['other_itemized']  > 0.001 else None),
 
             # Total Itemized Deductions
             FloatField('17', lambda s, i, v: v['4'] + v['7'] + v['10'] + v['14'] + v['15'] + v['16']),
@@ -96,6 +113,7 @@ class Form1040SA(Form):
         required_fields = [
             FloatField('6_type', lambda s, i, v: i['other_taxes_type'] if i['other_taxes_amount'] > 0.001 else None),
             FloatField('8b_desc', lambda s, i, v: i['other_mortgage_interest_desc'] if i['other_mortgage_interest'] > 0.001 and not i['loan_limitations'] else None),
+            FloatField('16_type', lambda s, i, v: i['other_itemized_type'] if i['other_itemized'] > 0.001 else None),
         ]
 
         super().__init__(__class__, inputs, required_fields, optional_fields, **kwargs)
