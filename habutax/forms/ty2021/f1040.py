@@ -3,6 +3,8 @@ from habutax.form import Form
 from habutax.inputs import *
 from habutax.fields import *
 
+from habutax.forms.ty2021.f1040_figure_tax import figure_tax
+
 class Form1040(Form):
     form_name = "1040"
     tax_year = 2021
@@ -62,6 +64,8 @@ class Form1040(Form):
             BooleanInput('schedule_1_income_adjustments', description="Do you need to report adjustments to income on Schedule 1? See the instructions for Schedule 1 for Form 1040 if you are not sure."),
             BooleanInput('itemize', description="Would you like to itemize? In most cases, your federal income tax will be less if you take the larger of your itemized deductions or standard deduction. Standard deductions by filing status: Single or Married filing separately: $12,550, Married filing jointly or Qualifying widow(er): $25,100, Head of household: $18,800."),
             FloatInput('charitable_contributions_std_ded', description=f'Enter the total amount of any charitable cash contributions made in {Form1040.tax_year}'),
+            BooleanInput('uncommon_tax', description="Do you need to report a child's interest or dividends, need to make a section 962 election, recapture an education credit, have anything to do with a section 1291 fund, need to repay any excess advance payments of the health coverage tax credit from Form 8885, have tax from tax from Form 8978, line 14 (relating to partner's audit liability under section 6226), any net tax liability deferred under section 965(i), or a triggering event under section 965(i), have any income from farming or fishing, or want to claim the foreign earned income exclusion, housing exclusion, or housing deduction on Form 2555? These are not common... see the instructions for line 16, Form 1040."),
+            BooleanInput('need_8615', description="Do you need to use Form 8615 to figure your tax? It must generally be used to figure the tax on your unearned income over $2,200 if you are under age 18, and in certain situations if you are older. See the instructions for line 16, form 1040."),
         ]
 
         def line_1(self, i, v):
@@ -196,6 +200,14 @@ class Form1040(Form):
                 return v['8995.15']
             return None
 
+        def line_16(self, i, v):
+            if i['uncommon_tax'] or i['need_8615'] or i['schedule_d_required']:
+                self.not_implemented()
+            if v['3a'] > 0.001 or v['7'] > 0.001:
+                self.not_implemented()
+#                return qualified_dividends_cap_gain_tax_worksheet(self, i, v)
+            return figure_tax(v['15'], i['filing_status'], self.form().FILING_STATUS)
+
         required_fields = [
             StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
             StringField('last_name', lambda s, i, v: i['last_name']),
@@ -223,5 +235,6 @@ class Form1040(Form):
             FloatField('13', line_13),
             FloatField('14', lambda s, i, v: v['12c'] + v['13']),
             FloatField('15', lambda s, i, v: max(0, v['11'] - v['14'])), # Taxable income
+            FloatField('16', line_16), # Tax
         ]
         super().__init__(__class__, inputs, required_fields, [], **kwargs)
