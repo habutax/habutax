@@ -2,6 +2,7 @@ from .f1040 import Form1040
 from .f1040_s1 import Form1040S1
 from .f1040_sa import Form1040SA
 from .f1040_sb import Form1040SB
+from .f1098 import Form1098
 from .f1099_div import Form1099DIV
 from .f1099_int import Form1099INT
 from .f1099_r import Form1099R
@@ -13,6 +14,7 @@ available_forms = [
 	Form1040S1,
 	Form1040SA,
 	Form1040SB,
+	Form1098,
 	Form1099DIV,
 	Form1099INT,
 	Form1099R,
