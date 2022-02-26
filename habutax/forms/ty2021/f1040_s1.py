@@ -8,7 +8,8 @@ class Form1040S1(Form):
 
     def __init__(self, **kwargs):
         inputs = [
-            FloatInput('state_local_income_tax', description="Enter the total amount of any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report (see instructions). This typically includes amounts you received on form 1099-G."),
+            BooleanInput('state_local_income_tax_adjust', description="Do you have any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report which you have not already reported via entered 1099-G forms, or adjustments to make to the amounts on your entered 1099-Gs??"),
+            FloatInput('state_local_income_tax', description="Enter the total amount of any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report (see instructions). This typically includes amounts you received on form 1099-G. Please include the amounts even from Forms 1099-G you have entered into HabuTax separately."),
             FloatInput('alimony_received', description="Enter amounts received as alimony or separate maintenance pursuant to a divorce or separation agreement entered into on or before December 31, 2018, unless that agreement was changed after December 31, 2018, to expressly provide that alimony received isn't included in your income"),
             StringInput('alimony_received_date', description="Date of original divorce or separation agreement for alimony received."),
             BooleanInput('business_income', description="Did you (or your spouse if filing a joint return) operate a business or practice your profession as a sole proprietor?"),
@@ -17,7 +18,7 @@ class Form1040S1(Form):
             BooleanInput('farm_income_loss', description="Do you have farm income (or loss) to report for 2021?"),
             FloatInput('unemployment_income', description="Enter the amount of any unemployment income you received in 2021 (likely reported on a 1099-G), reduced by any amount you repaid or contributions made to a governmental unemployment compensation program (see instructions for Schedule 1, line 7)"),
             BooleanInput('uncommon_income', description="Do you have less common income to report for 2021? This might include net operating losses, gambling, cancellation of debt, foreign earned income, taxable HSA distributions, Alaska Permanent Fund dividends, jury duty pay, prizes and awards, activity not engaged in for profit income, stock options, income from the rental of personal property if you engaged in the rental for profit but were not in the business of renting such property, Olympic/Paralympic medals and USOC prize money, section 951(c) inclusion, section 951A(a) inclusion, Section 461(l) excess business loss adjustment, or taxable distributions from an ABLE account? (see instructions for Form 1040 Schedule 1, lines 8a-8p)"),
-            BooleanInput('need_other_income', description="Do you have other income to report (not covered by \"less common income\")?"),
+            BooleanInput('need_other_income', description="Do you have other income to report (not covered by \"less common income\")? Do not include refunds of overpaid interest reported on form 1098, box 4 (unless you are not entering that form into HabuTax)"),
             StringInput('other_income_type', description="Description of any other income you need to report"),
             FloatInput('other_income_amount', description="Amount of other income you need to report"),
             FloatInput('educator_expenses', description=f'If you or your spouse were an eligible educator in {Form1040S1.tax_year}, enter up to $250 per educator in qualified educator expenses. Before entering, reduce this amount if you had any excludable US series EE and I savings bond intereset, nontaxable qualified tuition program earnings/distributions, nontaxable distribution of Coverdel education savings account earnings, or were reimbursed for these expenses in a way not reported on box 1 of your Form W-2.'),
@@ -38,6 +39,25 @@ class Form1040S1(Form):
             FloatInput('other_adjustments_amount', description="Amount of other adjustments to income you need to report"),
         ]
 
+        def line_1(self, i, v):
+            if i['state_local_income_tax_adjust']:
+                return i['state_local_income_tax']
+            return sum([v[f'1099-g:{n}.box_3'] for n in range(i['1040:number_1099-g'])])
+
+        def other_income(self, i, v):
+            mort_int_refund = sum([v[f'1098:{n}.box_4'] for n in range(i['1040.number_1098'])])
+            types = []
+            income = []
+            if mort_int_refund > 0.001:
+                types.append("Refund of overpaid mortgage interest")
+                income.append(mort_int_refund)
+            if i['need_other_income']:
+                types.append(i['other_income_type'])
+                income.append(i['other_income_amount'])
+            if len(types) > 0:
+                return (", ".join(types), sum(income))
+            return (None, None)
+
         def line_18(self, i, v):
             penalties = sum([v[f'1099-int:{n}.box_2'] for n in range(i['number_1099-int'])])
             penalties += sum([v[f'1099-oid:{n}.box_3'] for n in range(i['number_1099-oid'])])
@@ -46,7 +66,7 @@ class Form1040S1(Form):
             return ""
 
         optional_fields = [
-            FloatField('1', lambda s, i, v: i['state_local_income_tax']),
+            FloatField('1', line_1),
             FloatField('2a', lambda s, i, v: i['alimony_received']),
             StringField('2b', lambda s, i, v: i['alimony_received_date'] if v['2a'] > 0.001 else None),
             FloatField('3', lambda s, i, v: s.not_implemented() if i['business_income'] else None), # Schedule C
@@ -70,7 +90,7 @@ class Form1040S1(Form):
             FloatField('8n', lambda s, i, v: s.not_implemented() if i['uncommon_income'] else None),
             FloatField('8o', lambda s, i, v: s.not_implemented() if i['uncommon_income'] else None),
             FloatField('8p', lambda s, i, v: s.not_implemented() if i['uncommon_income'] else None),
-            FloatField('8z', lambda s, i, v: i['other_income_amount'] if i['need_other_income'] else None),
+            FloatField('8z', lambda s, i, v: other_income(s, i, v)[1]),
             FloatField('9', lambda s, i, v: sum([v[f'8{l}'] for l in "abcdefghijklmnopz"])),
             FloatField('10', lambda s, i, v: v['1'] + v['2a'] + sum([v[f'{n}'] for n in range(3,8)]) + v['9']),
             FloatField('11', lambda s, i, v: i['educator_expenses']),
@@ -104,7 +124,7 @@ class Form1040S1(Form):
             FloatField('26', lambda s, i, v: sum([v[f'{n}'] for n in range(11,19) + range(20,24)]) + v['19a'] + v['25']),
         ]
         required_fields = [
-            StringField('8z_type', lambda s, i, v: i['other_income_type'] if i['need_other_income'] else None),
+            StringField('8z_type', lambda s, i, v: other_income(s, i, v)[0]),
             StringField('24z_type', lambda s, i, v: i['other_adjustments_type'] if i['need_other_adjustments'] else None),
         ]
 

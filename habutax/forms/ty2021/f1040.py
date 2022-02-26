@@ -34,6 +34,8 @@ class Form1040(Form):
             BooleanInput('spouse_presidential_election', description="Check here if your spouse wants $3 to go to this fund. Checking a box below will not change your tax or refund."),
             IntegerInput('number_w-2', description=f'How many, if any, forms W-2 were you provided with for {Form1040.tax_year}?'),
             BooleanInput('unhandled_income', description="Do you have any income you need to report which is *not* included in box 1 of your forms W-2? (see Form 1040 line 1 instructions)"),
+            IntegerInput('number_1098', description=f'How many, if any, forms 1098 were you provided with for tax year {Form1040.tax_year}?'),
+            IntegerInput('number_1099-g', description=f'How many, if any, forms 1099-G were you provided with for tax year {Form1040.tax_year}?'),
             IntegerInput('number_1099-int', description=f'How many, if any, forms 1099-INT were you provided with for tax year {Form1040.tax_year}?'),
             IntegerInput('number_1099-oid', description=f'How many, if any, forms 1099-OID were you provided with for tax year {Form1040.tax_year}?'),
             IntegerInput('number_1099-div', description=f'How many, if any, forms 1099-DIV were you provided with for tax year {Form1040.tax_year}?'),
@@ -145,6 +147,11 @@ class Form1040(Form):
 
             return (line_4a, line_4b) if ira_distributions_you + ira_distributions_spouse > 0.001 else (None, None)
 
+        def schedule_1_additional_income(self, i, v):
+            mort_int_refund = sum([v[f'1098:{n}.box_4'] for n in range(i['number_1098'])])
+            state_income_refund = sum([v[f'1099-g:{n}.box_3'] for n in range(i['number_1099-g'])])
+            return (mort_int_refund + state_income_refund) > 0.001 or i['schedule_1_additional_income']
+
         def standard_deduction(self, i):
             statuses = self.form().FILING_STATUS
             if i['filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
@@ -173,7 +180,7 @@ class Form1040(Form):
             max_contrib = 600 if i['filing_status'] == self.form().FILING_STATUS.MarriedFilingJointly else 300
             return min(i['charitable_contributions_std_ded'], max_contrib) if i['charitable_contributions_std_ded'] > 0.001 else None
 
-        fields = [
+        required_fields = [
             StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
             StringField('last_name', lambda s, i, v: i['last_name']),
             StringField('spouse_first_name', lambda s, i, v: i['spouse_first_name_middle_initial'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
@@ -190,7 +197,7 @@ class Form1040(Form):
             FloatField('6a', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             FloatField('6b', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             FloatField('7', lambda s, i, v: s.not_implemented() if i['schedule_d_required'] or i['form_8949_required'] else None),
-            FloatField('8', lambda s, i, v: v['1040_s1.10'] if i['schedule_1_additional_income'] else None),
+            FloatField('8', lambda s, i, v: v['1040_s1.10'] if schedule_1_additional_income(s, i, v) else None),
             FloatField('9', lambda s, i, v: v['1'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
             FloatField('10', lambda s, i, v: v['1040_s1.26'] if i['schedule_1_income_adjustments'] else None),
             FloatField('11', lambda s, i, v: v['9'] - v['10']), # AGI
@@ -201,4 +208,4 @@ class Form1040(Form):
             FloatField('14', lambda s, i, v: v['12c'] + v['13']),
             FloatField('15', lambda s, i, v: max(0, v['11'] - v['14'])), # Taxable income
         ]
-        super().__init__(__class__, inputs, fields, [], **kwargs)
+        super().__init__(__class__, inputs, required_fields, [], **kwargs)
