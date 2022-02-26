@@ -37,11 +37,12 @@ forms).
 In addition to the above "output" forms, HabuTax supports the following forms
 provided to you by your employer or financial institution:
 
-* W-2
 * 1098
-* 1099-R
-* 1099-INT
 * 1099-DIV
+* 1099-G
+* 1099-INT
+* 1099-R
+* W-2
 
 ## Coming soon
 
