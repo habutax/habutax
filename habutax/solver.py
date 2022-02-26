@@ -184,11 +184,11 @@ class Solver(object):
                 self._attempt_field(self.unattempted_fields.pop())
             for field in self.field_dependencies.met_dependents():
                 self._attempt_field(field)
-            if self.prompt:
+            if self.prompt and not refused_input:
                 for input_name in self.input_dependencies.unmet_dependencies():
                     supplied = self._get_input(input_name)
-                    refused_input = refused_input or not supplied
-                    if refused_input:
+                    if not supplied:
+                        refused_input = True
                         break
             # Must be list() because _attempt_field modifies
             # input_dependencies, and we don't want to get stuck in a loop
