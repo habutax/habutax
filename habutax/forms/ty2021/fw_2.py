@@ -48,7 +48,8 @@ class FormW2(InputForm):
         inputs += [
             StringInput('box_c', description="Employer"),
             StringInput('box_d', description="Control number"),
-            StringInput('box_f', description="Employee's name"),
+            StringInput('box_e', description="Employee's name"),
+            StringInput('box_f', description="Employee's address and zipcode"),
             FloatInput('box_1', description="Wages, tips, other compensation"),
             FloatInput('box_2', description="Federal income tax withheld"),
             FloatInput('box_3', description="Social security wages"),
