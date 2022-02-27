@@ -42,7 +42,7 @@ class Form1040S1(Form):
         def line_1(self, i, v):
             if i['state_local_income_tax_adjust']:
                 return i['state_local_income_tax']
-            return sum([v[f'1099-g:{n}.box_3'] for n in range(i['1040.number_1099-g'])])
+            return float(sum([v[f'1099-g:{n}.box_3'] for n in range(i['1040.number_1099-g'])]))
 
         def other_income(self, i, v):
             mort_int_refund = sum([v[f'1098:{n}.box_4'] for n in range(i['1040.number_1098'])])
