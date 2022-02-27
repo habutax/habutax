@@ -65,7 +65,7 @@ provided to you by your employer or financial institution:
 You can test HabuTax out with the following command-lines:
 
 ```
-% git clone https://github.com/aclindsa/habutax
+% git clone https://github.com/habutax/habutax
 % cd habutax
 % python3 -m habutax \
     --year 2021 \
