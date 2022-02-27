@@ -167,11 +167,8 @@ class Form1040(Form):
             else:
                 self.not_implemented()
 
-        def itemizing(self, i, v):
-            return i['itemize'] and (v['1040_sa.17'] >= standard_deduction(self, i) or v['1040_sa.itemize_though_less'])
-
         def line_12a(self, i, v):
-            if itemizing(self, i, v):
+            if v['itemizing']:
                 return v['1040_sa.17']
             elif i['standard_deduction_exceptions']:
                 self.not_implemented()
@@ -179,7 +176,7 @@ class Form1040(Form):
                 return standard_deduction(self, i)
 
         def line_12b(self, i, v):
-            if itemizing(self, i, v):
+            if v['itemizing']:
                 return None
             max_contrib = 600.0 if i['filing_status'] == self.form().FILING_STATUS.MarriedFilingJointly else 300.0
             return min(i['charitable_contributions_std_ded'], max_contrib) if i['charitable_contributions_std_ded'] > 0.001 else None
@@ -224,10 +221,12 @@ class Form1040(Form):
             FloatField('6a', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             FloatField('6b', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             FloatField('7', lambda s, i, v: s.not_implemented() if i['schedule_d_required'] or i['form_8949_required'] else None),
-            FloatField('8', lambda s, i, v: v['1040_s1.10'] if schedule_1_additional_income(s, i, v) else None),
+            BooleanField('schedule_1_additional_income', lambda s, i, v: schedule_1_additional_income(s, i, v)),
+            FloatField('8', lambda s, i, v: v['1040_s1.10'] if v['schedule_1_additional_income'] else None),
             FloatField('9', lambda s, i, v: v['1'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
             FloatField('10', lambda s, i, v: v['1040_s1.26'] if i['schedule_1_income_adjustments'] else None),
             FloatField('11', lambda s, i, v: v['9'] - v['10']), # AGI
+            BooleanField('itemizing', lambda s, i, v: i['itemize'] and (v['1040_sa.17'] >= standard_deduction(s, i) or v['1040_sa.itemize_though_less'])),
             FloatField('12a', line_12a),
             FloatField('12b', line_12b),
             FloatField('12c', lambda s, i, v: v['12a'] + v['12b']),
