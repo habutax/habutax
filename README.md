@@ -43,6 +43,7 @@ forms).
 * Form 8995, Qualified Business Income Deduction Simplified Computation
   (currently only Section 199a dividends, but additional Qualified Business
   Income support could be added upon request)
+* Form 8889, Health Savings Accounts
 
 ### Inputs
 
@@ -62,7 +63,6 @@ provided to you by your employer or financial institution:
 
 * Form 2441, Child and Dependent Care Expenses
 * Form 8283, Noncash Charitable Contributions
-* Form 8889, Health Savings Accounts
 * NC state income tax forms
 
 ## Usage
