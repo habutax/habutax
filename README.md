@@ -39,6 +39,7 @@ forms).
 * 8606
 * 8995 (currently only Section 199a dividends, but additional Qualified Business
   Income support could be added upon request)
+* 8889 (HSA contributions)
 
 ### Inputs
 
@@ -57,7 +58,6 @@ provided to you by your employer or financial institution:
 * 1040, Schedule 3
 * 2441
 * 8283
-* 8889
 * 8959
 * NC state forms
 

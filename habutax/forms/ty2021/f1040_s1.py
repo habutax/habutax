@@ -37,6 +37,8 @@ class Form1040S1(Form):
             BooleanInput('need_other_adjustments', description="Do you have other adjustments to income to report (not covered by \"less common deductions\")?"),
             StringInput('other_adjustments_type', description="Description of any other adjustments to income."),
             FloatInput('other_adjustments_amount', description="Amount of other adjustments to income you need to report"),
+            BooleanInput('hsa_contribution_you', description='Did you make a contribution to an HSA and need to file Form 8889?'),
+            BooleanInput('hsa_contribution_spouse', description='Did your spouse make a contribution to an HSA and need to file Form 8889?'),
         ]
 
         def line_1(self, i, v):
@@ -64,6 +66,14 @@ class Form1040S1(Form):
             if penalties > 0.01:
                 return penalties
             return ""
+
+        def line_13(self, i, v):
+            if not i['hsa_contribution_you'] and not i['hsa_contribution_spouse']:
+                return None
+
+            hsa_deduction = v['8889:you.hsa_deduction'] if i['hsa_contribution_you'] else 0.0
+            hsa_deduction += v['8889:spouse.hsa_deduction'] if i['hsa_contribution_spouse'] else 0.0
+            return hsa_deduction
 
         optional_fields = [
             FloatField('1', line_1),
@@ -95,7 +105,7 @@ class Form1040S1(Form):
             FloatField('10', lambda s, i, v: v['1'] + v['2a'] + sum([v[f'{n}'] for n in range(3,8)]) + v['9']),
             FloatField('11', lambda s, i, v: i['educator_expenses']),
             FloatField('12', lambda s, i, v: s.not_implemented() if i['certain_business_expenses'] else None),
-            FloatField('13', lambda s, i, v: s.not_implemented()), # Form 8889
+            FloatField('13', line_13), # Form 8889
             FloatField('14', lambda s, i, v: s.not_implemented() if i['moving_expenses'] else None),
             FloatField('15', lambda s, i, v: s.not_implemented() if i['deductible_self_employment_tax'] else None),
             FloatField('16', lambda s, i, v: s.not_implemented() if i['sep_simple_qualified'] else None),
