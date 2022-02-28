@@ -112,7 +112,7 @@ class SSNInput(StringInput):
         except (ValueError, configparser.NoOptionError):
             return False
 
-        if len(ssn) != 10:
+        if len(ssn) != 9:
             return False
         for n in ssn:
             if n not in "0123456789":
