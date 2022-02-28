@@ -35,6 +35,7 @@ forms).
 * 1040, Schedule 1
 * 1040, Schedule A
 * 1040, Schedule B
+* 1040, Schedule 8812
 * 8606
 * 8995 (currently only Section 199a dividends, but additional Qualified Business
   Income support could be added upon request)

@@ -38,7 +38,7 @@ class Form1040S2Need6251(Form):
             if i['schedule_j_needed'] or i['form_4972_needed']:
                 self.not_implemented()
             amount = v['1040.16']
-            if v['1040.schedule_2_needed']:
+            if i['1040.need_8962']:
                 amount += v['1040_s2.2']
             return amount
 

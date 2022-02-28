@@ -30,10 +30,11 @@ class Form1040(Form):
             StringInput('foreign_country', description="Foreign country name (if you live have a foreign address)"),
             StringInput('foreign_province', description="Foreign province/state/county (if you live have a foreign address)"),
             StringInput('foreign_postal_code', description="Foreign postal code (if you live have a foreign address)"),
-            BooleanInput('virtual_currency', description="At any time during 2021, did you receive, sell, exchange, or otherwise dispose of any financial interest in any virtual currency"),
-            BooleanInput('standard_deduction_exceptions', description="Are any of the following true?: Can anyone claim you (or your spouse if filing joint) as a dependent, is your spouse itemizing on a seperate return, are you a dual-status alien, were either you (or your spouse if filing joint) born before January 2, 1957 or blind?"),
             BooleanInput('you_presidential_election', description="Check here if you want $3 to go to this fund. Checking a box below will not change your tax or refund."),
             BooleanInput('spouse_presidential_election', description="Check here if your spouse wants $3 to go to this fund. Checking a box below will not change your tax or refund."),
+            BooleanInput('virtual_currency', description="At any time during 2021, did you receive, sell, exchange, or otherwise dispose of any financial interest in any virtual currency"),
+            IntegerInput('number_dependents', description="How many dependents can you claim for 2021? (See Form 1040 instructions)"),
+            BooleanInput('standard_deduction_exceptions', description="Are any of the following true?: Can anyone claim you (or your spouse if filing joint) as a dependent, is your spouse itemizing on a seperate return, are you a dual-status alien, were either you (or your spouse if filing joint) born before January 2, 1957 or blind?"),
             IntegerInput('number_w-2', description=f'How many, if any, forms W-2 were you provided with for {Form1040.tax_year}?'),
             BooleanInput('unhandled_income', description="Do you have any income you need to report which is *not* included in box 1 of your forms W-2? (see Form 1040 line 1 instructions)"),
             IntegerInput('number_1098', description=f'How many, if any, forms 1098 were you provided with for tax year {Form1040.tax_year}?'),
@@ -66,7 +67,17 @@ class Form1040(Form):
             FloatInput('charitable_contributions_std_ded', description=f'Enter the total amount of any charitable cash contributions made in {Form1040.tax_year}'),
             BooleanInput('uncommon_tax', description="Do you need to report a child's interest or dividends, need to make a section 962 election, recapture an education credit, have anything to do with a section 1291 fund, need to repay any excess advance payments of the health coverage tax credit from Form 8885, have tax from tax from Form 8978, line 14 (relating to partner's audit liability under section 6226), any net tax liability deferred under section 965(i), or a triggering event under section 965(i), have any income from farming or fishing, or want to claim the foreign earned income exclusion, housing exclusion, or housing deduction on Form 2555? These are not common... see the instructions for line 16, Form 1040."),
             BooleanInput('need_8615', description="Do you need to use Form 8615 to figure your tax? It must generally be used to figure the tax on your unearned income over $2,200 if you are under age 18, and in certain situations if you are older. See the instructions for line 16, form 1040."),
+            BooleanInput('need_8962', description="If you, your spouse with whom you are filing a joint return, or your dependent was enrolled in health insurance coverage purchased from the Marketplace, were advance payments of the premium tax credit made for the coverage in 2021?"),
         ]
+
+        for n in range(4):
+            inputs += [
+                StringInput(f'dependent_{n}_name', description=f'Enter the first and last name for dependent {n+1}'),
+                SSNInput(f'dependent_{n}_ssn', description=f'Enter the Social security number for dependent {n+1}'),
+                StringInput(f'dependent_{n}_relationship', description=f'What is the relationship of {n+1} to you?'),
+                BooleanInput(f'dependent_{n}_ctc', description=f'Does dependent {n+1} qualify for the child tax credit? See the "Who Qualifies as Your Dependent" section in the instructions for Form 1040.'),
+                BooleanInput(f'dependent_{n}_odc', description=f'Does dependent {n+1} qualify for the credit for other dependents? See the "Who Qualifies as Your Dependent" section in the instructions for Form 1040.'),
+            ]
 
         def line_1(self, i, v):
             """Wages, salaries, tips, etc."""
@@ -204,6 +215,26 @@ class Form1040(Form):
                 return v['1040_qualdiv_capgain_tax_wkst.25']
             return figure_tax(v['15'], i['filing_status'], self.form().FILING_STATUS)
 
+        def line_19(self, i, v):
+            if i['number_dependents'] > 4:
+                self.not_implemented()
+            elif i['number_dependents'] > 0:
+                if v['1040_s8812.additional_tax'] > 0.001:
+                    self.not_implemented()
+                return v['1040_s8812.nonrefundable_ctc_or_odc']
+            else:
+                return None
+
+        def line_28(self, i, v):
+            if i['number_dependents'] > 4:
+                self.not_implemented()
+            elif i['number_dependents'] > 0:
+                if v['1040_s8812.additional_tax'] > 0.001:
+                    self.not_implemented()
+                return v['1040_s8812.refundable_ctc_or_additional_ctc']
+            else:
+                return None
+
         required_fields = [
             StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
             StringField('last_name', lambda s, i, v: i['last_name']),
@@ -234,5 +265,18 @@ class Form1040(Form):
             FloatField('14', lambda s, i, v: v['12c'] + v['13']),
             FloatField('15', lambda s, i, v: max(0, v['11'] - v['14'])), # Taxable income
             FloatField('16', line_16), # Tax
+            BooleanField('schedule_2_part_i_needed', lambda s, i, v: i['need_8962'] or v['1040_s2_need_6251.need_6251']),
+            FloatField('17', lambda s, i, v: v['1040_s2.3'] if v['schedule_2_part_i_needed'] else None),
+            FloatField('18', lambda s, i, v: v['16'] + v['17']),
+            FloatField('19', line_19),
+            FloatField('28', line_28),
         ]
+        for n in range(4):
+            required_fields += [
+                StringField(f'dependent_{n}_name', lambda s, i, v, n=n: i[f'dependent_{n}_name'] if n < i['number_dependents'] else None),
+                StringField(f'dependent_{n}_ssn', lambda s, i, v, n=n: i[f'dependent_{n}_ssn'] if n < i['number_dependents'] else None),
+                StringField(f'dependent_{n}_relationship', lambda s, i, v, n=n: i[f'dependent_{n}_relationship'] if n < i['number_dependents'] else None),
+                BooleanField(f'dependent_{n}_ctc', lambda s, i, v, n=n: i[f'dependent_{n}_ctc'] if n < i['number_dependents'] else None),
+                BooleanField(f'dependent_{n}_odc', lambda s, i, v, n=n: i[f'dependent_{n}_odc'] if n < i['number_dependents'] and not v[f'dependent_{n}_ctc'] else None),
+            ]
         super().__init__(__class__, inputs, required_fields, [], **kwargs)

@@ -4,6 +4,7 @@ from .f1040_s2_need6251 import Form1040S2Need6251
 from .f1040_s1 import Form1040S1
 from .f1040_sa import Form1040SA
 from .f1040_sb import Form1040SB
+from .f1040_s8812 import Form1040S8812
 from .f1098 import Form1098
 from .f1099_div import Form1099DIV
 from .f1099_g import Form1099G
@@ -20,6 +21,7 @@ available_forms = [
 	Form1040S2Need6251,
 	Form1040SA,
 	Form1040SB,
+	Form1040S8812,
 	Form1098,
 	Form1099DIV,
 	Form1099G,
