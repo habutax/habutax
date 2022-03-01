@@ -68,6 +68,8 @@ class Form1040(Form):
             BooleanInput('uncommon_tax', description="Do you need to report a child's interest or dividends, need to make a section 962 election, recapture an education credit, have anything to do with a section 1291 fund, need to repay any excess advance payments of the health coverage tax credit from Form 8885, have tax from tax from Form 8978, line 14 (relating to partner's audit liability under section 6226), any net tax liability deferred under section 965(i), or a triggering event under section 965(i), have any income from farming or fishing, or want to claim the foreign earned income exclusion, housing exclusion, or housing deduction on Form 2555? These are not common... see the instructions for line 16, Form 1040."),
             BooleanInput('need_8615', description="Do you need to use Form 8615 to figure your tax? It must generally be used to figure the tax on your unearned income over $2,200 if you are under age 18, and in certain situations if you are older. See the instructions for line 16, form 1040."),
             BooleanInput('need_8962', description="If you, your spouse with whom you are filing a joint return, or your dependent was enrolled in health insurance coverage purchased from the Marketplace, were advance payments of the premium tax credit made for the coverage in 2021?"),
+            BooleanInput('need_schedule_3_part_i', description="Do you want to claim any nonrefundable credits on Schedule 3, part I? These include credit for child and dependent care expenses, education credits, retirement savings, residential energy credits, among others."),
+            BooleanInput('need_schedule_2', description="Do you need to pay any less common additional taxes (self-employment, unreported tip income, additional medicate tax, etc.)? See the Form 1040, Schedule 2 instructions for more details."),
         ]
 
         for n in range(4):
@@ -225,6 +227,21 @@ class Form1040(Form):
             else:
                 return None
 
+        def line_20(self, i, v):
+            foreign_tax = float(sum([v[f'1099-int:{n}.box_6'] for n in range(i['number_1099-int'])]))
+            foreign_tax += float(sum([v[f'1099-div:{n}.box_7'] for n in range(i['number_1099-div'])]))
+            if foreign_tax > 0.001 or i['need_schedule_3_part_i']:
+                return v['1040_s3.8']
+            return None
+
+        def line_25b(self, i, v):
+            withholding = float(sum([v[f'1099-r:{n}.box_4'] for n in range(i['number_1099-r'])]))
+            withholding += float(sum([v[f'1099-div:{n}.box_4'] for n in range(i['number_1099-div'])]))
+            withholding += float(sum([v[f'1099-int:{n}.box_4'] for n in range(i['number_1099-int'])]))
+            if withholding > 0.001:
+                return withholding
+            return None
+
         def line_28(self, i, v):
             if i['number_dependents'] > 4:
                 self.not_implemented()
@@ -269,7 +286,18 @@ class Form1040(Form):
             FloatField('17', lambda s, i, v: v['1040_s2.3'] if v['schedule_2_part_i_needed'] else None),
             FloatField('18', lambda s, i, v: v['16'] + v['17']),
             FloatField('19', line_19),
-            FloatField('28', line_28),
+            FloatField('20', line_20),
+            FloatField('21', lambda s, i, v: v['19'] + v['20']),
+            FloatField('22', lambda s, i, v: max(0.0, v['18'] - v['21'])),
+            FloatField('23', lambda s, i, v: s.not_implemented() if i['need_schedule_2'] else None),
+            FloatField('24', lambda s, i, v: v['22'] + v['23']),
+            FloatField('25a', lambda s, i, v: sum([v[f'w-2:{n}.box_2'] for n in range(i['number_w-2'])]) if i['number_w-2'] > 0 else None),
+            FloatField('25b', line_25b),
+            FloatField('25c', lambda s, i, v: s.not_implemented()),
+            FloatField('25d', lambda s, i, v: v['25a'] + v['25b'] + v['25c']),
+            # TODO 26
+            # TODO 27
+#            FloatField('28', line_28),
         ]
         for n in range(4):
             required_fields += [

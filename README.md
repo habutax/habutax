@@ -33,6 +33,7 @@ forms).
 
 * 1040 (no variants)
 * 1040, Schedule 1
+* 1040, Schedule 3 (part I only)
 * 1040, Schedule A
 * 1040, Schedule B
 * 1040, Schedule 8812
@@ -54,7 +55,6 @@ provided to you by your employer or financial institution:
 
 ## Coming soon
 
-* 1040, Schedule 3
 * 2441
 * 8283
 * 8889

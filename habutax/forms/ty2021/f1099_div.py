@@ -21,7 +21,7 @@ class Form1099DIV(InputForm):
             FloatInput('box_4', description="Federal income tax withheld"),
             FloatInput('box_5', description="Section 199A dividends"),
             FloatInput('box_6', description="Investment expenses"),
-            StringInput('box_7', description="Foreign tax paid"),
+            FloatInput('box_7', description="Foreign tax paid"),
             StringInput('box_8', description="Foreign country or US possesion"),
             FloatInput('box_9', description="Cash liquidation distributions"),
             FloatInput('box_10', description="Noncash liquidation distributions"),
