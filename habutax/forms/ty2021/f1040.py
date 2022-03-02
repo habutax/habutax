@@ -69,7 +69,10 @@ class Form1040(Form):
             BooleanInput('need_8615', description="Do you need to use Form 8615 to figure your tax? It must generally be used to figure the tax on your unearned income over $2,200 if you are under age 18, and in certain situations if you are older. See the instructions for line 16, form 1040."),
             BooleanInput('need_8962', description="If you, your spouse with whom you are filing a joint return, or your dependent was enrolled in health insurance coverage purchased from the Marketplace, were advance payments of the premium tax credit made for the coverage in 2021?"),
             BooleanInput('need_schedule_3_part_i', description="Do you want to claim any nonrefundable credits on Schedule 3, part I? These include credit for child and dependent care expenses, education credits, retirement savings, residential energy credits, among others."),
-            BooleanInput('need_schedule_2', description="Do you need to pay any less common additional taxes (self-employment, unreported tip income, additional medicate tax, etc.)? See the Form 1040, Schedule 2 instructions for more details."),
+            BooleanInput('need_schedule_2', description="Do you need to pay any less common additional taxes (self-employment, unreported tip income, additional medicare tax, etc.)? See the Form 1040, Schedule 2 instructions for more details."),
+            FloatInput('estimated_tax_payments', description="Enter the total of any 2021 estimated tax payments and amount applied from your 2020 return."),
+            BooleanInput('self_employment_income', description="Did you (or your spouse if married filing jointly) have any self-employment income to report?"),
+            BooleanInput('rrta_compensation', description="Do you (or your spoues if married filing jointly) have any Railroad Retirement Tax Act compensation to report for 2021?"),
         ]
 
         for n in range(4):
@@ -252,6 +255,26 @@ class Form1040(Form):
             else:
                 return None
 
+        def form_8959_required(self, i, v):
+            for n in range(i['number_w-2']):
+                if v[f'w-2:{n}.box_5'] > 200000:
+                    return True
+            statuses = self.form().FILING_STATUS
+            threshold = 200000.0
+            if i['filing_status'] is statuses.MarriedFilingJointly:
+                threshold = 250000.0
+            elif i['filing_status'] is statuses.MarriedFilingSeparately:
+                threshold = 125000.0
+
+            medicare_wages_tips = float(sum([v[f'w-2:{n}.box_5'] for n in range(i['number_w-2'])]))
+
+            if medicare_wages_tips > threshold:
+                return True
+
+            if i['rrta_compensation'] or i['self_employment_income']:
+                self.not_implemented()
+            return False
+
         required_fields = [
             StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
             StringField('last_name', lambda s, i, v: i['last_name']),
@@ -293,9 +316,9 @@ class Form1040(Form):
             FloatField('24', lambda s, i, v: v['22'] + v['23']),
             FloatField('25a', lambda s, i, v: sum([v[f'w-2:{n}.box_2'] for n in range(i['number_w-2'])]) if i['number_w-2'] > 0 else None),
             FloatField('25b', line_25b),
-            FloatField('25c', lambda s, i, v: s.not_implemented()),
+            FloatField('25c', lambda s, i, v: v['8959.24'] if form_8959_required(self, i, v) else None),
             FloatField('25d', lambda s, i, v: v['25a'] + v['25b'] + v['25c']),
-            # TODO 26
+            FloatField('26', lambda s, i, v: i['estimated_tax_payments']),
             # TODO 27
 #            FloatField('28', line_28),
         ]

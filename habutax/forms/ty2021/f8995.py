@@ -12,7 +12,6 @@ class Form8995(Form):
             BooleanInput('schedule_d', description='Are you required to file schedule D?'),
         ]
 
-
         optional_fields = [
             FloatField('2', lambda s, i, v: s.not_implemented() if i['other_than_199a'] else None),
             FloatField('3', lambda s, i, v: s.not_implemented() if i['other_than_199a'] else None),

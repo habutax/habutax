@@ -12,6 +12,7 @@ from .f1099_g import Form1099G
 from .f1099_int import Form1099INT
 from .f1099_r import Form1099R
 from .f8606 import Form8606
+from .f8959 import Form8959
 from .f8995 import Form8995
 from .fw_2 import FormW2
 
@@ -30,6 +31,7 @@ available_forms = [
 	Form1099INT,
 	Form1099R,
 	Form8606,
+	Form8959,
 	Form8995,
 	FormW2,
 ]
