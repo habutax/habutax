@@ -73,6 +73,8 @@ class Form1040(Form):
             FloatInput('estimated_tax_payments', description="Enter the total of any 2021 estimated tax payments and amount applied from your 2020 return."),
             BooleanInput('self_employment_income', description="Did you (or your spouse if married filing jointly) have any self-employment income to report?"),
             BooleanInput('rrta_compensation', description="Do you (or your spoues if married filing jointly) have any Railroad Retirement Tax Act compensation to report for 2021?"),
+            BooleanInput('form_4797', description="Did you sell business property in 2021 or otherwise need to file Form 4797?"),
+            BooleanInput('postsecondary_education_expenses', description="Did you pay any qualified education expenses to an eligible postsecondary educational institution in 2021? See instructions for Schedule 3, line 3 and Form 8863 for more information"),
         ]
 
         for n in range(4):
@@ -275,6 +277,25 @@ class Form1040(Form):
                 self.not_implemented()
             return False
 
+        def possible_eic(self, i, v):
+            dependent_map = {
+                # dependents: (non-MFJ filers, MarriedFilingJointly)
+                3: (51464, 57414),
+                2: (47915, 53865),
+                1: (42158, 48108),
+                0: (21430, 27380)
+            }
+            dependents = min(3, i['number_dependents'])
+            filing_index = 1 if i['filing_status'] is self.form().FILING_STATUS.MarriedFilingJointly else 0
+            eic_income_limit = dependent_map[dependents][filing_index]
+            if v['11'] >= eic_income_limit:
+                return False
+
+            investment_income = v['2a'] + v['2b'] + v['3b'] + max(0, v['7'])
+            if income_income > 10000 and not i['form_4797']:
+                return False
+            return True
+
         required_fields = [
             StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
             StringField('last_name', lambda s, i, v: i['last_name']),
@@ -319,8 +340,12 @@ class Form1040(Form):
             FloatField('25c', lambda s, i, v: v['8959.24'] if form_8959_required(self, i, v) else None),
             FloatField('25d', lambda s, i, v: v['25a'] + v['25b'] + v['25c']),
             FloatField('26', lambda s, i, v: i['estimated_tax_payments']),
-            # TODO 27
-#            FloatField('28', line_28),
+            FloatField('27a', lambda s, i, v: s.not_implemented("You may be able to claim the Earned Income Credit, but it is not implemented") if possible_eic(s, i, v) else None),
+            BooleanField('27a_checkbox', lambda s, i, v: s.not_implemented("You may be able to claim the Earned Income Credit, but it is not implemented") if possible_eic(s, i, v) else False),
+            FloatField('27b', lambda s, i, v: s.not_implemented("You may be able to claim the Earned Income Credit, but it is not implemented") if possible_eic(s, i, v) else None),
+            FloatField('27c', lambda s, i, v: s.not_implemented("You may be able to claim the Earned Income Credit, but it is not implemented") if possible_eic(s, i, v) else None),
+            FloatField('28', line_28),
+            FloatField('29', lambda s, i, v: s.not_implemented("Form 8863 not implemented") if i['postsecondary_education_expenses'] else None),
         ]
         for n in range(4):
             required_fields += [

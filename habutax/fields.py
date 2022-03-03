@@ -1,9 +1,11 @@
 from types import MethodType
 
 class FieldNotImplemented(Exception):
-    def __init__(self, field_name, message_fmt="Encountered scenario we do not implement for {field_name}"):
+    def __init__(self, field_name, message_fmt="Encountered unimplemented tax scenario when processing {field_name}", detailed=None):
         self.field_name = field_name
         self.message = message_fmt.format(field_name=field_name)
+        if detailed is not None:
+            self.message += f': {detailed}'
         super().__init__(self.message)
 
 class Field(object):
@@ -26,10 +28,10 @@ class Field(object):
     def name(self):
         return f'{self._form.name()}.{self._name}'
 
-    def not_implemented(self):
+    def not_implemented(self, detailed=None):
         """Can be called by a field it encounters a scenario which it does not
         have the logic to return a value for"""
-        raise FieldNotImplemented(self.name())
+        raise FieldNotImplemented(self.name(), detailed=detailed)
 
     def value(self, inputs, values):
         raise NotImplementedError()
