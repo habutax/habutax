@@ -1,5 +1,6 @@
 from .f1040 import Form1040
 from .f1040_qualdiv_capgain_tax_wkst import Form1040QualDivCapGainTaxWkst
+from .f1040_recovery_rebate_credit_wkst import Form1040RecoveryRebateCreditWkst
 from .f1040_s2_need6251 import Form1040S2Need6251
 from .f1040_s1 import Form1040S1
 from .f1040_s3 import Form1040S3
@@ -19,6 +20,7 @@ from .fw_2 import FormW2
 available_forms = [
 	Form1040,
 	Form1040QualDivCapGainTaxWkst,
+	Form1040RecoveryRebateCreditWkst,
 	Form1040S1,
 	Form1040S2Need6251,
 	Form1040S3,

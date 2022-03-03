@@ -34,6 +34,7 @@ class Form1040(Form):
             BooleanInput('spouse_presidential_election', description="Check here if your spouse wants $3 to go to this fund. Checking a box below will not change your tax or refund."),
             BooleanInput('virtual_currency', description="At any time during 2021, did you receive, sell, exchange, or otherwise dispose of any financial interest in any virtual currency"),
             IntegerInput('number_dependents', description="How many dependents can you claim for 2021? (See Form 1040 instructions)"),
+            BooleanInput('claimed_as_dependent', description="Can anyone claim you (or your spouse if filing joint) as a dependent?"),
             BooleanInput('standard_deduction_exceptions', description="Are any of the following true?: Can anyone claim you (or your spouse if filing joint) as a dependent, is your spouse itemizing on a seperate return, are you a dual-status alien, were either you (or your spouse if filing joint) born before January 2, 1957 or blind?"),
             IntegerInput('number_w-2', description=f'How many, if any, forms W-2 were you provided with for {Form1040.tax_year}?'),
             BooleanInput('unhandled_income', description="Do you have any income you need to report which is *not* included in box 1 of your forms W-2? (see Form 1040 line 1 instructions)"),
@@ -69,6 +70,7 @@ class Form1040(Form):
             BooleanInput('need_8615', description="Do you need to use Form 8615 to figure your tax? It must generally be used to figure the tax on your unearned income over $2,200 if you are under age 18, and in certain situations if you are older. See the instructions for line 16, form 1040."),
             BooleanInput('need_8962', description="If you, your spouse with whom you are filing a joint return, or your dependent was enrolled in health insurance coverage purchased from the Marketplace, were advance payments of the premium tax credit made for the coverage in 2021?"),
             BooleanInput('need_schedule_3_part_i', description="Do you want to claim any nonrefundable credits on Schedule 3, part I? These include credit for child and dependent care expenses, education credits, retirement savings, residential energy credits, among others."),
+            BooleanInput('need_schedule_3_part_ii', description="Do you want to claim any 'Other Payments and Refundable Credits' on Schedule 3, part I? These include Net premium tax credit, paying some tax with a request for tax filing extension, excess social security and tier 1 RRTA tax withheld, credit for federal tax on fuels, qualified sick and family leave credits, health coverage tax credits, credit for child and dependent care expenses, among others."),
             BooleanInput('need_schedule_2', description="Do you need to pay any less common additional taxes (self-employment, unreported tip income, additional medicare tax, etc.)? See the Form 1040, Schedule 2 instructions for more details."),
             FloatInput('estimated_tax_payments', description="Enter the total of any 2021 estimated tax payments and amount applied from your 2020 return."),
             BooleanInput('self_employment_income', description="Did you (or your spouse if married filing jointly) have any self-employment income to report?"),
@@ -346,6 +348,15 @@ class Form1040(Form):
             FloatField('27c', lambda s, i, v: s.not_implemented("You may be able to claim the Earned Income Credit, but it is not implemented") if possible_eic(s, i, v) else None),
             FloatField('28', line_28),
             FloatField('29', lambda s, i, v: s.not_implemented("Form 8863 not implemented") if i['postsecondary_education_expenses'] else None),
+            FloatField('30', lambda s, i, v: v['1040_recovery_rebate_credit_wkst.credit']),
+            FloatField('31', lambda s, i, v: s.not_implemented() if i['need_schedule_3_part_ii'] else None),
+            FloatField('32', lambda s, i, v: v['27a'] + v['28'] + v['29'] + v['30'] + v['31']),
+            FloatField('33', lambda s, i, v: v['25d'] + v['26'] + v['32']),
+            FloatField('34', lambda s, i, v: (v['33'] - v['24']) if v['33'] > v['24'] else None),
+            # TODO 35a, b, c, d
+            # TODO 36
+            FloatField('37', lambda s, i, v: None if v['33'] > v['24'] else v['24'] - v['33']),
+            # TODO 38
         ]
         for n in range(4):
             required_fields += [
