@@ -20,8 +20,12 @@ class Form1040(Form):
             EnumInput('filing_status', self.FILING_STATUS, description="Filing Status"),
             StringInput('first_name_middle_initial', description="Your first name and middle initial"),
             StringInput('last_name', description="Your last name"),
+            StringInput('occupation', description="Your occupation"),
             StringInput('spouse_first_name_middle_initial', description="If joint return, spouse's first name and middle initial"),
             StringInput('spouse_last_name', description="If joint return, spouse's last name"),
+            StringInput('spouse_occupation', description="Spouse's occupation"),
+            StringInput('phone_number', description="Your phone number"),
+            StringInput('email_address', description="Your email address"),
             StringInput('home_address', description="Home address (number and street). If you have a P.O. box, see instructions."),
             StringInput('apartment_no', description="Apartment number"),
             StringInput('city', description="City, town, or post office."),
@@ -77,6 +81,11 @@ class Form1040(Form):
             BooleanInput('rrta_compensation', description="Do you (or your spoues if married filing jointly) have any Railroad Retirement Tax Act compensation to report for 2021?"),
             BooleanInput('form_4797', description="Did you sell business property in 2021 or otherwise need to file Form 4797?"),
             BooleanInput('postsecondary_education_expenses', description="Did you pay any qualified education expenses to an eligible postsecondary educational institution in 2021? See instructions for Schedule 3, line 3 and Form 8863 for more information"),
+            FloatInput('apply_to_estimated_tax', description="Enter the dollar amount of your refund you want to apply to your 2022 estimated tax. This will reduce your refund for this year."),
+            RegexInput('routing_number', '^(0[1-9]|1[0-2]|2[1-9]|3[0-2])[0-9]{7}$', description="What is the routing number of the account in your name into which you want your refund deposited? (must be 9 digits)"),
+            BooleanInput('checking_account', description="Is the account you want your refund deposited into a checking account? (savings account is assumed otherwise)"),
+            RegexInput('account_number', '^[0-9A-Za-z\-]{1,17}$', description="What is the account number of the account in your name into which you want your refund deposited?"),
+            FloatInput('tax_penalty', description="You may owe a tax penalty for not paying enough taxes. Please complete Form 2210 to determine if you owe a penalty (and the amount, if so) and enter the result here."),
         ]
 
         for n in range(4):
@@ -298,6 +307,14 @@ class Form1040(Form):
                 return False
             return True
 
+        def line_38(self, i, v):
+            tax_shown = v['24'] - sum([v['27a'], v['28'], v['29'], v['30']])
+            if i['need_schedule_3_part_ii']:
+                tax_shown -= sum([v[f'1040_s3.{l}'] for l in ['9', '12', '13b', '13h']])
+            if v['37'] >= 1000.0 and v['37'] > (0.1 * tax_shown):
+                return i['tax_penalty']
+            return None
+
         required_fields = [
             StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
             StringField('last_name', lambda s, i, v: i['last_name']),
@@ -353,10 +370,17 @@ class Form1040(Form):
             FloatField('32', lambda s, i, v: v['27a'] + v['28'] + v['29'] + v['30'] + v['31']),
             FloatField('33', lambda s, i, v: v['25d'] + v['26'] + v['32']),
             FloatField('34', lambda s, i, v: (v['33'] - v['24']) if v['33'] > v['24'] else None),
-            # TODO 35a, b, c, d
-            # TODO 36
+            FloatField('35a', lambda s, i, v: v['34'] - v['36'] if v['34'] > 0.001 else None),
+            StringField('35b', lambda s, i, v: i['routing_number'] if v['35a'] > 0.001 else None),
+            BooleanField('35c', lambda s, i, v: i['checking_account'] if v['35a'] > 0.001 else None),
+            StringField('35d', lambda s, i, v: i['account_number'] if v['35a'] > 0.001 else None),
+            FloatField('36', lambda s, i, v: min(v['34'], max(0.0, i['apply_to_estimated_tax'])) if v['34'] > 0.001 else None),
             FloatField('37', lambda s, i, v: None if v['33'] > v['24'] else v['24'] - v['33']),
-            # TODO 38
+            FloatField('38', line_38),
+            StringField('occupation', lambda s, i, v: i['occupation']),
+            StringField('spouse_occupation', lambda s, i, v: i['spouse_occupation'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
+            StringField('phone_number', lambda s, i, v: i['phone_number']),
+            StringField('email_address', lambda s, i, v: i['email_address']),
         ]
         for n in range(4):
             required_fields += [
