@@ -313,7 +313,8 @@ types of form inputs are:
 * IntegerInput
 * FloatInput
 * EnumInput
-* SSNInput
+* RegexInput (produces strings)
+* SSNInput (produces strings)
 
 See [inputs.py](../habutax/inputs.py) in the source for more details.
 

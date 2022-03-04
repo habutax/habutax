@@ -1,6 +1,6 @@
 from collections.abc import MutableMapping
-
 import configparser
+import re
 
 from habutax.enum import StringyEnum
 
@@ -36,7 +36,7 @@ class ConfigInput(object):
     def valid(self, config):
         try:
             self.value(config)
-        except (ValueError, configparser.NoOptionError):
+        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
             return False
         return True
 
@@ -88,7 +88,7 @@ class EnumInput(StringInput):
     def valid(self, config):
         try:
             string = super().value(config)
-        except (ValueError, configparser.NoOptionError):
+        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
             return False
 
         try:
@@ -101,6 +101,19 @@ class EnumInput(StringInput):
         string = super().value(config)
         return self.enum[string]
 
+class RegexInput(StringInput):
+    def __init__(self, name, regex, description=""):
+        self._regex = re.compile(regex)
+        super().__init__(name, description=description)
+
+    def valid(self, config):
+        try:
+            v = self.value(config)
+        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
+            return False
+
+        return bool(self._regex.match(v))
+
 class SSNInput(StringInput):
     def value(self, config):
         v = super().value(config)
@@ -109,7 +122,7 @@ class SSNInput(StringInput):
     def valid(self, config):
         try:
             ssn = self.value(config)
-        except (ValueError, configparser.NoOptionError):
+        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
             return False
 
         if len(ssn) != 9:
