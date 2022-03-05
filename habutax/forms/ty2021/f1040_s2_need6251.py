@@ -50,9 +50,9 @@ class Form1040S2Need6251(Form):
             return v['12'] > v['13']
 
         optional_fields = [
-            FloatField('1', lambda s, i, v: s.not_implemented() if v['1040.itemizing'] else v['1040.15']),
-            FloatField('2', lambda s, i, v: s.not_implemented() if v['1040.itemizing'] else v['1040_sa.7']),
-            FloatField('3', lambda s, i, v: v['1040.11'] - v['1040.13'] if v['1040.itemizing'] else v['1'] + v['2']),
+            FloatField('1', lambda s, i, v: s.not_implemented() if not v['1040.itemizing'] else v['1040.15']),
+            FloatField('2', lambda s, i, v: s.not_implemented() if not v['1040.itemizing'] else v['1040_sa.7']),
+            FloatField('3', lambda s, i, v: v['1040.11'] - v['1040.13'] if not v['1040.itemizing'] else v['1'] + v['2']),
             FloatField('4', lambda s, i, v: v['1040_s1.1'] + v['1040_s1.8z'] if v['1040.schedule_1_additional_income'] else None),
             FloatField('5', lambda s, i, v: v['3'] - v['4']),
             FloatField('6', line_6),

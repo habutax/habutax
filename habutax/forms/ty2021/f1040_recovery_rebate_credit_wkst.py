@@ -95,7 +95,7 @@ class Form1040RecoveryRebateCreditWkst(Form):
             FloatField('11', line_11),
             FloatField('12', lambda s, i, v: (v['8'] * v['11']) if v['9_checkbox'] else v['8']),
             FloatField('13', lambda s, i, v: i['eip_3_amount']),
-            FloatField('13', lambda s, i, v: max(0.0, v['12'] - v['13'])),
+            FloatField('14', lambda s, i, v: max(0.0, v['12'] - v['13'])),
             FloatField('credit', lambda s, i, v: v['14'] if can_take_credit(s, i, v) else None),
         ]
 

@@ -303,7 +303,7 @@ class Form1040(Form):
                 return False
 
             investment_income = v['2a'] + v['2b'] + v['3b'] + max(0, v['7'])
-            if income_income > 10000 and not i['form_4797']:
+            if investment_income > 10000 and not i['form_4797']:
                 return False
             return True
 
@@ -321,7 +321,7 @@ class Form1040(Form):
             StringField('spouse_first_name', lambda s, i, v: i['spouse_first_name_middle_initial'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
             StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
             FloatField('1', line_1),
-            FloatField('2a', lambda s, i, v: sum([v[f'1099-int:{n}.box_8'] for n in range(i['number_1099-int'])])),
+            FloatField('2a', lambda s, i, v: float(sum([v[f'1099-int:{n}.box_8'] for n in range(i['number_1099-int'])]))),
             FloatField('2b', line_2b),
             FloatField('3a', line_3a),
             FloatField('3b', line_3b),
@@ -343,7 +343,7 @@ class Form1040(Form):
             FloatField('12c', lambda s, i, v: v['12a'] + v['12b']),
             FloatField('13', line_13),
             FloatField('14', lambda s, i, v: v['12c'] + v['13']),
-            FloatField('15', lambda s, i, v: max(0, v['11'] - v['14'])), # Taxable income
+            FloatField('15', lambda s, i, v: max(0.0, v['11'] - v['14'])), # Taxable income
             FloatField('16', line_16), # Tax
             BooleanField('schedule_2_part_i_needed', lambda s, i, v: i['need_8962'] or v['1040_s2_need_6251.need_6251']),
             FloatField('17', lambda s, i, v: v['1040_s2.3'] if v['schedule_2_part_i_needed'] else None),
@@ -356,7 +356,7 @@ class Form1040(Form):
             FloatField('24', lambda s, i, v: v['22'] + v['23']),
             FloatField('25a', lambda s, i, v: sum([v[f'w-2:{n}.box_2'] for n in range(i['number_w-2'])]) if i['number_w-2'] > 0 else None),
             FloatField('25b', line_25b),
-            FloatField('25c', lambda s, i, v: v['8959.24'] if form_8959_required(self, i, v) else None),
+            FloatField('25c', lambda s, i, v: v['8959.24'] if form_8959_required(s, i, v) else None),
             FloatField('25d', lambda s, i, v: v['25a'] + v['25b'] + v['25c']),
             FloatField('26', lambda s, i, v: i['estimated_tax_payments']),
             FloatField('27a', lambda s, i, v: s.not_implemented("You may be able to claim the Earned Income Credit, but it is not implemented") if possible_eic(s, i, v) else None),

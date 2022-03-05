@@ -1742,7 +1742,7 @@ TAX_WORKSHEET_VALUES = (
 def figure_tax_table(taxable_amount, filing_status_column):
     for row in TAX_TABLE:
         if taxable_amount >= row[0] and taxable_amount < row[1]:
-            return row[filing_status_column]
+            return float(row[filing_status_column])
 
     # If we got here, something went wrong
     assert(False)
