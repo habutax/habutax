@@ -9,6 +9,29 @@ from habutax import inputs
 from habutax import solver
 from habutax import values
 
+def prompt_input(missing, needed_by):
+    """
+    Given `missing`, an Input which the solver identified as being needed but
+    not supplied, prompt the user to supply it. `needed_by` is a list of the
+    Field objects which need the input.
+    """
+    # See if the user wants to input this value, exit if not
+    prompt = f'Missing config {missing.name()} in [{missing.section()}] section. To specify this input on the command-line, enter it below.\n\n'
+    prompt += missing.help()
+    prompt += f'\n{missing.name()} (Ctrl-C to refuse to input): '
+
+    value = None
+
+    while value is None or not missing.valid(value):
+        try:
+            if value is not None:
+                prompt = "Invalid input, try again?: "
+            value = input(prompt)
+        except KeyboardInterrupt:
+            return (None, False)
+
+    return (value, True)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input_file', type=str, help='The file containing your input for the tax forms you are calculating.')
@@ -23,7 +46,8 @@ def main():
         Path(args.input_file).touch() # Ensure the input file exists (this allows writing back without the user having to manually touch it first)
 
     input_store = inputs.InputStore(args.input_file)
-    s = solver.Solver(input_store, forms.available_forms[args.year], prompt=args.prompt_missing)
+    prompt_fn = prompt_input if args.prompt_missing else None
+    s = solver.Solver(input_store, forms.available_forms[args.year], prompt=prompt_fn)
     successful = s.solve(args.forms)
     solution = s.solution()
 

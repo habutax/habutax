@@ -4,14 +4,14 @@ import re
 
 from habutax.enum import StringyEnum
 
-class ConfigInput(object):
+class Input(object):
     def __init__(self, name, description=None):
         assert("." not in name)
         self._name = name
         self._description = description if description is not None else name
 
     def __form_init__(self, form):
-        """Called when this ConfigInput is associated with a form instance"""
+        """Called when this Input is associated with a form instance"""
         self._form = form
 
     def section(self):
@@ -27,40 +27,42 @@ class ConfigInput(object):
     def help(self):
         return self._description + '\n'
 
-    def provided(self, config):
-        return config.has_option(self.section(), self.base_name())
-
-    def value(self, config):
+    def value(self, string):
         raise NotImplementedError()
 
-    def valid(self, config):
+    def valid(self, string):
         try:
-            self.value(config)
-        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
+            self.value(string)
+        except ValueError:
             return False
         return True
 
-class StringInput(ConfigInput):
-    def value(self, config):
-        return config.get(self.section(), self.base_name())
+class StringInput(Input):
+    def value(self, string):
+        return string.strip()
 
-class BooleanInput(ConfigInput):
-    def value(self, config):
-        return config.getboolean(self.section(), self.base_name())
+class BooleanInput(Input):
+    def value(self, string):
+        string = string.strip().lower()
+        if string in ['true', 'yes', 'y', '1']:
+            return True
+        if string in ['false', 'no', 'n', '0']:
+            return False
+        raise ValueError(f'Invalid boolean value: {string}')
 
-class IntegerInput(ConfigInput):
-    def value(self, config):
-        string = config.get(self.section(), self.base_name())
+class IntegerInput(Input):
+    def value(self, string):
+        string = string.strip()
         if len(string) == 0:
             return 0
-        return config.getint(self.section(), self.base_name())
+        return int(string)
 
-class FloatInput(ConfigInput):
-    def value(self, config):
-        string = config.get(self.section(), self.base_name())
+class FloatInput(Input):
+    def value(self, string):
+        string = string.strip()
         if len(string) == 0:
             return 0.0
-        return config.getfloat(self.section(), self.base_name())
+        return float(string)
 
 class EnumInput(StringInput):
     def __init__(self, name, enum, description=""):
@@ -85,10 +87,10 @@ class EnumInput(StringInput):
     def __getattr__(self, attribute):
         return self.enum[attribute]
 
-    def valid(self, config):
+    def valid(self, string):
         try:
-            string = super().value(config)
-        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
+            string = super().value(string)
+        except ValueError:
             return False
 
         try:
@@ -97,8 +99,8 @@ class EnumInput(StringInput):
             return False
         return True
 
-    def value(self, config):
-        string = super().value(config)
+    def value(self, string):
+        string = super().value(string)
         return self.enum[string]
 
 class RegexInput(StringInput):
@@ -106,23 +108,23 @@ class RegexInput(StringInput):
         self._regex = re.compile(regex)
         super().__init__(name, description=description)
 
-    def valid(self, config):
+    def valid(self, string):
         try:
-            v = self.value(config)
-        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
+            v = self.value(string)
+        except ValueError:
             return False
 
         return bool(self._regex.match(v))
 
 class SSNInput(StringInput):
-    def value(self, config):
-        v = super().value(config)
+    def value(self, string):
+        v = super().value(string)
         return v.replace("-", "")
 
-    def valid(self, config):
+    def valid(self, string):
         try:
-            ssn = self.value(config)
-        except (ValueError, configparser.NoSectionError, configparser.NoOptionError):
+            ssn = self.value(string)
+        except ValueError:
             return False
 
         if len(ssn) != 9:
@@ -164,16 +166,20 @@ class InputStore(MutableMapping):
     def update_input_spec(self, input_specs):
         self.input_specs = input_specs
 
+    def provides(self, input_obj):
+        return self.config.has_option(input_obj.section(), input_obj.base_name())
+
     def __getitem__(self, key):
         if key not in self.input_specs:
             raise MissingInputSpecification(key)
 
         i = self.input_specs[key]
-        if not i.provided(self.config):
+        if not self.provides(i):
             raise MissingInput(key)
-        elif not i.valid(self.config):
-            raise InvalidInput(key, self.config.get(i.section(), i.base_name()))
-        return i.value(self.config)
+        string = self.config.get(i.section(), i.base_name())
+        if not i.valid(string):
+            raise InvalidInput(key, string)
+        return i.value(string)
 
     def __setitem__(self, key, value):
         if key not in self.input_specs:
@@ -187,7 +193,10 @@ class InputStore(MutableMapping):
         raise NotImplementedError()
         if key not in self.input_specs:
             raise MissingInputSpecification(key)
-        del self.config[key]
+        i = self.input_specs[key]
+        self.config.remove_option(i.section(), i.base_name())
+        if len(self.config[i.section()]) == 0:
+            self.config.remove_section(i.section())
 
     def __iter__(self):
         return iter(self.config)

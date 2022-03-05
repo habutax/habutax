@@ -104,7 +104,7 @@ def _sort_keys(key):
     return keys
 
 def sort_keys(key):
-    if isinstance(key, fields.Field) or isinstance(key, inputs.ConfigInput):
+    if isinstance(key, fields.Field) or isinstance(key, inputs.Input):
         key = key.name()
 
     if '.' in key:
@@ -114,8 +114,9 @@ def sort_keys(key):
     return (_sort_keys(form), _sort_keys(key))
 
 class Solver(object):
-    def __init__(self, input_config, form_list, prompt=False):
+    def __init__(self, input_config, form_list, prompt=None):
         self._prompt = prompt
+        self._refused_input = self._prompt is None
 
         # Create a map to easily look up the available forms by name
         self._form_map = {f.form_name: f for f in form_list}
@@ -178,25 +179,18 @@ class Solver(object):
         self._add_unattempted(form.required_fields())
         self._solving_fields |= set([f.name() for f in form.required_fields()])
 
-    def _get_input(self, input_name):
+    def _attempt_input(self, input_name, needed_by):
         missing = self._input_map[input_name]
 
-        # See if the user wants to input this value, exit if not
-        prompt = f'Missing config {missing.name()} in [{missing.section()}] section. To specify this input on the command-line, enter it below.\n\n'
-        prompt += missing.help()
-        prompt += f'\n{missing.name()} (Ctrl-C to refuse to input): '
+        value, supplied = self._prompt(missing, needed_by)
 
-        while not missing.provided(self._i.config) or not missing.valid(self._i.config):
-            try:
-                if missing.provided(self._i.config):
-                    prompt = "Invalid input, try again?: "
-                text = input(prompt)
-                self._i[missing.name()] = text
-            except KeyboardInterrupt:
-                return False
-
-        self._input_dependencies.meet(missing.name())
-        return True
+        if supplied:
+            assert(missing.valid(value))
+            self._i[missing.name()] = value
+            self._input_dependencies.meet(missing.name())
+        else:
+            self._refused_input = True
+        return supplied
 
     def _attempt_field(self, field):
         try:
@@ -227,21 +221,20 @@ class Solver(object):
         for form_name in form_names:
             self._add_form(form_name)
 
-        refused_input = False
         while len(self._unattempted_fields) > 0 \
                 or self._input_dependencies.has_met() \
-                or (self._prompt and self._input_dependencies.has_unmet() and not refused_input) \
+                or (self._input_dependencies.has_unmet() and not self._refused_input) \
                 or self._field_dependencies.has_met():
 
             while len(self._unattempted_fields) > 0:
                 self._attempt_field(self._unattempted_fields.pop())
             for field in sorted(self._field_dependencies.met_dependents(), key=sort_keys):
                 self._attempt_field(field)
-            if self._prompt and not refused_input:
+            if not self._refused_input:
                 for input_name in sorted(self._input_dependencies.unmet_dependencies(), key=sort_keys):
-                    supplied = self._get_input(input_name)
-                    if not supplied:
-                        refused_input = True
+                    needed_by = self._input_dependencies.unmet_dependents(input_name)
+                    self._attempt_input(input_name, needed_by)
+                    if self._refused_input:
                         break
             # Must be list() because _attempt_field modifies
             # input_dependencies, and we don't want to get stuck in a loop
