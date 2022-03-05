@@ -1,3 +1,4 @@
+import configparser
 from collections.abc import MutableMapping
 
 class UnmetDependency(Exception):
@@ -28,3 +29,12 @@ class ValueStore(MutableMapping):
 
     def __len__(self):
         return len(self.values)
+
+    def to_config(self):
+        config = configparser.ConfigParser()
+        for key, value in self.values.items():
+            form_name, field_name = key.split('.')
+            if form_name not in config:
+                config[form_name] = {}
+            config[form_name][field_name] = str(value)
+        return config

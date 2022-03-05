@@ -70,28 +70,31 @@ class DependencyTracker(object):
 
 class Solver(object):
     def __init__(self, input_config, form_list, prompt=False):
-        self.prompt = prompt
+        self._prompt = prompt
 
         # Create a map to easily look up the available forms by name
-        self.form_map = {f.form_name: f for f in form_list}
+        self._form_map = {f.form_name: f for f in form_list}
 
         # Map all available input and field names to their objects
-        self.input_map = {}
-        self.field_map = {}
+        self._input_map = {}
+        self._field_map = {}
 
         # Input values (also modified with any values the user specifies
         # interactively)
-        self.i = input_config
+        self._i = input_config
 
         # Current state of solver, including form instances, values calculated,
         # any unmet field/input dependencies
         self.forms = {}
-        self.v = values.ValueStore()
-        self.unattempted_fields = []
-        self.unimplemented_fields = []
-        self.solving_fields = set()
-        self.field_dependencies = DependencyTracker()
-        self.input_dependencies = DependencyTracker()
+        self._v = values.ValueStore()
+        self._unattempted_fields = []
+        self._unimplemented_fields = []
+        self._solving_fields = set()
+        self._field_dependencies = DependencyTracker()
+        self._input_dependencies = DependencyTracker()
+
+        self._done_solving = False # Set to True if/when done solving
+        self._solved = False       # Set to True if/when successfully solved
 
     def _add_form(self, form_name):
         split_form_name = form_name.split(':') 
@@ -103,87 +106,87 @@ class Solver(object):
             raise RuntimeError(f'Unexpected form name: {form_name} (expected 0 or 1 colons)')
         form_name = split_form_name[0]
 
-        if form_name not in self.form_map:
+        if form_name not in self._form_map:
             raise NotImplementedError(f'Form {form_name} is not supported.')
 
-        form = self.form_map[form_name](solver=self, instance=form_instance)
+        form = self._form_map[form_name](solver=self, instance=form_instance)
         self.forms[form.name()] = form
 
         # Add new inputs to our internal map of names to input objects, update
         # the input mapper so it understands how to read these inputs
         for i in form.inputs():
-            assert(i not in self.input_map)
-            self.input_map[i.name()] = i
-        self.i.update_input_spec(self.input_map)
+            assert(i not in self._input_map)
+            self._input_map[i.name()] = i
+        self._i.update_input_spec(self._input_map)
 
         for f in form.fields():
-            assert(f not in self.field_map)
-            self.field_map[f.name()] = f
+            assert(f not in self._field_map)
+            self._field_map[f.name()] = f
 
-        self.unattempted_fields.extend(form.required_fields())
-        self.solving_fields |= set([f.name() for f in form.required_fields()])
+        self._unattempted_fields.extend(form.required_fields())
+        self._solving_fields |= set([f.name() for f in form.required_fields()])
 
     def _get_input(self, input_name):
-        missing = self.input_map[input_name]
+        missing = self._input_map[input_name]
 
         # See if the user wants to input this value, exit if not
         prompt = f'Missing config {missing.name()} in [{missing.section()}] section. To specify this input on the command-line, enter it below.\n\n'
         prompt += missing.help()
         prompt += f'\n{missing.name()} (Ctrl-C to refuse to input): '
 
-        while not missing.provided(self.i.config) or not missing.valid(self.i.config):
+        while not missing.provided(self._i.config) or not missing.valid(self._i.config):
             try:
-                if missing.provided(self.i.config):
+                if missing.provided(self._i.config):
                     prompt = "Invalid input, try again?: "
                 text = input(prompt)
-                self.i[missing.name()] = text
+                self._i[missing.name()] = text
             except KeyboardInterrupt:
                 return False
 
-        self.input_dependencies.meet(missing.name())
+        self._input_dependencies.meet(missing.name())
         return True
 
     def _attempt_field(self, field):
         try:
-            form_inputs = form.FormAccessor(self.i, field.form())
-            form_values = form.FormAccessor(self.v, field.form())
-            self.v[field.name()] = field.value(form_inputs, form_values)
-            self.field_dependencies.meet(field.name())
+            form_inputs = form.FormAccessor(self._i, field.form())
+            form_values = form.FormAccessor(self._v, field.form())
+            self._v[field.name()] = field.value(form_inputs, form_values)
+            self._field_dependencies.meet(field.name())
         except values.UnmetDependency as ud:
             # If this field is not already in the fields the solver is
             # attempting to solve, add it
-            if ud.dependency not in self.solving_fields:
+            if ud.dependency not in self._solving_fields:
                 # If this field is not even in the list of forms the solver is
                 # aware of, it must be in another form - find that form
-                if ud.dependency not in self.field_map:
+                if ud.dependency not in self._field_map:
                     form_name, field_name = ud.dependency.split('.')
                     self._add_form(form_name)
-                assert(ud.dependency in self.field_map)
-                self.unattempted_fields.append(self.field_map[ud.dependency])
-                self.solving_fields.add(ud.dependency)
+                assert(ud.dependency in self._field_map)
+                self._unattempted_fields.append(self._field_map[ud.dependency])
+                self._solving_fields.add(ud.dependency)
 
-            self.field_dependencies.add_unmet(ud.dependency, field)
+            self._field_dependencies.add_unmet(ud.dependency, field)
         except inputs.MissingInput as mi:
-            self.input_dependencies.add_unmet(mi.input_name, field)
+            self._input_dependencies.add_unmet(mi.input_name, field)
         except fields.FieldNotImplemented as fni:
-            self.unimplemented_fields.append(fni.field_name)
+            self._unimplemented_fields.append(fni.field_name)
 
     def solve(self, form_names):
         for form_name in form_names:
             self._add_form(form_name)
 
         refused_input = False
-        while len(self.unattempted_fields) > 0 \
-                or self.input_dependencies.has_met() \
-                or (self.prompt and self.input_dependencies.has_unmet() and not refused_input) \
-                or self.field_dependencies.has_met():
+        while len(self._unattempted_fields) > 0 \
+                or self._input_dependencies.has_met() \
+                or (self._prompt and self._input_dependencies.has_unmet() and not refused_input) \
+                or self._field_dependencies.has_met():
 
-            while len(self.unattempted_fields) > 0:
-                self._attempt_field(self.unattempted_fields.pop())
-            for field in self.field_dependencies.met_dependents():
+            while len(self._unattempted_fields) > 0:
+                self._attempt_field(self._unattempted_fields.pop())
+            for field in self._field_dependencies.met_dependents():
                 self._attempt_field(field)
-            if self.prompt and not refused_input:
-                for input_name in self.input_dependencies.unmet_dependencies():
+            if self._prompt and not refused_input:
+                for input_name in self._input_dependencies.unmet_dependencies():
                     supplied = self._get_input(input_name)
                     if not supplied:
                         refused_input = True
@@ -191,33 +194,51 @@ class Solver(object):
             # Must be list() because _attempt_field modifies
             # input_dependencies, and we don't want to get stuck in a loop
             # waiting for an input we can't provide without polling user for it
-            for field in list(self.input_dependencies.met_dependents()):
+            for field in list(self._input_dependencies.met_dependents()):
                 self._attempt_field(field)
 
-        print("==RESULTS===============================\n")
-        assert(len(self.unattempted_fields) == 0)
-        assert(not self.input_dependencies.has_met())
-        assert(not self.field_dependencies.has_met())
+        assert(len(self._unattempted_fields) == 0)
+        assert(not self._input_dependencies.has_met())
+        assert(not self._field_dependencies.has_met())
 
-        if self.field_dependencies.has_unmet() \
-                or self.input_dependencies.has_unmet() \
-                or len(self.unimplemented_fields) > 0:
-            print("Failed to solve - missing dependencies follow:")
-            if self.field_dependencies.has_unmet():
-                print("Missing field [needed by]:")
-                for dep in self.field_dependencies.unmet_dependencies():
-                    dependents = [f.name() for f in self.field_dependencies.unmet_dependents(dep)]
-                    print(f'{dep}: {dependents}')
-            if self.input_dependencies.has_unmet():
-                print("Missing input: needed by")
-                for dep in self.input_dependencies.unmet_dependencies():
-                    dependents = [i.name() for i in self.input_dependencies.unmet_dependents(dep)]
-                    print(f'{dep}: {dependents}')
-            for unimplemented in self.unimplemented_fields:
-                print(f'{unimplemented}: unimplemented (encountered behavior it cannot handle)')
-            print("\nProgress so far:")
-        else:
-            print("Successfully solved:")
+        self._done_solving = True
 
-        for k, v in self.v.items():
-            print(f'{k: <30}: {v}')
+        if not self._field_dependencies.has_unmet() \
+                and not self._input_dependencies.has_unmet() \
+                and len(self._unimplemented_fields) == 0:
+            self._solved = True
+
+        return self._solved
+
+    def solution(self):
+        """Return a ConfigParser object representing the portions of the
+        requested forms which were successfully solved"""
+        assert(self._done_solving)
+        return self._v.to_config()
+
+    def unimplemented_fields(self):
+        """Return a list of the unimplemented field names after a call to
+        solve()"""
+        assert(self._done_solving)
+        return self._unimplemented_fields
+
+    def _unmet_dependencies(self, dependency_tracker):
+        unmet_dependencies = {}
+        for dep in dependency_tracker.unmet_dependencies():
+            dependents = [f.name() for f in dependency_tracker.unmet_dependents(dep)]
+            unmet_dependencies[dep] = dependents
+        return unmet_dependencies
+
+    def unmet_input_dependencies(self):
+        """Return a dict mapping names of any unmet input dependencies to a
+        list of the names of their (discovered) dependent fields after a call
+        to solve()"""
+        assert(self._done_solving)
+        return self._unmet_dependencies(self._input_dependencies)
+
+    def unmet_field_dependencies(self):
+        """Return a dict mapping names of any unmet field dependencies to a
+        list of the names of their (discovered) dependents after a call to
+        solve()"""
+        assert(self._done_solving)
+        return self._unmet_dependencies(self._field_dependencies)

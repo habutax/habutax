@@ -71,7 +71,7 @@ You can test HabuTax out with the following command-lines:
 % python3 -m habutax \
     --year 2021 \
     --form 1040 \
-    --writeback \
+    --writeback-input \
     --prompt-missing \
     taxes_2021.habutax
 ```
@@ -80,8 +80,8 @@ taxes_2021.habutax is a plain-text input file, in [INI
 format](https://en.wikipedia.org/wiki/INI_file#Format). Each form has its own
 section in the input file. If you don't want to supply anything up front, you
 don't need to: the `--prompt` option causes HabuTax to prompt you for any
-missing input, while `--writeback` causes any values you enter interactively in
-this way to be written back to the input file.
+missing input, while `--writeback-input` causes any values you enter
+interactively in this way to be written back to the input file.
 
 The output is currently printed to stdout, though we plan to optionally write
 the output to a text file.
