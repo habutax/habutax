@@ -65,7 +65,7 @@ class FloatInput(Input):
         return float(string)
 
 class EnumInput(StringInput):
-    def __init__(self, name, enum, description=""):
+    def __init__(self, name, enum, allow_empty=False, description=""):
         """
         Create an instance to read/validate an input that can be one of a
         limited number of choices. The `options` parameter can be a list of
@@ -80,6 +80,7 @@ class EnumInput(StringInput):
 
         super().__init__(name, description=description)
         self.enum = enum
+        self.allow_empty = allow_empty
 
     def __form_init__(self, form):
         super().__form_init__(form)
@@ -93,6 +94,9 @@ class EnumInput(StringInput):
         except ValueError:
             return False
 
+        if len(string.strip()) == 0 and self.allow_empty:
+            return True
+
         try:
             self.enum[string]
         except KeyError as ke:
@@ -101,6 +105,8 @@ class EnumInput(StringInput):
 
     def value(self, string):
         string = super().value(string)
+        if len(string.strip()) == 0 and self.allow_empty:
+            return None
         return self.enum[string]
 
 class RegexInput(StringInput):

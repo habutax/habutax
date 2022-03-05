@@ -10,7 +10,6 @@ class FormW2(InputForm):
         # FIXME go through these inputs and prohibit those we don't handle
         # (fail loudly)
         box_12 = enum.make("W-2, box 12 code", {
-            '_': 'The box was left blank',
             'A': 'Uncollected social security or RRTA tax on tips. Include this tax on Form 1040 or 1040-SR. See the Form 1040 instructions.',
             'B': 'Uncollected Medicare tax on tips. Include this tax on Form 1040 or 1040-SR. See the Form 1040 instructions.',
             'C': 'Taxable cost of group-term life insurance over $50,000 (included in boxes 1, 3 (up to the social security wage base), and 5)',
@@ -43,7 +42,7 @@ class FormW2(InputForm):
         })
         inputs = []
         for letter in 'abcd':
-            inputs.append(EnumInput(f'box_12{letter}_code', box_12, description=f'Box 12{letter} alphabetic code'))
+            inputs.append(EnumInput(f'box_12{letter}_code', box_12, allow_empty=True, description=f'Box 12{letter} alphabetic code'))
             inputs.append(FloatInput(f'box_12{letter}_value', description=f'Box 12{letter} value'))
         inputs += [
             StringInput('box_c', description="Employer"),
