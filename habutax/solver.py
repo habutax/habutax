@@ -68,6 +68,51 @@ class DependencyTracker(object):
                 self._met.pop(0)
                 continue
 
+def _sort_keys(key):
+    last_numeric = False
+    last_alpha = False
+    current = ''
+    keys = []
+
+    for c in key:
+        this_numeric = c in '01234567890'
+        this_alpha = c.isalpha()
+        if (last_numeric and not this_numeric) or \
+                (last_alpha and not this_alpha):
+            if len(current) > 0:
+                if last_numeric:
+                    keys.append((False, int(current)))
+                else:
+                    keys.append((True, current))
+                current = ''
+
+        if this_numeric or this_alpha:
+            current += c
+        else:
+            current = ''
+
+        last_numeric = this_numeric
+        last_alpha = this_alpha
+
+    # Output the last partial sub-key in the string
+    if len(current) > 0:
+        if last_numeric:
+            keys.append((False, int(current)))
+        else:
+            keys.append((True, current))
+
+    return keys
+
+def sort_keys(key):
+    if isinstance(key, fields.Field) or isinstance(key, inputs.ConfigInput):
+        key = key.name()
+
+    if '.' in key:
+        form, key = key.split('.')
+    else:
+        form = ''
+    return (_sort_keys(form), _sort_keys(key))
+
 class Solver(object):
     def __init__(self, input_config, form_list, prompt=False):
         self._prompt = prompt
@@ -96,6 +141,13 @@ class Solver(object):
         self._done_solving = False # Set to True if/when done solving
         self._solved = False       # Set to True if/when successfully solved
 
+    def _add_unattempted(self, unattempted):
+        if isinstance(unattempted, list):
+            self._unattempted_fields.extend(unattempted)
+        else:
+            self._unattempted_fields.append(unattempted)
+        self._unattempted_fields.sort(key=sort_keys)
+
     def _add_form(self, form_name):
         split_form_name = form_name.split(':') 
         form_instance = None
@@ -123,7 +175,7 @@ class Solver(object):
             assert(f not in self._field_map)
             self._field_map[f.name()] = f
 
-        self._unattempted_fields.extend(form.required_fields())
+        self._add_unattempted(form.required_fields())
         self._solving_fields |= set([f.name() for f in form.required_fields()])
 
     def _get_input(self, input_name):
@@ -162,7 +214,7 @@ class Solver(object):
                     form_name, field_name = ud.dependency.split('.')
                     self._add_form(form_name)
                 assert(ud.dependency in self._field_map)
-                self._unattempted_fields.append(self._field_map[ud.dependency])
+                self._add_unattempted(self._field_map[ud.dependency])
                 self._solving_fields.add(ud.dependency)
 
             self._field_dependencies.add_unmet(ud.dependency, field)
@@ -183,10 +235,10 @@ class Solver(object):
 
             while len(self._unattempted_fields) > 0:
                 self._attempt_field(self._unattempted_fields.pop())
-            for field in self._field_dependencies.met_dependents():
+            for field in sorted(self._field_dependencies.met_dependents(), key=sort_keys):
                 self._attempt_field(field)
             if self._prompt and not refused_input:
-                for input_name in self._input_dependencies.unmet_dependencies():
+                for input_name in sorted(self._input_dependencies.unmet_dependencies(), key=sort_keys):
                     supplied = self._get_input(input_name)
                     if not supplied:
                         refused_input = True

@@ -5,7 +5,7 @@ from . import context
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.form import *
-from habutax.solver import DependencyTracker
+from habutax.solver import Solver, DependencyTracker, sort_keys
 
 class TestForm(Form):
     form_name = "test"
@@ -92,3 +92,120 @@ class DependencyTrackerTestCase(unittest.TestCase):
 
         self.assertFalse(self.dep.has_unmet())
         self.assertFalse(self.dep.has_met())
+
+class SortOrderTestCase(unittest.TestCase):
+    def test_sort_keys_same_form(self):
+        original = [
+            '1040.10',
+            '1040.829',
+            '1040.1a',
+            '1040.8a8',
+            '1040.1',
+        ]
+        expected = [
+            '1040.1',
+            '1040.1a',
+            '1040.8a8',
+            '1040.10',
+            '1040.829',
+        ]
+        self.assertListEqual(sorted(original, key=sort_keys), expected)
+
+    def test_sort_keys_no_form(self):
+        original = [
+            '2',
+            '5_wkst_to_do_thing_10',
+            '20',
+            '5_wkst_to_do_thing_1',
+            '1a',
+            '5_wkst_to_do_thing_2',
+            '1',
+            '5_wkst_to_do_thing_9a',
+            '1c',
+            '5_wkst_to_do_thing_90',
+        ]
+        expected = [
+            '1',
+            '1a',
+            '1c',
+            '2',
+            '5_wkst_to_do_thing_1',
+            '5_wkst_to_do_thing_2',
+            '5_wkst_to_do_thing_9a',
+            '5_wkst_to_do_thing_10',
+            '5_wkst_to_do_thing_90',
+            '20',
+        ]
+        self.assertListEqual(expected, sorted(original, key=sort_keys))
+
+    def test_sort_keys_different_forms(self):
+        original = [
+            '1040_sa.10',
+            '8995.5b',
+            '1040_sb.829',
+            '1040_s8812.1a',
+            'w-2.box_1',
+            '1040.first_name',
+            '8959.5b',
+        ]
+        expected = [
+            '1040.first_name',
+            '1040_s8812.1a',
+            '1040_sa.10',
+            '1040_sb.829',
+            '8959.5b',
+            '8995.5b',
+            'w-2.box_1',
+        ]
+        self.assertListEqual(sorted(original, key=sort_keys), expected)
+
+    def test_sort_keys_mixed_form_presence(self):
+        original = [
+            '1040_sb.829',
+            '10',
+            '5b',
+            '1040.first_name',
+            '51',
+            '1040_s8812.1a',
+            'box_1',
+            '5a',
+            '8995.5b',
+        ]
+        expected = [
+            '5a',
+            '5b',
+            '10',
+            '51',
+            'box_1',
+            '1040.first_name',
+            '1040_s8812.1a',
+            '1040_sb.829',
+            '8995.5b',
+        ]
+        self.assertListEqual(sorted(original, key=sort_keys), expected)
+
+    def test_sort_keys_mixed_types(self):
+        test_form = TestForm()
+        original = [
+            "test.9a",
+            test_form.inputs()[0],
+            "z.foobar",
+            test_form.fields()[0],
+            "test.c",
+            test_form.fields()[1],
+            "test.z00",
+            "000.1",
+            test_form.fields()[2],
+        ]
+        expected = [
+            "000.1",
+            "test.9a",
+            test_form.inputs()[0], # test.bar
+            "test.c",
+            test_form.fields()[2], # test.else
+            test_form.fields()[0], # test.foo
+            test_form.fields()[1], # test.something
+            "test.z00",
+            "z.foobar",
+        ]
+        self.assertListEqual(sorted(original, key=sort_keys), expected)
