@@ -39,6 +39,16 @@ apply_to_estimated_tax =
 account_number = 99999
 checking_account = yes
 routing_number = 123848494
+apartment_no = 
+city = Mytown
+foreign_country = 
+foreign_postal_code = 
+foreign_province = 
+home_address = 298537 Where St
+state = AA
+virtual_currency = no
+you_presidential_election = yes
+you_ssn = 123456789
 
 [w-2:0]
 box_1 = 100000.0
