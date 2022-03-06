@@ -160,9 +160,13 @@ class InvalidInput(Exception):
         super().__init__(self.message)
 
 class InputStore(MutableMapping):
-    def __init__(self, filename, input_specs={}):
-        self.config = configparser.ConfigParser()
-        self.config.read(filename)
+    def __init__(self, input_config, input_specs={}):
+        if isinstance(input_config, configparser.ConfigParser):
+            self.config = input_config
+        else:
+            self.config = configparser.ConfigParser()
+            with open(input_config) as config_file:
+                self.config.read_file(config_file)
         self.input_specs = input_specs
 
     def write(self, filename):

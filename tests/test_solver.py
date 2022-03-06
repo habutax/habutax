@@ -1,4 +1,5 @@
 import unittest
+from configparser import ConfigParser
 
 from . import context
 
@@ -209,3 +210,39 @@ class SortOrderTestCase(unittest.TestCase):
             "z.foobar",
         ]
         self.assertListEqual(sorted(original, key=sort_keys), expected)
+
+class SolverTestCase(unittest.TestCase):
+    def setUp(self):
+        self.config = ConfigParser()
+        self.inputs = InputStore(self.config)
+        self.solver = Solver(self.inputs, [TestForm])
+
+    def test_basic_form(self):
+        self.config['test'] = {'bar': '5'}
+        solved = self.solver.solve(['test'])
+
+        self.assertTrue(solved)
+        solution = self.solver.solution()
+        self.assertIn('test', solution)
+
+        for field, value in (('foo', '5'), ('something', '5'), ('else', '0')):
+            self.assertIn(field, solution['test'])
+            self.assertEqual(solution['test'][field], value)
+
+    def test_basic_form_missing_input(self):
+        solved = self.solver.solve(['test'])
+
+        self.assertFalse(solved)
+        solution = self.solver.solution()
+        self.assertNotIn('test', solution)
+
+        self.assertEqual(len(self.solver.unimplemented_fields()), 0)
+
+        dep = self.solver.unmet_input_dependencies()
+        self.assertEqual(len(dep), 1)
+        self.assertIn('test.bar', dep)
+        self.assertEqual(len(dep['test.bar']), 2)
+        self.assertIn('test.foo', dep['test.bar'])
+        self.assertIn('test.something', dep['test.bar'])
+
+        self.assertEqual(len(self.solver.unmet_field_dependencies()), 1)
