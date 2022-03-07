@@ -2,8 +2,6 @@ from collections.abc import MutableMapping
 import configparser
 import re
 
-from habutax.enum import StringyEnum
-
 class Input(object):
     def __init__(self, name, description=None):
         assert("." not in name)
@@ -44,9 +42,9 @@ class StringInput(Input):
 class BooleanInput(Input):
     def value(self, string):
         string = string.strip().lower()
-        if string in ['true', 'yes', 'y', '1']:
+        if string in ['true', 'yes', 'y', '1', 'on']:
             return True
-        if string in ['false', 'no', 'n', '0']:
+        if string in ['false', 'no', 'n', '0', 'off']:
             return False
         raise ValueError(f'Invalid boolean value: {string}')
 

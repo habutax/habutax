@@ -39,12 +39,12 @@ class InputTestCase(unittest.TestCase):
         for invalid in ['nope', 'nah', 'maybe', 'tomorrow', 'definitely', '', '2']:
             self.assertFalse(bool_input.valid(invalid))
 
-        for yes in ['yes', 'Yes', 'true', 'True', 'TRUE', '1']:
+        for yes in ['yes', 'Yes', 'true', 'True', 'TRUE', '1', 'ON', 'on']:
             self.assertTrue(bool_input.valid(yes))
             self.assertIsInstance(bool_input.value(yes), bool)
             self.assertEqual(bool_input.value(yes), True)
 
-        for no in ['no', 'NO', 'false', 'FALSE', 'False', '0']:
+        for no in ['no', 'NO', 'false', 'FALSE', 'False', '0', 'Off', 'OFF']:
             self.assertTrue(bool_input.valid(no))
             self.assertIsInstance(bool_input.value(no), bool)
             self.assertEqual(bool_input.value(no), False)

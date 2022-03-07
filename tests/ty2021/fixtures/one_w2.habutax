@@ -49,6 +49,7 @@ state = AA
 virtual_currency = no
 you_presidential_election = yes
 you_ssn = 123456789
+zip = 99999
 
 [w-2:0]
 box_1 = 100000.0

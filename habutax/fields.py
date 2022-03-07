@@ -36,6 +36,12 @@ class Field(object):
     def value(self, inputs, values):
         raise NotImplementedError()
 
+    def to_string(self, value):
+        raise NotImplementedError()
+
+    def from_string(self, string):
+        raise NotImplementedError()
+
 class TypedField(Field):
     def __init__(self, name, value_fn, _type):
         self._value = MethodType(value_fn, self)
@@ -50,22 +56,32 @@ class TypedField(Field):
             raise TypeError(f'Field named {self.name()} expected to produce type {self._type}, but found {type(v)}.')
         return v
 
-class StringField(TypedField):
+class BasicTypedField(TypedField):
+    def to_string(self, value):
+        return str(value)
+
+    def from_string(self, string):
+        return self._type(string)
+
+class StringField(BasicTypedField):
     def __init__(self, name, value_fn):
         self._empty_value = ""
         super().__init__(name, value_fn, str)
 
-class BooleanField(TypedField):
+class BooleanField(BasicTypedField):
     def __init__(self, name, value_fn):
         self._empty_value = False
         super().__init__(name, value_fn, bool)
 
-class IntegerField(TypedField):
+    def from_string(self, string):
+        return string.strip().lower() == 'true'
+
+class IntegerField(BasicTypedField):
     def __init__(self, name, value_fn):
         self._empty_value = 0
         super().__init__(name, value_fn, int)
 
-class FloatField(TypedField):
+class FloatField(BasicTypedField):
     def __init__(self, name, value_fn):
         self._empty_value = 0.0
         super().__init__(name, value_fn, float)
@@ -74,3 +90,16 @@ class EnumField(TypedField):
     def __init__(self, name, enum, value_fn):
         self._empty_value = None
         super().__init__(name, value_fn, enum)
+
+    def enum(self):
+        return self._type
+
+    def to_string(self, value):
+        if value is None:
+            return ""
+        return str(value)
+
+    def from_string(self, string):
+        if len(string) == 0:
+            return None
+        return self.enum()[string]

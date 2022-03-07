@@ -259,7 +259,7 @@ class Solver(object):
         """Return a ConfigParser object representing the portions of the
         requested forms which were successfully solved"""
         assert(self._done_solving)
-        return self._v.to_config()
+        return self._v.to_config(self._field_map)
 
     def unimplemented_fields(self):
         """Return a list of the unimplemented field names after a call to

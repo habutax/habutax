@@ -30,11 +30,12 @@ class ValueStore(MutableMapping):
     def __len__(self):
         return len(self.values)
 
-    def to_config(self):
+    def to_config(self, field_map):
         config = configparser.ConfigParser()
         for key, value in self.values.items():
+            field = field_map[key]
             form_name, field_name = key.split('.')
             if form_name not in config:
                 config[form_name] = {}
-            config[form_name][field_name] = str(value)
+            config[form_name][field_name] = field.to_string(value)
         return config

@@ -9,6 +9,8 @@ class Form(object):
                  inputs,
                  required_fields,
                  optional_fields,
+                 pdf_fields=[],
+                 pdf_file=None,
                  instance=None,
                  solver=None):
 
@@ -18,6 +20,8 @@ class Form(object):
         self._inputs = inputs
         self._required_fields = required_fields
         self._optional_fields = optional_fields
+        self._pdf_fields = pdf_fields
+        self._pdf_file = pdf_file
         self._instance = instance
         self._solver = solver
 
@@ -44,6 +48,12 @@ class Form(object):
 
     def fields(self):
         return self.required_fields() + self._optional_fields
+
+    def pdf_fields(self):
+        return self._pdf_fields
+
+    def pdf_file(self):
+        return self._pdf_file
 
 class InputForm(Form):
     """Convenience class to create a form which creates fields for each
