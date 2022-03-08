@@ -68,12 +68,13 @@ You can test HabuTax out with the following command-lines:
 ```
 % git clone https://github.com/habutax/habutax
 % cd habutax
-% python3 -m habutax \
+% python3 -m habutax solve \
     --year 2021 \
     --form 1040 \
     --writeback-input \
     --prompt-missing \
-    taxes_2021.habutax
+    taxes_2021.habutax \
+    --solution taxes_2021.solution
 ```
 
 taxes_2021.habutax is a plain-text input file, in [INI
@@ -83,8 +84,17 @@ don't need to: the `--prompt` option causes HabuTax to prompt you for any
 missing input, while `--writeback-input` causes any values you enter
 interactively in this way to be written back to the input file.
 
-The output is currently printed to stdout, though we plan to optionally write
-the output to a text file.
+The above example saves the results to a file named `taxes_2021.solution`. If
+you omit the `--solution` argument, it will print the results to stdout instead.
+
+Once you have successfully "solved" your taxes, you can write the results to PDF
+using:
+
+```
+% python3 -m habutax fill-pdfs \
+    taxes_2021.solution \
+    taxes_2021.pdf
+```
 
 For complete help text for the command-line interface, you can use `python3 -m
 habutax --help`.
