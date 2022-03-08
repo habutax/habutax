@@ -1,6 +1,9 @@
+import os
+
 from habutax.form import Form
 from habutax.inputs import *
 from habutax.fields import *
+from habutax.pdf_fields import *
 
 class Form1040SA(Form):
     form_name = "1040_sa"
@@ -111,9 +114,51 @@ class Form1040SA(Form):
             BooleanField('18', lambda s, i, v: i['itemize_though_less']),
         ]
         required_fields = [
+            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             FloatField('6_type', lambda s, i, v: i['other_taxes_type'] if i['other_taxes_amount'] > 0.001 else None),
             FloatField('8b_desc', lambda s, i, v: i['other_mortgage_interest_desc'] if i['other_mortgage_interest'] > 0.001 and not i['loan_limitations'] else None),
             FloatField('16_type', lambda s, i, v: i['other_itemized_type'] if i['other_itemized'] > 0.001 else None),
         ]
 
-        super().__init__(__class__, inputs, required_fields, optional_fields, **kwargs)
+        pdf_fields = [
+            TextPDFField('topmostSubform[0].Page1[0].f1_1[0]', 'full_name'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_2[0]', '1040.you_ssn', max_length=11),
+            TextPDFField('topmostSubform[0].Page1[0].f1_3[0]', '1'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_4[0]', '2'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_5[0]', '3'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_6[0]', '4'),
+#            ButtonPDFField('topmostSubform[0].Page1[0].c1_1[0]', '5a_checkbox', '1'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_7[0]', '5a'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_8[0]', '5b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_9[0]', '5c'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_10[0]', '5d'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_11[0]', '5e'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_12[0]', '6_type'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_13[0]', '6_type'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_14[0]', '6'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_15[0]', '7'),
+#            ButtonPDFField('topmostSubform[0].Page1[0].Line8_ReadOrder[0].c1_2[0]', '8', '1'), # If you didn’t use all of your home mortgage loan(s) to buy, build, or improve your home, see instructions and check this box
+            TextPDFField('topmostSubform[0].Page1[0].f1_16[0]', '8a'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_17[0]', '8b_person'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '8b_person'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '8b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_20[0]', '8c'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_21[0]', '8d'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_22[0]', '8e'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_23[0]', '9'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_24[0]', '10'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_25[0]', '11'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_26[0]', '12'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_27[0]', '13'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_28[0]', '14'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_29[0]', '15'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_30[0]', '16_type'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_31[0]', '16_type'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_32[0]', '16_type'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_33[0]', '16'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_34[0]', '17'),
+            ButtonPDFField('topmostSubform[0].Page1[0].Line18_ReadOrder[0].c1_3[0]', '18', '1'),
+        ]
+
+        pdf_file = os.path.join(os.path.dirname(__file__), 'f1040sa.pdf')
+        super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
