@@ -1,8 +1,10 @@
 from math import ceil
+import os
 
 from habutax.form import Form
 from habutax.inputs import *
 from habutax.fields import *
+from habutax.pdf_fields import *
 
 class Form1040S8812(Form):
     form_name = "1040_s8812"
@@ -150,7 +152,83 @@ class Form1040S8812(Form):
         ]
 
         required_fields = [
+            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             BooleanField('dependents_match', lambda s, i, v: True if sum([v[f'1040.dependent_{n}_ctc'] for n in range(i['1040.number_dependents'])]) == v['4a'] else s.not_implemented()), # TODO would be more user-friendly to be reported as some type of error rather than "not implemented"
         ]
 
-        super().__init__(__class__, inputs, required_fields, optional_fields, **kwargs)
+        pdf_fields = [
+            TextPDFField('topmostSubform[0].Page1[0].f1_01[0]', 'full_name'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
+            TextPDFField('topmostSubform[0].Page1[0].f1_03[0]', '1'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_04[0]', '2a'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_05[0]', '2b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_06[0]', '2c'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_07[0]', '2d'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_08[0]', '3'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_09[0]', '4a'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_10[0]', '4b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_11[0]', '4c'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_12[0]', '5'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_13[0]', '6'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_14[0]', '7'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_15[0]', '8'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_16[0]', '9'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_17[0]', '10'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '11'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '12'),
+            ButtonPDFField('topmostSubform[0].Page1[0].Line13_ReadOrder[0].c1_1[0]', '13a', '1'),
+            ButtonPDFField('topmostSubform[0].Page1[0].Line13_ReadOrder[0].c1_2[0]', '13b', '1'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_20[0]', '14a'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_21[0]', '14b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_22[0]', '14c'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_23[0]', '14d'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_24[0]', '14e'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_25[0]', '14f'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_26[0]', '14g'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_27[0]', '14b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_28[0]', '14i'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_01[0]', '15a'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_02[0]', '15b'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_03[0]', '15c'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_04[0]', '15d'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_05[0]', '15e'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_06[0]', '15f'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_07[0]', '15g'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_08[0]', '15h'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_09[0]', '16a'),
+#            TextPDFField('topmostSubform[0].Page2[0].Line16b_ReadOrder[0].f2_10[0]', '16b_num_qualifying_children'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_11[0]', '16b'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_12[0]', '17'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_13[0]', '18a'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_14[0]', '18b'),
+#            ButtonPDFField('topmostSubform[0].Page2[0].c2_1[0]', '19_no', '1'),
+#            ButtonPDFField('topmostSubform[0].Page2[0].c2_1[1]', '19_yes', '2'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_15[0]', '19'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_16[0]', '20'),
+#            ButtonPDFField('topmostSubform[0].Page2[0].c2_2[0]', '20_no', '1'),
+#            ButtonPDFField('topmostSubform[0].Page2[0].c2_2[1]', '20_yes', '2'),
+#            TextPDFField('topmostSubform[0].Page2[0].Line21_ReadOrder[0].f2_17[0]', '21'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_18[0]', '22'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_19[0]', '23'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_20[0]', '24'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_21[0]', '25'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_22[0]', '26'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_23[0]', '27'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_01[0]', '28a'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_02[0]', '28b'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_03[0]', '29'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_04[0]', '30'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_05[0]', '31'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_06[0]', '32'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_07[0]', '33'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_08[0]', '34'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_09[0]', '35'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_10[0]', '36'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_11[0]', '37'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_12[0]', '38'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_13[0]', '39'),
+            TextPDFField('topmostSubform[0].Page3[0].f3_14[0]', '40'),
+        ]
+
+        pdf_file = os.path.join(os.path.dirname(__file__), 'f1040s8.pdf')
+        super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
