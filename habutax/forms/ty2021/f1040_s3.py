@@ -1,6 +1,9 @@
+import os
+
 from habutax.form import Form
 from habutax.inputs import *
 from habutax.fields import *
+from habutax.pdf_fields import *
 
 class Form1040S3(Form):
     form_name = "1040_s3"
@@ -56,7 +59,52 @@ class Form1040S3(Form):
             FloatField('8', lambda s, i, v: sum([v[f'{n}'] for n in range(1,5+1)]) + v['7']),
         ]
         required_fields = [
+            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             StringField('6z_type', lambda s, i, v: s.not_implemented() if i['other_nonrefundable_credits'] else None), # Type of any nonrefundable credits
         ]
 
-        super().__init__(__class__, inputs, required_fields, optional_fields, **kwargs)
+        pdf_file = os.path.join(os.path.dirname(__file__), 'f1040s3.pdf')
+        pdf_fields = [
+            TextPDFField('form1[0].Page1[0].f1_01[0]', 'full_name'),
+            TextPDFField('form1[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
+            TextPDFField('form1[0].Page1[0].f1_03[0]', '1'),
+            TextPDFField('form1[0].Page1[0].f1_04[0]', '2'),
+            TextPDFField('form1[0].Page1[0].f1_05[0]', '3'),
+            TextPDFField('form1[0].Page1[0].f1_06[0]', '4'),
+            TextPDFField('form1[0].Page1[0].f1_07[0]', '5'),
+            TextPDFField('form1[0].Page1[0].f1_08[0]', '6a'),
+            TextPDFField('form1[0].Page1[0].f1_09[0]', '6b'),
+            TextPDFField('form1[0].Page1[0].f1_10[0]', '6c'),
+            TextPDFField('form1[0].Page1[0].f1_11[0]', '6d'),
+            TextPDFField('form1[0].Page1[0].f1_12[0]', '6e'),
+            TextPDFField('form1[0].Page1[0].f1_13[0]', '6f'),
+            TextPDFField('form1[0].Page1[0].f1_14[0]', '6g'),
+            TextPDFField('form1[0].Page1[0].f1_15[0]', '6h'),
+            TextPDFField('form1[0].Page1[0].f1_16[0]', '6i'),
+            TextPDFField('form1[0].Page1[0].f1_17[0]', '6j'),
+            TextPDFField('form1[0].Page1[0].f1_18[0]', '6k'),
+            TextPDFField('form1[0].Page1[0].f1_19[0]', '6l'),
+            TextPDFField('form1[0].Page1[0].Line6z_ReadOrder[0].f1_20[0]', '6z_type'),
+            TextPDFField('form1[0].Page1[0].Line6z_ReadOrder[0].f1_21[0]', '6z_type'),
+            TextPDFField('form1[0].Page1[0].f1_22[0]', '6z'),
+            TextPDFField('form1[0].Page1[0].f1_23[0]', '7'),
+            TextPDFField('form1[0].Page1[0].f1_24[0]', '8'),
+            TextPDFField('form1[0].Page2[0].f2_01[0]', '9'),
+            TextPDFField('form1[0].Page2[0].f2_02[0]', '10'),
+            TextPDFField('form1[0].Page2[0].f2_03[0]', '11'),
+            TextPDFField('form1[0].Page2[0].f2_04[0]', '12'),
+            TextPDFField('form1[0].Page2[0].Line13_ReadOrder[0].f2_05[0]', '13a'),
+            TextPDFField('form1[0].Page2[0].f2_06[0]', '13b'),
+            TextPDFField('form1[0].Page2[0].f2_07[0]', '13c'),
+            TextPDFField('form1[0].Page2[0].f2_08[0]', '13d'),
+            TextPDFField('form1[0].Page2[0].f2_09[0]', 'unknown'),
+            TextPDFField('form1[0].Page2[0].f2_10[0]', '13f'),
+            TextPDFField('form1[0].Page2[0].f2_11[0]', '13g'),
+            TextPDFField('form1[0].Page2[0].f2_12[0]', '13h'),
+            TextPDFField('form1[0].Page2[0].Line13z_ReadOrder[0].f2_13[0]', '13z_type'),
+            TextPDFField('form1[0].Page2[0].Line13z_ReadOrder[0].f2_14[0]', '13z_type'),
+            TextPDFField('form1[0].Page2[0].f2_15[0]', '13z'),
+            TextPDFField('form1[0].Page2[0].f2_16[0]', '14'),
+            TextPDFField('form1[0].Page2[0].f2_17[0]', '15'),
+        ]
+        super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
