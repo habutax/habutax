@@ -1,6 +1,9 @@
+import os
+
 from habutax.form import Form
 from habutax.inputs import *
 from habutax.fields import *
+from habutax.pdf_fields import *
 
 class Form8959(Form):
     form_name = "8959"
@@ -19,16 +22,18 @@ class Form8959(Form):
                 threshold = 125000.0
             return threshold
 
-        optional_fields = [
-            # Part II - Additional Medicare Tax on Medicare Wages
+        required_fields = [
+            # Part I - Additional Medicare Tax on Medicare Wages
             FloatField('1', lambda s, i, v: float(sum([v[f'w-2:{n}.box_5'] for n in range(i['1040.number_w-2'])]))),
-            FloatField('2', lambda s, i, v: s.not_implemented() if i['other_medicate_income'] else None),
-            FloatField('3', lambda s, i, v: s.not_implemented() if i['other_medicate_income'] else None),
+            FloatField('2', lambda s, i, v: s.not_implemented() if i['other_medicare_income'] else None),
+            FloatField('3', lambda s, i, v: s.not_implemented() if i['other_medicare_income'] else None),
             FloatField('4', lambda s, i, v: v['1'] + v['2'] + v['3']),
             FloatField('5', additional_medicare_threshold),
             FloatField('6', lambda s, i, v: max(0.0, v['4'] - v['5'])),
             FloatField('7', lambda s, i, v: v['6'] * 0.009),
+        ]
 
+        optional_fields = [
             # Part II - Additional Medicare Tax on Self-Employment Income
             FloatField('8', lambda s, i, v: s.not_implmented() if i['1040.self_employment_income'] else None),
             FloatField('9', additional_medicare_threshold),
@@ -55,6 +60,34 @@ class Form8959(Form):
             FloatField('24', lambda s, i, v: v['22'] + v['23']),
         ]
 
-        required_fields = [
+        pdf_fields = [
+            TextPDFField('topmostSubform[0].Page1[0].f1_1[0]', '1040.full_names'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_2[0]', '1040.you_ssn', max_length=11),
+            TextPDFField('topmostSubform[0].Page1[0].f1_3[0]', '1'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_4[0]', '2'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_5[0]', '3'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_6[0]', '4'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_7[0]', '5'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_8[0]', '6'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_9[0]', '7'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_10[0]', '8'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_11[0]', '9'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_12[0]', '10'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_13[0]', '11'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_14[0]', '12'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_15[0]', '13'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_16[0]', '14'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_17[0]', '15'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '16'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '17'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_20[0]', '18'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_21[0]', '19'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_22[0]', '20'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_23[0]', '21'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_24[0]', '22'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_25[0]', '23'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_26[0]', '24'),
         ]
-        super().__init__(__class__, inputs, required_fields, optional_fields, **kwargs)
+        pdf_file = os.path.join(os.path.dirname(__file__), 'f8959.pdf')
+
+        super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
