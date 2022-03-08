@@ -82,9 +82,13 @@ class PDFFiller(object):
             field_name = pdf_field.field_name
             if "." not in field_name:
                 field_name = f'{form.name()}.{field_name}'
-            value = self._values[field_name]
-            field = self._field_map[field_name]
-            fdf_map[pdf_field.pdf_field_name] = pdf_field.value(value, field)
+            try:
+                value = self._values[field_name]
+                field = self._field_map[field_name]
+                string_value = pdf_field.value(value, field)
+            except values.UnmetDependency:
+                string_value = ""
+            fdf_map[pdf_field.pdf_field_name] = string_value
 
         fdf_filename = f'{pdf_filename}.fdf'
         self._create_fdf(fdf_map, fdf_filename)
