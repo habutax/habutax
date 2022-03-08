@@ -44,7 +44,6 @@ class Form1040SB(Form):
             return None
 
         required_fields = [
-            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             StringField('part_3', part_3),
         ]
 
@@ -61,12 +60,8 @@ class Form1040SB(Form):
             required_fields += [int_payer, int_amount, div_payer, div_amount]
 
         pdf_fields = [
-            TextPDFField('topmostSubform[0].Page1[0].f1_1[0]', 'full_name'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_1[0]', '1040.full_names'),
             TextPDFField('topmostSubform[0].Page1[0].f1_2[0]', '1040.you_ssn', max_length=11),
-            TextPDFField('topmostSubform[0].Page1[0].f1_3[0]', '1.1'),
-            TextPDFField('topmostSubform[0].Page1[0].f1_4[0]', '1.1_amt'),
-            TextPDFField('topmostSubform[0].Page1[0].f1_5[0]', '1.2'),
-            TextPDFField('topmostSubform[0].Page1[0].f1_6[0]', '1.2_amt'),
             TextPDFField('topmostSubform[0].Page1[0].f1_31[0]', '2'),
             TextPDFField('topmostSubform[0].Page1[0].f1_32[0]', '3'),
             TextPDFField('topmostSubform[0].Page1[0].f1_33[0]', '4'),

@@ -102,6 +102,12 @@ class Form1040(Form):
                 BooleanInput(f'dependent_{n}_odc', description=f'Does dependent {n+1} qualify for the credit for other dependents? See the "Who Qualifies as Your Dependent" section in the instructions for Form 1040.'),
             ]
 
+        def full_names(self, i, v):
+            names = [f'{v["first_name"]} {v["last_name"]}']
+            if i['filing_status'] == self.form().FILING_STATUS.MarriedFilingJointly:
+                names.append(f'{v["spouse_first_name"]} {v["spouse_last_name"]}')
+            return ", ".join(names)
+
         def line_1(self, i, v):
             """Wages, salaries, tips, etc."""
             statutory = False
@@ -328,6 +334,7 @@ class Form1040(Form):
             StringField('spouse_first_name', lambda s, i, v: i['spouse_first_name_middle_initial'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
             StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
             StringField('spouse_ssn', lambda s, i, v: i['spouse_ssn'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
+            StringField('full_names', full_names),
             StringField('home_address', lambda s, i, v: i['home_address']),
             StringField('apartment_no', lambda s, i, v: i['apartment_no']),
             StringField('city', lambda s, i, v: i['city']),

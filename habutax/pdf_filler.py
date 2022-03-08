@@ -82,6 +82,9 @@ class PDFFiller(object):
             field_name = pdf_field.field_name
             if "." not in field_name:
                 field_name = f'{form.name()}.{field_name}'
+
+            if field_name not in self._field_map:
+                raise RuntimeError(f'PDF filler found a field absent from the specification of any supplied form: {field_name} in form {form.name()}')
             try:
                 value = self._values[field_name]
                 field = self._field_map[field_name]

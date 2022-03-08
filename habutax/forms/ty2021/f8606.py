@@ -1,6 +1,9 @@
+import os
+
 from habutax.form import Form
 from habutax.inputs import *
 from habutax.fields import *
+from habutax.pdf_fields import *
 
 class Form8606(Form):
     form_name = "8606"
@@ -85,7 +88,68 @@ class Form8606(Form):
                     self.not_implemented()
             return total
 
+        def name_field(self, i, v):
+            if self.form().instance() == 'spouse':
+                return f'{v["1040.spouse_first_name"]} {v["1040.spouse_last_name"]}'
+            else:
+                return f'{v["1040.first_name"]} {v["1040.last_name"]}'
+
         required_fields = [
+            StringField('name', name_field),
+            StringField('ssn', lambda s, i, v: v[f'1040.{s.form().instance()}_ssn']),
             FloatField('taxable_amount', taxable_amount),
         ]
-        super().__init__(__class__, inputs, required_fields, optional_fields, **kwargs)
+
+        pdf_fields = [
+            TextPDFField('topmostSubform[0].Page1[0].f1_1[0]', 'name'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_2[0]', 'ssn', max_length=11),
+            # only if filling form by itself
+#            TextPDFField('topmostSubform[0].Page1[0].f1_3[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_4[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_5[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_6[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_7[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_8[0]', 'unknown'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_9[0]', '1'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_10[0]', '2'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_11[0]', '3'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_12[0]', '4'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_13[0]', '5'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_14[0]', '6'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_15[0]', '7'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_16[0]', '8'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_17[0]', '9'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '10', max_length=1, value_fn=lambda s, v, f: 1 if v > 1 else 0),
+            TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '10', value_fn=lambda s, v, f: int(round((v % 1) * 100000, 0))),
+            TextPDFField('topmostSubform[0].Page1[0].f1_20[0]', '11'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_21[0]', '12'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_22[0]', '13'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_23[0]', '14'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_24[0]', '15a'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_25[0]', '15b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_26[0]', '15c'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_1[0]', '16'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_2[0]', '17'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_3[0]', '18'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_4[0]', '19'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_5[0]', '20'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_6[0]', '21'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_7[0]', '22'),
+            TextPDFField('topmostSubform[0].Page2[0].f2_8[0]', '23'),
+            # unimplemented
+#            TextPDFField('topmostSubform[0].Page2[0].f2_9[0]', '24'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_10[0]', '25a'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_11[0]', '25b'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_12[0]', '25c'),
+            # only if filling form by itself
+#            TextPDFField('topmostSubform[0].Page2[0].f2_13[0]', 'unknown'),
+#            ButtonPDFField('topmostSubform[0].Page2[0].c2_1[0]', 'unknown', '1'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_14[0]', 'unknown', max_length=11),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_15[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_16[0]', 'unknown', max_length=10),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_17[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_18[0]', 'unknown'),
+        ]
+
+        pdf_file = os.path.join(os.path.dirname(__file__), 'f8606.pdf')
+        super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)

@@ -152,12 +152,11 @@ class Form1040S8812(Form):
         ]
 
         required_fields = [
-            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             BooleanField('dependents_match', lambda s, i, v: True if sum([v[f'1040.dependent_{n}_ctc'] for n in range(i['1040.number_dependents'])]) == v['4a'] else s.not_implemented()), # TODO would be more user-friendly to be reported as some type of error rather than "not implemented"
         ]
 
         pdf_fields = [
-            TextPDFField('topmostSubform[0].Page1[0].f1_01[0]', 'full_name'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_01[0]', '1040.full_names'),
             TextPDFField('topmostSubform[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
             TextPDFField('topmostSubform[0].Page1[0].f1_03[0]', '1'),
             TextPDFField('topmostSubform[0].Page1[0].f1_04[0]', '2a'),

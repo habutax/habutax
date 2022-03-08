@@ -36,6 +36,9 @@ class Form(object):
         else:
             return f'{self._name}:{self._instance}'
 
+    def instance(self):
+        return self._instance
+
     def solver(self):
         assert(self._solver)
         return self._solver

@@ -127,13 +127,12 @@ class Form1040S1(Form):
             FloatField('26', lambda s, i, v: sum([v[f'{n}'] for n in range(11,19) + range(20,24)]) + v['19a'] + v['25']),
         ]
         required_fields = [
-            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             StringField('8z_type', lambda s, i, v: other_income(s, i, v)[0]),
             StringField('24z_type', lambda s, i, v: i['other_adjustments_type'] if i['need_other_adjustments'] else None),
         ]
 
         pdf_fields = [
-            TextPDFField('form1[0].Page1[0].f1_01[0]', 'full_name'),
+            TextPDFField('form1[0].Page1[0].f1_01[0]', '1040.full_names'),
             TextPDFField('form1[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
             TextPDFField('form1[0].Page1[0].f1_03[0]', '1'),
             TextPDFField('form1[0].Page1[0].f1_04[0]', '2a'),
@@ -172,12 +171,12 @@ class Form1040S1(Form):
             TextPDFField('form1[0].Page2[0].f2_06[0]', '16'),
             TextPDFField('form1[0].Page2[0].f2_07[0]', '17'),
             TextPDFField('form1[0].Page2[0].f2_08[0]', '18'),
-            TextPDFField('form1[0].Page2[0].f2_09[0]', '19'),
+            TextPDFField('form1[0].Page2[0].f2_09[0]', '19a'),
             TextPDFField('form1[0].Page2[0].Line19b_CombField[0].f2_10[0]', '19b', max_length=9),
             TextPDFField('form1[0].Page2[0].f2_11[0]', '19c'),
             TextPDFField('form1[0].Page2[0].f2_12[0]', '20'),
             TextPDFField('form1[0].Page2[0].f2_13[0]', '21'),
-            TextPDFField('form1[0].Page2[0].f2_14[0]', 'unknown'),
+            TextPDFField('form1[0].Page2[0].f2_14[0]', '22'), #"Reserved for future use"
             TextPDFField('form1[0].Page2[0].f2_15[0]', '23'),
             TextPDFField('form1[0].Page2[0].f2_16[0]', '24a'),
             TextPDFField('form1[0].Page2[0].f2_17[0]', '24b'),

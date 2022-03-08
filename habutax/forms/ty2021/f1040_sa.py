@@ -114,14 +114,13 @@ class Form1040SA(Form):
             BooleanField('18', lambda s, i, v: i['itemize_though_less']),
         ]
         required_fields = [
-            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             FloatField('6_type', lambda s, i, v: i['other_taxes_type'] if i['other_taxes_amount'] > 0.001 else None),
             FloatField('8b_desc', lambda s, i, v: i['other_mortgage_interest_desc'] if i['other_mortgage_interest'] > 0.001 and not i['loan_limitations'] else None),
             FloatField('16_type', lambda s, i, v: i['other_itemized_type'] if i['other_itemized'] > 0.001 else None),
         ]
 
         pdf_fields = [
-            TextPDFField('topmostSubform[0].Page1[0].f1_1[0]', 'full_name'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_1[0]', '1040.full_names'),
             TextPDFField('topmostSubform[0].Page1[0].f1_2[0]', '1040.you_ssn', max_length=11),
             TextPDFField('topmostSubform[0].Page1[0].f1_3[0]', '1'),
             TextPDFField('topmostSubform[0].Page1[0].f1_4[0]', '2'),

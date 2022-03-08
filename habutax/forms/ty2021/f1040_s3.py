@@ -59,13 +59,12 @@ class Form1040S3(Form):
             FloatField('8', lambda s, i, v: sum([v[f'{n}'] for n in range(1,5+1)]) + v['7']),
         ]
         required_fields = [
-            StringField('full_name', lambda s, i, v: v['1040.first_name'] + " " + v['1040.last_name']),
             StringField('6z_type', lambda s, i, v: s.not_implemented() if i['other_nonrefundable_credits'] else None), # Type of any nonrefundable credits
         ]
 
         pdf_file = os.path.join(os.path.dirname(__file__), 'f1040s3.pdf')
         pdf_fields = [
-            TextPDFField('form1[0].Page1[0].f1_01[0]', 'full_name'),
+            TextPDFField('form1[0].Page1[0].f1_01[0]', '1040.full_names'),
             TextPDFField('form1[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
             TextPDFField('form1[0].Page1[0].f1_03[0]', '1'),
             TextPDFField('form1[0].Page1[0].f1_04[0]', '2'),
@@ -89,22 +88,22 @@ class Form1040S3(Form):
             TextPDFField('form1[0].Page1[0].f1_22[0]', '6z'),
             TextPDFField('form1[0].Page1[0].f1_23[0]', '7'),
             TextPDFField('form1[0].Page1[0].f1_24[0]', '8'),
-            TextPDFField('form1[0].Page2[0].f2_01[0]', '9'),
-            TextPDFField('form1[0].Page2[0].f2_02[0]', '10'),
-            TextPDFField('form1[0].Page2[0].f2_03[0]', '11'),
-            TextPDFField('form1[0].Page2[0].f2_04[0]', '12'),
-            TextPDFField('form1[0].Page2[0].Line13_ReadOrder[0].f2_05[0]', '13a'),
-            TextPDFField('form1[0].Page2[0].f2_06[0]', '13b'),
-            TextPDFField('form1[0].Page2[0].f2_07[0]', '13c'),
-            TextPDFField('form1[0].Page2[0].f2_08[0]', '13d'),
-            TextPDFField('form1[0].Page2[0].f2_09[0]', 'unknown'),
-            TextPDFField('form1[0].Page2[0].f2_10[0]', '13f'),
-            TextPDFField('form1[0].Page2[0].f2_11[0]', '13g'),
-            TextPDFField('form1[0].Page2[0].f2_12[0]', '13h'),
-            TextPDFField('form1[0].Page2[0].Line13z_ReadOrder[0].f2_13[0]', '13z_type'),
-            TextPDFField('form1[0].Page2[0].Line13z_ReadOrder[0].f2_14[0]', '13z_type'),
-            TextPDFField('form1[0].Page2[0].f2_15[0]', '13z'),
-            TextPDFField('form1[0].Page2[0].f2_16[0]', '14'),
-            TextPDFField('form1[0].Page2[0].f2_17[0]', '15'),
+#            TextPDFField('form1[0].Page2[0].f2_01[0]', '9'),
+#            TextPDFField('form1[0].Page2[0].f2_02[0]', '10'),
+#            TextPDFField('form1[0].Page2[0].f2_03[0]', '11'),
+#            TextPDFField('form1[0].Page2[0].f2_04[0]', '12'),
+#            TextPDFField('form1[0].Page2[0].Line13_ReadOrder[0].f2_05[0]', '13a'),
+#            TextPDFField('form1[0].Page2[0].f2_06[0]', '13b'),
+#            TextPDFField('form1[0].Page2[0].f2_07[0]', '13c'),
+#            TextPDFField('form1[0].Page2[0].f2_08[0]', '13d'),
+#            TextPDFField('form1[0].Page2[0].f2_09[0]', 'unknown'),
+#            TextPDFField('form1[0].Page2[0].f2_10[0]', '13f'),
+#            TextPDFField('form1[0].Page2[0].f2_11[0]', '13g'),
+#            TextPDFField('form1[0].Page2[0].f2_12[0]', '13h'),
+#            TextPDFField('form1[0].Page2[0].Line13z_ReadOrder[0].f2_13[0]', '13z_type'),
+#            TextPDFField('form1[0].Page2[0].Line13z_ReadOrder[0].f2_14[0]', '13z_type'),
+#            TextPDFField('form1[0].Page2[0].f2_15[0]', '13z'),
+#            TextPDFField('form1[0].Page2[0].f2_16[0]', '14'),
+#            TextPDFField('form1[0].Page2[0].f2_17[0]', '15'),
         ]
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
