@@ -42,7 +42,7 @@ class Form8606(Form):
             FloatField('7', lambda s, i, v: i['distributions_2021']),
             FloatField('8', lambda s, i, v: i['net_converted']),
             FloatField('9', lambda s, i, v: v['6'] + v['7'] + v['8']),
-            FloatField('10', lambda s, i, v: min(1.000, float(v['5']) / float(v['9']), 1.000)),
+            FloatField('10', lambda s, i, v: min(1.000, float(v['5']) / float(v['9']), 1.000), places=5),
             FloatField('11', lambda s, i, v: v['8'] * v['10']),
             FloatField('12', lambda s, i, v: v['7'] * v['10']),
             FloatField('13', lambda s, i, v: v['11'] + v['12']),

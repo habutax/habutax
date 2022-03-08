@@ -82,9 +82,20 @@ class IntegerField(BasicTypedField):
         super().__init__(name, value_fn, int)
 
 class FloatField(BasicTypedField):
-    def __init__(self, name, value_fn):
+    def __init__(self, name, value_fn, places=2):
         self._empty_value = 0.0
+        self._places = places
         super().__init__(name, value_fn, float)
+
+    def value(self, inputs, values):
+        value = super().value(inputs, values)
+        return round(value, self._places)
+
+    def to_string(self, value):
+        return f'{value:.{self._places}f}'
+
+    def from_string(self, string):
+        return round(float(string), self._places)
 
 class EnumField(TypedField):
     def __init__(self, name, enum, value_fn):
