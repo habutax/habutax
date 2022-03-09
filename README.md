@@ -31,15 +31,17 @@ forms).
 
 ## Implemented Forms
 
-* 1040 (no variants)
-* 1040, Schedule 1
-* 1040, Schedule 3 (part I only)
-* 1040, Schedule A
-* 1040, Schedule B
-* 1040, Schedule 8812
-* 8606
-* 8959
-* 8995 (currently only Section 199a dividends, but additional Qualified Business
+* Form 1040, U.S. Individual Income Tax Return
+* Schedule 1 (Form 1040), Additional Income and Adjustments to Income
+* Schedule 3 (Form 1040), Additional Credits and Payments (part I only)
+* Schedule A (Form 1040), Itemized Deductions
+* Schedule B (Form 1040), Interest and Ordinary Dividends
+* Schedule 8812 (Form 1040), Credits for Qualifying Children and Other
+  Dependents
+* Form 8606, Nondeductible IRAs
+* Form 8959, Additional Medicare Tax
+* Form 8995, Qualified Business Income Deduction Simplified Computation
+  (currently only Section 199a dividends, but additional Qualified Business
   Income support could be added upon request)
 
 ### Inputs
@@ -47,19 +49,21 @@ forms).
 In addition to the above "output" forms, HabuTax supports the following forms
 provided to you by your employer or financial institution:
 
-* 1098
-* 1099-DIV
-* 1099-G
-* 1099-INT
-* 1099-R
-* W-2
+* Form 1098, Mortgage Interest Statement
+* Form 1099-DIV, Dividends and Distributions
+* Form 1099-G, Certain Government Payments (previous-year state income tax
+  refunds)
+* Form 1099-INT, Interest Income
+* Form 1099-R, Distributions From Pensions, Annuities, Retirement or
+  Profit-Sharing Plans, IRAs, Insurance Contracts, etc.
+* Form W-2, Wage and Tax Statement
 
 ## Coming soon
 
-* 2441
-* 8283
-* 8889
-* NC state forms
+* Form 2441, Child and Dependent Care Expenses
+* Form 8283, Noncash Charitable Contributions
+* Form 8889, Health Savings Accounts
+* NC state income tax forms
 
 ## Usage
 
@@ -99,21 +103,32 @@ using:
 For complete help text for the command-line interface, you can use `python3 -m
 habutax --help`.
 
-## Contributing
+## Can You Help?
 
-Please feel free to open an issue if you have ideas for improving HabuTax, or
-jump straight to a merge request if you have fairly simple code contributions.
-Opening an issue to discuss the architecture of your contribution may be helpful
-to avoid wasted effort for more significant changes.
+Please [open an issue](https://github.com/habutax/habutax/issues/new) if you
+want to help or have ideas for improving HabuTax, or jump straight to a merge
+request if you have fairly simple code contributions. Opening an issue to
+discuss the architecture of your contribution first may be helpful to avoid
+wasted effort for more significant changes.
+
+One of the primary motivations in the design of HabuTax is to ensure it is easy
+to [add and maintain new forms](doc/adding_modifying_forms.md). Crowdsourcing
+this piece is important to ensure this project remains healthy long-term. We are
+open to ideas of how best to do so: One idea is to have contributors informally
+agree to update and/or test an individual form for coming tax year. Our guess is
+that, on average, updating a single form for a new year will take less time than
+filling out a personal income tax return!
 
 To learn more about the HabuTax internals, you may wish to read our
 documentation about [how the solver works](doc/solver.md) or [how to add/modify
 tax forms](doc/adding_modifying_forms.md).
 
-### Tests
+### Tests and Form Data for Them
 
 Tests are currently run using `make test` in the root directory of the
 repository. We are always looking to add additional tests, and particularly
 welcome your contribution of anonymized tax input data (along with the right
 answers!) to help ensure HabuTax's calculations remain correct for all
-scenarios.
+scenarios. Even data from a single form in isolation is quite helpful. Please
+free to [open an issue](https://github.com/habutax/habutax/issues/new)
+describing what you would like to do!
