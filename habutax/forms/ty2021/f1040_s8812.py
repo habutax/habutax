@@ -1,7 +1,7 @@
 from math import ceil
 import os
 
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.pdf_fields import *
@@ -9,6 +9,10 @@ from habutax.pdf_fields import *
 class Form1040S8812(Form):
     form_name = "1040_s8812"
     tax_year = 2021
+    description = "Schedule 8812 (Form 1040)"
+    long_description = "Credits for Qualifying Children and Other Dependents"
+    jurisdiction = Jurisdiction.US
+    sequence_no = 47
 
     def __init__(self, **kwargs):
         inputs = [
@@ -231,3 +235,6 @@ class Form1040S8812(Form):
 
         pdf_file = os.path.join(os.path.dirname(__file__), 'f1040s8.pdf')
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
+
+    def needs_filing(self, values):
+        return True

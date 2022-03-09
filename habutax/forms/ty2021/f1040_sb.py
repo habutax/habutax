@@ -1,6 +1,6 @@
 import os
 
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.pdf_fields import *
@@ -8,6 +8,10 @@ from habutax.pdf_fields import *
 class Form1040SB(Form):
     form_name = "1040_sb"
     tax_year = 2021
+    description = "Schedule B (Form 1040)"
+    long_description = "Interest and Ordinary Dividends"
+    jurisdiction = Jurisdiction.US
+    sequence_no = 8
 
     def __init__(self, **kwargs):
         NUM_FIELDS = 14
@@ -84,3 +88,6 @@ class Form1040SB(Form):
 
         pdf_file = os.path.join(os.path.dirname(__file__), 'f1040sb.pdf')
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
+
+    def needs_filing(self, values):
+        return True

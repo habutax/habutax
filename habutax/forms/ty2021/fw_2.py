@@ -1,10 +1,13 @@
 import habutax.enum as enum
-from habutax.form import InputForm
+from habutax.form import InputForm, Jurisdiction
 from habutax.inputs import *
 
 class FormW2(InputForm):
     form_name = "w-2"
     tax_year = 2021
+    description = "Form W-2"
+    long_description = "Wage and Tax Statement"
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         # FIXME go through these inputs and prohibit those we don't handle

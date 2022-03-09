@@ -1,10 +1,13 @@
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 
 class Form1040S2Need6251(Form):
     form_name = "1040_s2_need_6251"
     tax_year = 2021
+    description = "Worksheet To See if You Should Fill in Form 6251 (Form 1040)"
+    long_description = "Schedule 2, Line 1"
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         inputs = [
@@ -67,3 +70,6 @@ class Form1040S2Need6251(Form):
         ]
 
         super().__init__(__class__, inputs, [], optional_fields, **kwargs)
+
+    def needs_filing(self, values):
+        return False

@@ -1,7 +1,70 @@
 from collections.abc import Mapping
+from enum import Enum, auto, unique
 
 from habutax.inputs import StringInput, BooleanInput, IntegerInput, FloatInput, EnumInput, SSNInput
 from habutax.fields import StringField, BooleanField, IntegerField, FloatField, EnumField
+
+class AutoNumber(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return 0 if len(last_values) == 0 else max(last_values) + 1
+
+@unique
+class Jurisdiction(AutoNumber):
+    # US Federal
+    US = auto()
+    # US state
+    AK = auto()
+    AL = auto()
+    AR = auto()
+    AZ = auto()
+    CA = auto()
+    CO = auto()
+    CT = auto()
+    DC = auto()
+    DE = auto()
+    FL = auto()
+    GA = auto()
+    HI = auto()
+    IA = auto()
+    ID = auto()
+    IL = auto()
+    IN = auto()
+    KS = auto()
+    KY = auto()
+    LA = auto()
+    MA = auto()
+    MD = auto()
+    ME = auto()
+    MI = auto()
+    MN = auto()
+    MO = auto()
+    MS = auto()
+    MT = auto()
+    NC = auto()
+    ND = auto()
+    NE = auto()
+    NH = auto()
+    NJ = auto()
+    NM = auto()
+    NV = auto()
+    NY = auto()
+    OH = auto()
+    OK = auto()
+    OR = auto()
+    PA = auto()
+    PR = auto()
+    RI = auto()
+    SC = auto()
+    SD = auto()
+    TN = auto()
+    TX = auto()
+    UT = auto()
+    VA = auto()
+    VT = auto()
+    WA = auto()
+    WI = auto()
+    WV = auto()
+    WY = auto()
 
 class Form(object):
     def __init__(self,
@@ -58,6 +121,9 @@ class Form(object):
     def pdf_file(self):
         return self._pdf_file
 
+    def needs_filing(self, values):
+        raise NotImplementedError()
+
 class InputForm(Form):
     """Convenience class to create a form which creates fields for each
     input"""
@@ -85,6 +151,12 @@ class InputForm(Form):
                 raise TypeError(f'Unexpected input type in InputForm: {type(i)}')
 
         super().__init__(child_cls, inputs, fields, [], **kwargs)
+
+    def needs_filing(self, values):
+        # For typical input-only forms like W-2, 1099, 1098, habutax does not
+        # need to present them to be filed because the user already has copies
+        # of them
+        return False
 
 class FormAccessor(Mapping):
     def __init__(self, mapping, form):

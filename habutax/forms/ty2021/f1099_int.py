@@ -1,9 +1,12 @@
-from habutax.form import InputForm
+from habutax.form import InputForm, Jurisdiction
 from habutax.inputs import *
 
 class Form1099INT(InputForm):
     form_name = "1099-int"
     tax_year = 2021
+    description = "Form 1099-INT"
+    long_description = "Interest Income"
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         inputs = [

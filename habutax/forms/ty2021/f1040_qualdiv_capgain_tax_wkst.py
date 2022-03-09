@@ -1,4 +1,4 @@
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 
@@ -7,6 +7,9 @@ from habutax.forms.ty2021.f1040_figure_tax import figure_tax
 class Form1040QualDivCapGainTaxWkst(Form):
     form_name = "1040_qualdiv_capgain_tax_wkst"
     tax_year = 2021
+    description = "Qualified Dividends and Capital Gain Tax Worksheet (Form 1040)"
+    long_description = "Line 16"
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         inputs = [
@@ -66,3 +69,6 @@ class Form1040QualDivCapGainTaxWkst(Form):
         ]
 
         super().__init__(__class__, inputs, [], optional_fields, **kwargs)
+
+    def needs_filing(self, values):
+        return False

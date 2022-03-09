@@ -1,10 +1,13 @@
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 
 class Form1040RecoveryRebateCreditWkst(Form):
     form_name = "1040_recovery_rebate_credit_wkst"
     tax_year = 2021
+    description = "Recovery Rebate Credit Worksheet (Form 1040)"
+    long_description = "Line 30"
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         inputs = [
@@ -100,3 +103,6 @@ class Form1040RecoveryRebateCreditWkst(Form):
         ]
 
         super().__init__(__class__, inputs, [], optional_fields, **kwargs)
+
+    def needs_filing(self, values):
+        return False

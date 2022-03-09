@@ -1,6 +1,6 @@
 import os
 
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.pdf_fields import *
@@ -8,6 +8,10 @@ from habutax.pdf_fields import *
 class Form8606(Form):
     form_name = "8606"
     tax_year = 2021
+    description = "Form 8606"
+    long_description = "Nondeductible IRAs"
+    jurisdiction = Jurisdiction.US
+    sequence_no = 48
 
     def __init__(self, **kwargs):
         instance = kwargs['instance']
@@ -150,6 +154,9 @@ class Form8606(Form):
 #            TextPDFField('topmostSubform[0].Page2[0].f2_17[0]', 'unknown'),
 #            TextPDFField('topmostSubform[0].Page2[0].f2_18[0]', 'unknown'),
         ]
-
         pdf_file = os.path.join(os.path.dirname(__file__), 'f8606.pdf')
+
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
+
+    def needs_filing(self, values):
+        return True

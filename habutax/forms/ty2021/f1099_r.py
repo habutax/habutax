@@ -1,9 +1,12 @@
-from habutax.form import InputForm
+from habutax.form import InputForm, Jurisdiction
 from habutax.inputs import *
 
 class Form1099R(InputForm):
     form_name = "1099-r"
     tax_year = 2021
+    description = "Form 1099-R"
+    long_description = "Distributions From Pensions, Annuities, Retirement or Profit-Sharing Plans, IRAs, Insurance Contracts, etc."
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         inputs = [

@@ -1,9 +1,12 @@
-from habutax.form import InputForm
+from habutax.form import InputForm, Jurisdiction
 from habutax.inputs import *
 
 class Form1099DIV(InputForm):
     form_name = "1099-div"
     tax_year = 2021
+    description = "Form 1099-DIV"
+    long_description = "Dividends and Distributions"
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         inputs = [

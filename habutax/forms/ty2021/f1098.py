@@ -1,9 +1,12 @@
-from habutax.form import InputForm
+from habutax.form import InputForm, Jurisdiction
 from habutax.inputs import *
 
 class Form1098(InputForm):
     form_name = "1098"
     tax_year = 2021
+    description = "Form 1098"
+    long_description = "Mortgage Interest Statement"
+    jurisdiction = Jurisdiction.US
 
     def __init__(self, **kwargs):
         inputs = [

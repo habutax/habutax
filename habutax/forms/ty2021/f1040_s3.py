@@ -1,6 +1,6 @@
 import os
 
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.pdf_fields import *
@@ -8,6 +8,10 @@ from habutax.pdf_fields import *
 class Form1040S3(Form):
     form_name = "1040_s3"
     tax_year = 2021
+    description = "Schedule 3 (Form 1040)"
+    long_description = "Additional Credits and Payments"
+    jurisdiction = Jurisdiction.US
+    sequence_no = 3
 
     def __init__(self, **kwargs):
         inputs = [
@@ -62,7 +66,6 @@ class Form1040S3(Form):
             StringField('6z_type', lambda s, i, v: s.not_implemented() if i['other_nonrefundable_credits'] else None), # Type of any nonrefundable credits
         ]
 
-        pdf_file = os.path.join(os.path.dirname(__file__), 'f1040s3.pdf')
         pdf_fields = [
             TextPDFField('form1[0].Page1[0].f1_01[0]', '1040.full_names'),
             TextPDFField('form1[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
@@ -106,4 +109,9 @@ class Form1040S3(Form):
 #            TextPDFField('form1[0].Page2[0].f2_16[0]', '14'),
 #            TextPDFField('form1[0].Page2[0].f2_17[0]', '15'),
         ]
+        pdf_file = os.path.join(os.path.dirname(__file__), 'f1040s3.pdf')
+
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
+
+    def needs_filing(self, values):
+        return True

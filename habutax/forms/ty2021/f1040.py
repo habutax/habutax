@@ -1,7 +1,7 @@
 import os
 
 import habutax.enum as enum
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.pdf_fields import *
@@ -11,6 +11,10 @@ from habutax.forms.ty2021.f1040_figure_tax import figure_tax
 class Form1040(Form):
     form_name = "1040"
     tax_year = 2021
+    description = "Form 1040"
+    long_description = "U.S. Individual Income Tax Return"
+    jurisdiction = Jurisdiction.US
+    sequence_no = 0
 
     def __init__(self, **kwargs):
         self.FILING_STATUS = enum.make('1040 Filing Status', {
@@ -193,7 +197,7 @@ class Form1040(Form):
 
         def schedule_1_additional_income(self, i, v):
             mort_int_refund = sum([v[f'1098:{n}.box_4'] for n in range(i['number_1098'])])
-            state_income_refund = sum([v[f'1099-g:{n}.box_3'] for n in range(i['number_1099-g'])])
+            state_income_refund = sum([v[f'1099-g:{n}.box_2'] for n in range(i['number_1099-g'])])
             return (mort_int_refund + state_income_refund) > 0.001 or i['schedule_1_additional_income']
 
         def standard_deduction(self, i):
@@ -553,4 +557,8 @@ class Form1040(Form):
 #            TextPDFField('topmostSubform[0].Page2[0].f2_46[0]', 'prep_ein', max_length=10),
         ]
         pdf_file = os.path.join(os.path.dirname(__file__), 'f1040.pdf')
+
         super().__init__(__class__, inputs, required_fields, [], pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
+
+    def needs_filing(self, values):
+        return True

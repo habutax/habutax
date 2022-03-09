@@ -27,8 +27,9 @@ class PDFFiller(object):
         self._pdftk = 'pdftk'
         self._flatten = flatten
 
-        # Forms we're actually using, and fields belonging to those forms
-        self.forms = {}
+        # Instances of Forms in the solution, and fields belonging to those
+        # forms
+        self.forms = []
         self._field_map = {}
 
         # Values read from solution file
@@ -57,7 +58,7 @@ class PDFFiller(object):
             raise NotImplementedError(f'Form {form_name} is not supported.')
 
         form = self._form_map[form_name](instance=form_instance)
-        self.forms[form.name()] = form
+        self.forms.append(form)
 
         for f in form.fields():
             assert(f not in self._field_map)
@@ -75,8 +76,9 @@ class PDFFiller(object):
             fdf.write(fdf_footer)
 
     def _fill_form(self, form, pdf_filename):
-        # TODO For each form, check if it needs to be filed
-        # TODO For each form, check if it has PDF fields available
+        assert form.pdf_file()
+        assert len(form.pdf_fields()) > 0
+
         fdf_map = {}
         for pdf_field in form.pdf_fields():
             field_name = pdf_field.field_name
@@ -103,18 +105,22 @@ class PDFFiller(object):
 
     def fill(self):
         for form_name in self._solution:
-            # Artifact of ConfigParser
+            # Ignore this artifact of ConfigParser
             if form_name == 'DEFAULT':
                 continue
-
             self._add_form(form_name)
+
+        # Filter by forms which need to be filed, and sort the remaining forms
+        # by jurisdiction and then sequence number so that they are output in
+        # the correct order
+        filling_forms = [f for f in self.forms if f.needs_filing(self._values)]
+        filling_forms.sort(key=lambda f: (f.jurisdiction, f.sequence_no))
 
         pdfs = []
         with tempfile.TemporaryDirectory() as tmpdirname:
-            for form_name, form in self.forms.items():
-                # TODO check if needed to be filed in a better way
-                if form.pdf_file() is not None:
-                    pdf_filename = os.path.join(tmpdirname, f'{form_name}.pdf')
+            for form in filling_forms:
+                if form.needs_filing(self._values):
+                    pdf_filename = os.path.join(tmpdirname, f'{form.name()}.pdf')
                     self._fill_form(form, pdf_filename)
                     pdfs.append(pdf_filename)
 

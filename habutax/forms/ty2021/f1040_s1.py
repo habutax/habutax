@@ -1,6 +1,6 @@
 import os
 
-from habutax.form import Form
+from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.pdf_fields import *
@@ -8,6 +8,10 @@ from habutax.pdf_fields import *
 class Form1040S1(Form):
     form_name = "1040_s1"
     tax_year = 2021
+    description = "Schedule 1 (Form 1040)"
+    long_description = "Additional Income and Adjustments to Income"
+    jurisdiction = Jurisdiction.US
+    sequence_no = 1
 
     def __init__(self, **kwargs):
         inputs = [
@@ -19,7 +23,7 @@ class Form1040S1(Form):
             BooleanInput('other_gains_losses', description="Do you have gains or losses from selling or exchanging assets used in a trade or business in 2021?"),
             BooleanInput('real_estate', description="Do you have income to report from rental real estate, royalties, partnerships, S corporations, trusts, etc.?"),
             BooleanInput('farm_income_loss', description="Do you have farm income (or loss) to report for 2021?"),
-            FloatInput('unemployment_income', description="Enter the amount of any unemployment income you received in 2021 (likely reported on a 1099-G), reduced by any amount you repaid or contributions made to a governmental unemployment compensation program (see instructions for Schedule 1, line 7)"),
+            FloatInput('unemployment_income', description="Enter the amount of any unemployment income you received in 2021 (likely reported on a 1099-G), reduced by any amount you repaid or contributions made to a governmental unemployment compensation program (see instructions for Schedule 1, line 7). Note that any unemployment income entered into HabuTax via a 1099-G is not being considered unless you enter it again here."),
             BooleanInput('uncommon_income', description="Do you have less common income to report for 2021? This might include net operating losses, gambling, cancellation of debt, foreign earned income, taxable HSA distributions, Alaska Permanent Fund dividends, jury duty pay, prizes and awards, activity not engaged in for profit income, stock options, income from the rental of personal property if you engaged in the rental for profit but were not in the business of renting such property, Olympic/Paralympic medals and USOC prize money, section 951(c) inclusion, section 951A(a) inclusion, Section 461(l) excess business loss adjustment, or taxable distributions from an ABLE account? (see instructions for Form 1040 Schedule 1, lines 8a-8p)"),
             BooleanInput('need_other_income', description="Do you have other income to report (not covered by \"less common income\")? Do not include refunds of overpaid interest reported on form 1098, box 4 (unless you are not entering that form into HabuTax)"),
             StringInput('other_income_type', description="Description of any other income you need to report"),
@@ -45,7 +49,7 @@ class Form1040S1(Form):
         def line_1(self, i, v):
             if i['state_local_income_tax_adjust']:
                 return i['state_local_income_tax']
-            return float(sum([v[f'1099-g:{n}.box_3'] for n in range(i['1040.number_1099-g'])]))
+            return float(sum([v[f'1099-g:{n}.box_2'] for n in range(i['1040.number_1099-g'])]))
 
         def other_income(self, i, v):
             mort_int_refund = sum([v[f'1098:{n}.box_4'] for n in range(i['1040.number_1098'])])
@@ -196,4 +200,8 @@ class Form1040S1(Form):
             TextPDFField('form1[0].Page2[0].f2_31[0]', '26'),
         ]
         pdf_file = os.path.join(os.path.dirname(__file__), 'f1040s1.pdf')
+
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
+
+    def needs_filing(self, values):
+        return True
