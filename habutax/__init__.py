@@ -20,10 +20,31 @@ def prompt_input(missing, needed_by):
     not supplied, prompt the user to supply it. `needed_by` is a list of the
     Field objects which need the input.
     """
-    # See if the user wants to input this value, exit if not
-    prompt = f'Missing config {missing.name()} in [{missing.section()}] section. To specify this input on the command-line, enter it below.\n\n'
-    prompt += missing.help()
-    prompt += f'\n{missing.name()} (Ctrl-C to refuse to input): '
+
+    # Prompt the user to input missing input value
+    prompt = f'\n----[ {missing.name()} ]----'
+    prompt += '-' * max(0, (80 - len(prompt))) + '\n'
+
+    # Provide context for why this question is being asked
+    prompt += 'Additional input is needed by:\n'
+    duplicates = {}
+    for f in needed_by:
+        form_desc = f.form().full_description()
+        field_basename = f.base_name()
+        instance = f'Instance \'{f.form().instance()}\' of ' if f.form().instance() else ''
+        potential_prompt = f' * {instance}{form_desc}, line \'{field_basename}\'\n'
+        if potential_prompt not in duplicates:
+            duplicates[potential_prompt] = True
+            prompt += potential_prompt
+
+    # Include any help from the input specification about the question being
+    # asked or the expected format of the response
+    prompt += '\n-> ' + missing.help() + '\n\n'
+    format_suggestion = missing.format_suggestion()
+    if len(format_suggestion) > 0:
+        prompt += format_suggestion + '\n'
+
+    prompt += f'(Ctrl-C to abort): '
 
     value = None
 

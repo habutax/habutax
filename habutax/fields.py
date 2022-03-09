@@ -25,6 +25,10 @@ class Field(object):
         else:
             return self._form.solver().forms[form_name]
 
+    def base_name(self):
+        """Return the name relative to the form it is in"""
+        return self._name
+
     def name(self):
         return f'{self._form.name()}.{self._name}'
 

@@ -6,7 +6,7 @@ class Input(object):
     def __init__(self, name, description=None):
         assert("." not in name)
         self._name = name
-        self._description = description if description is not None else name
+        self._description = name if description is None else description
 
     def __form_init__(self, form):
         """Called when this Input is associated with a form instance"""
@@ -23,7 +23,10 @@ class Input(object):
         return f'{self.section()}.{self.base_name()}'
 
     def help(self):
-        return self._description + '\n'
+        return self._description
+
+    def format_suggestion(self):
+        raise NotImplementedError()
 
     def value(self, string):
         raise NotImplementedError()
@@ -36,10 +39,16 @@ class Input(object):
         return True
 
 class StringInput(Input):
+    def format_suggestion(self):
+        return ''
+
     def value(self, string):
         return string.strip()
 
 class BooleanInput(Input):
+    def format_suggestion(self):
+        return 'Input one of y[es] or n[o]'
+
     def value(self, string):
         string = string.strip().lower()
         if string in ['true', 'yes', 'y', '1', 'on']:
@@ -49,6 +58,9 @@ class BooleanInput(Input):
         raise ValueError(f'Invalid boolean value: {string}')
 
 class IntegerInput(Input):
+    def format_suggestion(self):
+        return "Input must be an integer"
+
     def value(self, string):
         string = string.strip()
         if len(string) == 0:
@@ -56,6 +68,9 @@ class IntegerInput(Input):
         return int(string)
 
 class FloatInput(Input):
+    def format_suggestion(self):
+        return "Input must be a floating point number"
+
     def value(self, string):
         string = string.strip()
         if len(string) == 0:
@@ -63,22 +78,21 @@ class FloatInput(Input):
         return float(string)
 
 class EnumInput(StringInput):
-    def __init__(self, name, enum, allow_empty=False, description=""):
+    def __init__(self, name, enum, allow_empty=False, description=None):
         """
         Create an instance to read/validate an input that can be one of a
-        limited number of choices. The `options` parameter can be a list of
-        the available choices or a dictionary mapping the choice names to brief
-        descriptions of what they mean.
+        limited number of choices.
         """
-        description = "" if (len(description) == 0 or description == None) else (description + '\n\n')
-        description += "Valid values:\n"
-        for k, v in enum.__members__.items():
-            description += f'    {k}: {v.value}\n'
-        description = description.strip()
-
         super().__init__(name, description=description)
         self.enum = enum
         self.allow_empty = allow_empty
+
+    def format_suggestion(self):
+        empty = "empty or " if self.allow_empty else ""
+        suggestion = f'Input must be {empty}one of (in quotes):\n'
+        for k, v in self.enum.__members__.items():
+            suggestion += f' * "{k}": {v.value}\n'
+        return suggestion.strip()
 
     def __form_init__(self, form):
         super().__form_init__(form)
@@ -109,8 +123,12 @@ class EnumInput(StringInput):
 
 class RegexInput(StringInput):
     def __init__(self, name, regex, description=""):
+        self._regex_str = regex
         self._regex = re.compile(regex)
         super().__init__(name, description=description)
+
+    def format_suggestion(self):
+        return f'Input must match the regular expression {self._regex_str}'
 
     def valid(self, string):
         try:
@@ -124,6 +142,9 @@ class SSNInput(StringInput):
     def value(self, string):
         v = super().value(string)
         return v.replace("-", "")
+
+    def format_suggestion(self):
+        return "Input should be in the form 123-45-6789"
 
     def valid(self, string):
         try:

@@ -17,7 +17,7 @@ class Form8606(Form):
         instance = kwargs['instance']
         assert(instance in ['you', 'spouse'])
         you = "you" if instance == "you" else "your spouse"
-        your = "your" if instance == "you" else "their"
+        your = "your" if instance == "you" else "your spouse's"
 
         inputs = [
             BooleanInput('part_1_needed', description=f'Do {you} need to fill out part 1 of Form 8606? This is required if one or more of the following apply: 1) {you} made nondeductible contributions to a traditional IRA for 2021, 2) {you} took distributions from a traditional, SEP, or SIMPLE IRA in 2021 and {you} made nondeductible contributions to a traditional IRA in 2021 or an earlier year, 3) {you} converted part, but not all, of {your} traditional, SEP, and SIMPLE IRAs to Roth IRAs in 2021 and {you} made nondeductible contributions to a traditional IRA in 2021 or an earlier year. See Form 8606 instructions for more information.'),

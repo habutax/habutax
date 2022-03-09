@@ -45,7 +45,7 @@ class Form1040(Form):
             StringInput('foreign_postal_code', description="Foreign postal code (if you have a foreign address)"),
             BooleanInput('you_presidential_election', description="Check here if you want $3 to go to this fund. Checking a box below will not change your tax or refund."),
             BooleanInput('spouse_presidential_election', description="Check here if your spouse wants $3 to go to this fund. Checking a box below will not change your tax or refund."),
-            BooleanInput('virtual_currency', description="At any time during 2021, did you receive, sell, exchange, or otherwise dispose of any financial interest in any virtual currency"),
+            BooleanInput('virtual_currency', description="At any time during 2021, did you receive, sell, exchange, or otherwise dispose of any financial interest in any virtual currency?"),
             IntegerInput('number_dependents', description="How many dependents can you claim for 2021? (See Form 1040 instructions)"),
             BooleanInput('claimed_as_dependent', description="Can anyone claim you (or your spouse if filing joint) as a dependent?"),
             BooleanInput('standard_deduction_exceptions', description="Are any of the following true?: Can anyone claim you (or your spouse if filing joint) as a dependent, is your spouse itemizing on a seperate return, are you a dual-status alien, were either you (or your spouse if filing joint) born before January 2, 1957 or blind?"),

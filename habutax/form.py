@@ -99,6 +99,12 @@ class Form(object):
         else:
             return f'{self._name}:{self._instance}'
 
+    def description(self):
+        return self.__class__.description
+
+    def full_description(self):
+        return f'{self.__class__.description}: {self.__class__.long_description}'
+
     def instance(self):
         return self._instance
 
