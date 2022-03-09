@@ -65,8 +65,16 @@ def solve(args):
     input_store = inputs.InputStore(args.input_file)
     prompt_fn = prompt_input if args.prompt_missing else None
     s = solver.Solver(input_store, forms.available_forms[args.year], prompt=prompt_fn)
-    successful = s.solve(args.forms)
-    solution = s.solution()
+    try:
+        successful = s.solve(args.forms)
+        solution = s.solution()
+    except Exception as e:
+        raise e
+    finally:
+        # Ensure that even if an exception happens, any output the user already
+        # entered is saved as they requested
+        if args.writeback_input:
+            input_store.write(args.input_file)
 
     # Attach tax year to solution
     solution['habutax'] = {
@@ -112,9 +120,6 @@ def solve(args):
         with open(args.solution, 'w') as outfile:
             solution.write(outfile)
         print(f'\nSolver results written to {args.solution}')
-
-    if args.writeback_input:
-        input_store.write(args.input_file)
 
 def fill_pdfs(args):
     solution = configparser.ConfigParser()
