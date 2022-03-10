@@ -270,7 +270,7 @@ need any special field calculations (their values match their inputs), an
 InputForm class is defined which will automatically create Field objects to
 match all specified Input objects for any form which inherits from it. Below is
 a simple example, and you can see [tax year 2021 form
-W-2](../habutax/forms/ty2021/fw-2.py) for a more complete example.
+W-2](../habutax/forms/ty2021/fw_2.py) for a more complete example.
 
 example code: fsomething.py
 ```python
