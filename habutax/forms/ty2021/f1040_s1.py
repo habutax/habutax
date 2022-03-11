@@ -40,7 +40,7 @@ class Form1040S1(Form):
             BooleanInput('traditional_ira_deduction', description="Are you (or your spouse if filing jointly) eligible to take a deduction for contributions to a traditional IRA made in 2021? See instructions for Form 1040, Schedule 1, line 20 for more details."),
             BooleanInput('student_loan_interest', description="Are you (or your spouse if filing jointly) eligible to take a deduction for student loan interest? See instructions for Form 1040, Schedule 1, line 21 for more details."),
             BooleanInput('archer_msa_deduction', description="Are you (or your spouse if filing jointly) eligible to take a deduction for contributions to an Archer MSA made for 2021? See instructions for Form 1040, Schedule 1, line 23 for more details."),
-            BooleanInput('uncommon_decuctions', description="Do you have less common decuctions to report for 2021? This might include jury duty pay, deductible expenses related to income reported from the rental of personal property engaged in for profit, nontaxable amount of the value of Olympic and Paralympic medals and USOC prize money, reforestation amortization and expenses, repayment of supplemental unemployment benefits under the Trade Act of 1974, contributions to section 501(c)(18)(D) pension plan, contributions by certain chaplains to section 403(b) plans, attorney fees and court costs for actions involving certain unlawful discrimination claims, attorney fees and court costs you paid in connection with an award from the IRS for information you provided that helped the IRS detect tax law violations, housing deduction from Form 2555, or excess deductions of section 67(e) expenses from Schedule K-1 (Form 1041). (see instructions for Form 1040 Schedule 1, lines 24a-24k)"),
+            BooleanInput('uncommon_deductions', description="Do you have less common decuctions to report for 2021? This might include jury duty pay, deductible expenses related to income reported from the rental of personal property engaged in for profit, nontaxable amount of the value of Olympic and Paralympic medals and USOC prize money, reforestation amortization and expenses, repayment of supplemental unemployment benefits under the Trade Act of 1974, contributions to section 501(c)(18)(D) pension plan, contributions by certain chaplains to section 403(b) plans, attorney fees and court costs for actions involving certain unlawful discrimination claims, attorney fees and court costs you paid in connection with an award from the IRS for information you provided that helped the IRS detect tax law violations, housing deduction from Form 2555, or excess deductions of section 67(e) expenses from Schedule K-1 (Form 1041). (see instructions for Form 1040 Schedule 1, lines 24a-24k)"),
             BooleanInput('need_other_adjustments', description="Do you have other adjustments to income to report (not covered by \"less common deductions\")?"),
             StringInput('other_adjustments_type', description="Description of any other adjustments to income."),
             FloatInput('other_adjustments_amount', description="Amount of other adjustments to income you need to report"),
@@ -68,8 +68,8 @@ class Form1040S1(Form):
             return (None, None)
 
         def line_18(self, i, v):
-            penalties = sum([v[f'1099-int:{n}.box_2'] for n in range(i['number_1099-int'])])
-            penalties += sum([v[f'1099-oid:{n}.box_3'] for n in range(i['number_1099-oid'])])
+            penalties = float(sum([v[f'1099-int:{n}.box_2'] for n in range(i['1040.number_1099-int'])]))
+            penalties += float(sum([v[f'1099-oid:{n}.box_3'] for n in range(i['1040.number_1099-oid'])]))
             if penalties > 0.01:
                 return penalties
             return ""
@@ -138,7 +138,7 @@ class Form1040S1(Form):
             FloatField('24k', lambda s, i, v: s.not_implemented() if i['uncommon_deductions'] else None),
             FloatField('24z', lambda s, i, v: i['other_adjustments_amount'] if i['need_other_adjustments'] else None),
             FloatField('25', lambda s, i, v: sum([v[f'24{l}'] for l in "abcdefghijkz"])),
-            FloatField('26', lambda s, i, v: sum([v[f'{n}'] for n in range(11,19) + range(20,24)]) + v['19a'] + v['25']),
+            FloatField('26', lambda s, i, v: sum([v[f'{n}'] for n in list(range(11,19)) + list(range(20,24))]) + v['19a'] + v['25']),
         ]
         required_fields = [
             StringField('8z_type', lambda s, i, v: other_income(s, i, v)[0]),
