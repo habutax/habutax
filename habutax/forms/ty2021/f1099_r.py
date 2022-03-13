@@ -1,3 +1,4 @@
+import habutax.enum as enum
 from habutax.form import InputForm, Jurisdiction
 from habutax.inputs import *
 
@@ -12,8 +13,7 @@ class Form1099R(InputForm):
         inputs = [
             StringInput('payer', description="Who paid you this distribution?"),
             StringInput('recipient', description="To whom was this distribution paid? (you or your spouse's name)"),
-            BooleanInput('for_you', description="Was this distribution paid to you? (assumed for your spouse if False)?"),
-
+            EnumInput('belongs_to', enum.taxpayer_or_spouse, description="To whom was this distribution paid?"),
             FloatInput('box_1', description="Gross distribution"),
             FloatInput('box_2a', description="Taxable amount"),
             BooleanInput('box_2b_taxable_not_determined', description="'Taxable amount not determined' checked"),
@@ -34,16 +34,18 @@ class Form1099R(InputForm):
             StringInput('box_13', description="Date of payment"),
             StringInput('box_14', description="Tax-exempt and tax credit bond CUSIP no."),
             FloatInput('box_14_1', description="State tax withheld"),
-            FloatInput('box_14_2', description="State tax withheld"),
+            EnumInput('box_14_1_state', enum.us_states, allow_empty=True, description="State for which tax was withheld"),
             StringInput('box_15_1', description="State/Payer's state no."),
-            StringInput('box_15_2', description="State/Payer's state no."),
             FloatInput('box_16_1', description="State distribution"),
+            FloatInput('box_14_2', description="State tax withheld"),
+            EnumInput('box_14_2_state', enum.us_states, allow_empty=True, description="State for which tax was withheld"),
+            StringInput('box_15_2', description="State/Payer's state no."),
             FloatInput('box_16_2', description="State distribution"),
             FloatInput('box_17_1', description="Local tax withheld"),
-            FloatInput('box_17_2', description="Local tax withheld"),
             StringInput('box_18_1', description="Name of locality"),
-            StringInput('box_18_2', description="Name of locality"),
             FloatInput('box_19_1', description="Local distribution"),
+            FloatInput('box_17_2', description="Local tax withheld"),
+            StringInput('box_18_2', description="Name of locality"),
             FloatInput('box_19_2', description="Local distribution"),
         ]
 

@@ -89,7 +89,7 @@ class Form1040S8812(Form):
             IntegerField('4b', lambda s, i, v: i['number_under_6']),
             IntegerField('4c', lambda s, i, v: v['4a'] - v['4b']),
             FloatField('5', lambda s, i, v: v['5_ws_12'] if v['4a'] > 0 else 0.0),
-            FloatField('6', lambda s, i, v: float(sum([v[f'1040.dependent_{n}_odc'] for n in range(i['1040.number_dependents'])]))),
+            IntegerField('6', lambda s, i, v: sum([v[f'1040.dependent_{n}_odc'] for n in range(i['1040.number_dependents'])])),
             FloatField('7', lambda s, i, v: v['6'] * 500.0),
             FloatField('8', lambda s, i, v: v['5'] + v['7']),
             FloatField('9', lambda s, i, v: 400000.0 if i['1040.filing_status'] is s.form('1040').FILING_STATUS.MarriedFilingJointly else 200000.0),

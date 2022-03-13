@@ -48,6 +48,7 @@ class FormW2(InputForm):
             inputs.append(EnumInput(f'box_12{letter}_code', box_12, allow_empty=True, description=f'Box 12{letter} alphabetic code'))
             inputs.append(FloatInput(f'box_12{letter}_value', description=f'Box 12{letter} value'))
         inputs += [
+            EnumInput('belongs_to', enum.taxpayer_or_spouse, description="To whom does this W-2 belong?"),
             StringInput('box_c', description="Employer"),
             StringInput('box_d', description="Control number"),
             StringInput('box_e', description="Employee's name"),
@@ -66,7 +67,7 @@ class FormW2(InputForm):
             BooleanInput('box_13_retirement', description="Box 13 Retirement plan checked"),
             BooleanInput('box_13_sick_day', description="Box 13 third-party sick day"),
             StringInput('box_14', description="Other"),
-            StringInput('box_15', description="State"),
+            EnumInput('box_15', enum.us_states, allow_empty=True, description="State"),
             FloatInput('box_16', description="State wages, tips, etc."),
             FloatInput('box_17', description="State income tax"),
             FloatInput('box_18', description="Local wages, tips, etc."),
