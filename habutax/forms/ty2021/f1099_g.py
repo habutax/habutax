@@ -1,3 +1,4 @@
+import habutax.enum as enum
 from habutax.form import InputForm, Jurisdiction
 from habutax.inputs import *
 
@@ -10,6 +11,7 @@ class Form1099G(InputForm):
 
     def __init__(self, **kwargs):
         inputs = [
+            EnumInput('belongs_to', enum.taxpayer_spouse_or_both, description="To whom does this 1099-G belong?"),
             StringInput('payer', description="Who paid you this amount?"),
             StringInput('recipient', description="To whom was this amount paid? (you or your spouse's name)"),
             FloatInput('box_1', description="Unemployment compensation"),
@@ -21,12 +23,12 @@ class Form1099G(InputForm):
             FloatInput('box_7', description="Agriculture payments"),
             BooleanInput('box_8', description="Is box 2 is trade or business income?"),
             FloatInput('box_9', description="Market gain"),
-            StringInput('box_10a_1', description="State"),
-            StringInput('box_10a_2', description="State"),
-            StringInput('box_10b_1', description="State identification no."),
-            StringInput('box_10b_2', description="State identification no."),
-            FloatInput('box_11_1', description="State tax withheld"),
-            FloatInput('box_11_2', description="State tax withheld"),
+            EnumInput('box_10a_1', enum.us_states, allow_empty=True, description="State #1"),
+            StringInput('box_10b_1', description="State #1 identification no."),
+            FloatInput('box_11_1', description="State #1 tax withheld"),
+            EnumInput('box_10a_2', enum.us_states, allow_empty=True, description="State #2"),
+            StringInput('box_10b_2', description="State #2 identification no."),
+            FloatInput('box_11_2', description="State #2 tax withheld"),
         ]
 
         super().__init__(__class__, inputs, **kwargs)

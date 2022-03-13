@@ -1,10 +1,10 @@
 from collections.abc import Mapping
-from enum import Enum, auto, unique
+from enum import IntEnum, auto, unique
 
 from habutax.inputs import StringInput, BooleanInput, IntegerInput, FloatInput, EnumInput, SSNInput
 from habutax.fields import StringField, BooleanField, IntegerField, FloatField, EnumField
 
-class AutoNumber(Enum):
+class AutoNumber(IntEnum):
     def _generate_next_value_(name, start, count, last_values):
         return 0 if len(last_values) == 0 else max(last_values) + 1
 

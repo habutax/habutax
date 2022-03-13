@@ -17,6 +17,11 @@ from .f8959 import Form8959
 from .f8995 import Form8995
 from .fw_2 import FormW2
 from .f8889 import Form8889
+from .fnc_d_400 import FormNCD400
+from .fnc_d_400_child_deduction_wkst import FormNCD400ChildDeductionWkst
+from .fnc_d_400_consumer_use_tax_wkst import FormNCD400ConsumerUseTaxWkst
+from .fnc_d_400_ss import FormNCD400SS
+from .fnc_d_400_sa import FormNCD400SA
 
 available_forms = [
 	Form1040,
@@ -38,4 +43,9 @@ available_forms = [
 	Form8995,
 	FormW2,
 	Form8889,
+	FormNCD400,
+	FormNCD400ChildDeductionWkst,
+	FormNCD400ConsumerUseTaxWkst,
+	FormNCD400SS,
+	FormNCD400SA,
 ]

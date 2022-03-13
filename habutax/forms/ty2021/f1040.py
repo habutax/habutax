@@ -25,12 +25,14 @@ class Form1040(Form):
             'QualifyingWidowWidower': "generally filed if your spouse died in 2019 or 2020 and you didn't remarry before the end of 2021 and you have a child or stepchild whom you can claim as a dependent (see Form 1040 instructions for more)"})
         inputs = [
             EnumInput('filing_status', self.FILING_STATUS, description="Filing Status"),
-            StringInput('first_name_middle_initial', description="Your first name and middle initial"),
+            StringInput('first_name', description="Your first name"),
+            StringInput('middle_initial', description="Your middle initial"),
             StringInput('last_name', description="Your last name"),
             SSNInput(f'you_ssn', description='Enter your Social Security number'),
             SSNInput(f'spouse_ssn', description='Enter your spouse\'s Social Security number'),
             StringInput('occupation', description="Your occupation"),
-            StringInput('spouse_first_name_middle_initial', description="If joint return, spouse's first name and middle initial"),
+            StringInput('spouse_first_name', description="If joint return, spouse's first name"),
+            StringInput('spouse_middle_initial', description="If joint return, spouse's middle initial"),
             StringInput('spouse_last_name', description="If joint return, spouse's last name"),
             StringInput('spouse_occupation', description="Spouse's occupation"),
             StringInput('phone_number', description="Your phone number"),
@@ -38,7 +40,7 @@ class Form1040(Form):
             StringInput('home_address', description="Home address (number and street). If you have a P.O. box, see instructions."),
             StringInput('apartment_no', description="Apartment number"),
             StringInput('city', description="City, town, or post office."),
-            StringInput('state', description="State"),
+            EnumInput('state', enum.us_states, description="State"),
             StringInput('zip', description="Zip code"),
             StringInput('foreign_country', description="Foreign country name (if you have a foreign address)"),
             StringInput('foreign_province', description="Foreign province/state/county (if you have a foreign address)"),
@@ -152,8 +154,8 @@ class Form1040(Form):
             line_4a = 0.0
             line_4b = 0.0
 
-            ira_distributions_you = sum([v[f'1099-r:{n}.box_1'] if v[f'1099-r:{n}.box_7_ira_sep_simple'] and v[f'1099-r:{n}.for_you'] else 0.0 for n in range(i['number_1099-r'])])
-            ira_distributions_spouse = sum([v[f'1099-r:{n}.box_1'] if v[f'1099-r:{n}.box_7_ira_sep_simple'] and not v[f'1099-r:{n}.for_you'] else 0.0 for n in range(i['number_1099-r'])])
+            ira_distributions_you = sum([v[f'1099-r:{n}.box_1'] if v[f'1099-r:{n}.box_7_ira_sep_simple'] and v[f'1099-r:{n}.belongs_to'] == enum.taxpayer_or_spouse.taxpayer else 0.0 for n in range(i['number_1099-r'])])
+            ira_distributions_spouse = sum([v[f'1099-r:{n}.box_1'] if v[f'1099-r:{n}.box_7_ira_sep_simple'] and v[f'1099-r:{n}.belongs_to'] ==enum.taxpayer_or_spouse.spouse else 0.0 for n in range(i['number_1099-r'])])
 
             if ira_distributions_you > 0.001:
                 if sum([i['ira_exception1_you'], i['ira_exception2_you'], i['ira_exception3_you'], i['ira_exception4_you']]) > 1:
@@ -332,17 +334,17 @@ class Form1040(Form):
 
         required_fields = [
             EnumField('filing_status', self.FILING_STATUS, lambda s, i, v: i['filing_status']),
-            StringField('first_name', lambda s, i, v: i['first_name_middle_initial']),
+            StringField('first_name', lambda s, i, v: f'{i["first_name"]} {i["middle_initial"]}'.strip()),
             StringField('last_name', lambda s, i, v: i['last_name']),
             StringField('you_ssn', lambda s, i, v: i['you_ssn']),
-            StringField('spouse_first_name', lambda s, i, v: i['spouse_first_name_middle_initial'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
-            StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
-            StringField('spouse_ssn', lambda s, i, v: i['spouse_ssn'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else ""),
+            StringField('spouse_first_name', lambda s, i, v: f'{i["spouse_first_name"]} {i["spouse_middle_initial"]}'.strip() if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else None),
+            StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else None),
+            StringField('spouse_ssn', lambda s, i, v: i['spouse_ssn'] if i['filing_status'] == s.form().FILING_STATUS.MarriedFilingJointly else None),
             StringField('full_names', full_names),
             StringField('home_address', lambda s, i, v: i['home_address']),
             StringField('apartment_no', lambda s, i, v: i['apartment_no']),
             StringField('city', lambda s, i, v: i['city']),
-            StringField('state', lambda s, i, v: i['state']),
+            StringField('state', lambda s, i, v: str(i['state'])),
             StringField('zip', lambda s, i, v: i['zip']),
             StringField('foreign_country', lambda s, i, v: i['foreign_country']),
             StringField('foreign_province', lambda s, i, v: i['foreign_province']),
