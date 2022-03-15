@@ -196,7 +196,7 @@ def list_form_inputs(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(help='sub-command help')
+    subparsers = parser.add_subparsers(required=True, help='sub-command help')
     default_year = 2021
 
     # Solver argument setup
