@@ -134,14 +134,44 @@ def fill_pdfs(args):
     p = pdf_filler.PDFFiller(solution, forms.available_forms[tax_year], args.output)
     p.fill()
 
+def list_forms(args):
+    header_printed = False
+    if args.contains is not None:
+        search_string = args.contains.lower()
+
+    width = max([len(f.form_name) for f in forms.available_forms[args.year]])
+    format_str ="{:>{width}} | {:12} | {}"
+
+    for form in forms.available_forms[args.year]:
+        name = form.form_name
+
+        description = f'{form.description}: {form.long_description}'
+        search_match = args.contains is None or search_string in name.lower() or search_string in description.lower()
+        jurisdiction_match = args.jurisdiction is None or args.jurisdiction.lower() == form.jurisdiction.name.lower()
+        if search_match and jurisdiction_match:
+            if not header_printed:
+                header_printed = True
+                if args.contains:
+                    print("Matching forms:")
+                else:
+                    print("Form list:")
+                print(format_str.format("name", "jurisdiction", "description", width=width))
+                print(format_str.format("-"*width, "-"*12, "-"*width, width=width))
+            print(format_str.format(name, form.jurisdiction.name, description, width=width))
+
+    if not header_printed and (args.contains or args.jurisdiction):
+        print("No forms matched your parameters")
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='sub-command help')
+    default_year = 2021
 
     # Solver argument setup
     solve_parser = subparsers.add_parser('solve', help='Solve taxes using HabuTax')
     solve_parser.add_argument('input_file', type=str, help='The file containing your input for the tax forms you are calculating.')
-    solve_parser.add_argument('--year', type=int, default=2021, help='The tax year to use')
+    solve_parser.add_argument('--year', type=int, default=default_year, help=f'The tax year to use (default: {default_year})')
     solve_parser.add_argument('--form', dest='forms', action='append', help='Which form(s) you want to calculate')
     solve_parser.add_argument('--prompt-missing', action='store_true', default=False, help='Interactively prompt for any missing input')
     solve_parser.add_argument('--writeback-input', action='store_true', default=False, help='Write any interactively-supplied input back to the config file when done (loses any comments/formatting present in file)')
@@ -153,6 +183,13 @@ def main():
     fill_pdfs_parser.add_argument('solution', type=str, help='The file containing the solution of the tax forms you want to generate PDFs of.')
     fill_pdfs_parser.add_argument('output', type=str, help='Path where you want to write the generated PDF file')
     fill_pdfs_parser.set_defaults(func=fill_pdfs)
+
+    # list-forms argument setup
+    list_forms_parser = subparsers.add_parser('list-forms', help='List all available forms, optionally restricting to those containing a string or within a jurisdiction')
+    list_forms_parser.add_argument('--year', type=int, default=default_year, help=f'The tax year to use (default: {default_year})')
+    list_forms_parser.add_argument('--contains', type=str, default=None, help='A string to search for (only print forms containing this string)')
+    list_forms_parser.add_argument('--jurisdiction', type=str, default=None, help='Only display forms from this tax jurisdiction ("US" federal, "NC" state, etc.)')
+    list_forms_parser.set_defaults(func=list_forms)
 
     args = parser.parse_args()
     args.func(args)
