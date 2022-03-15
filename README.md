@@ -77,8 +77,14 @@ PDF forms after solving (output to plain text does not require it).
 
 ### Package Installation
 
-To install HabuTax as a local python package using pip, execute the following
-commands (noting that the version number may change from the below):
+Installing the latest released version of HabuTax is as easy as `pip install
+habutax`.
+
+### Package Installation (from Source)
+
+To install HabuTax as a local python package using the latest source (regardless
+of whether it is released), execute the following commands (noting that the
+version number may change from the below):
 
 ```
 % git clone https://github.com/habutax/habutax && cd habutax
@@ -87,7 +93,7 @@ commands (noting that the version number may change from the below):
 % habutax --help
 ```
 
-### Running from Source Directory
+### Running Directly from Source Directory
 
 To run out of your source directory, clone the git repository and prefix the
 `habutax` command with `python3 -m`:
