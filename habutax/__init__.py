@@ -3,6 +3,7 @@ __version__ = '0.0.1'
 import argparse
 import configparser
 from pathlib import Path
+import sys
 
 from habutax import enum
 from habutax import fields
@@ -162,6 +163,36 @@ def list_forms(args):
     if not header_printed and (args.contains or args.jurisdiction):
         print("No forms matched your parameters")
 
+def list_form_inputs(args):
+    form_name, form_instance = form.name_and_instance(args.form)
+    forms_map = {f.form_name : f for f in forms.available_forms[args.year]}
+
+    if form_name not in forms_map:
+        print(f'Cannot find form "{args.form}". The `list-forms` sub-command will list the valid form names.')
+        sys.exit(1)
+
+    form_class = forms_map[form_name]
+    if hasattr(form_class, 'valid_instances'):
+        if form_instance not in form_class.valid_instances:
+            instances = ", ".join([f'"{i}"' for i in form_class.valid_instances])
+            print(f'Form "{form_name}" requires a form instance be specified and that it be one of {instances}. For example, try "{form_name}:{form_class.valid_instances[0]}".')
+            sys.exit(1)
+
+    f = form_class(instance=form_instance)
+    print(f'[{f.name()}]')
+    print(f'# {f.full_description()}')
+
+    input_map = {i.name(): i for i in f.inputs()}
+    sorted_inputs = sorted(input_map.keys(), key=solver.sort_keys)
+
+    for input_name in sorted_inputs:
+        form_input = input_map[input_name]
+        comment = '# ' + form_input.help() + '\n'
+        format_suggestion = form_input.format_suggestion()
+        if len(format_suggestion) > 0:
+            comment += format_suggestion
+        print('\n' + comment.replace('\n', '\n# '))
+        print(f'#{form_input.base_name()} =')
 
 def main():
     parser = argparse.ArgumentParser()
@@ -191,6 +222,12 @@ def main():
     list_forms_parser.add_argument('--contains', type=str, default=None, help='A string to search for (only print forms containing this string)')
     list_forms_parser.add_argument('--jurisdiction', type=str, default=None, help='Only display forms from this tax jurisdiction ("US" federal, "NC" state, etc.)')
     list_forms_parser.set_defaults(func=list_forms)
+
+    # list-form-inputs argument setup
+    list_form_inputs_parser = subparsers.add_parser('list-form-inputs', help='List all available inputs for a given form, in a format suitable for editing and passing as input to HabuTax.')
+    list_form_inputs_parser.add_argument('form', type=str, help='The short name of the form for which you want to display the inputs')
+    list_form_inputs_parser.add_argument('--year', type=int, default=default_year, help=f'The tax year to use (default: {default_year})')
+    list_form_inputs_parser.set_defaults(func=list_form_inputs)
 
     args = parser.parse_args()
     args.func(args)

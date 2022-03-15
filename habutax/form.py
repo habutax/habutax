@@ -176,3 +176,12 @@ class FormAccessor(Mapping):
 
     def __len__(self):
         return len(self.mapping)
+
+def name_and_instance(full_form_name):
+    split_form_name = full_form_name.split(':')
+    form_instance = None
+    if len(split_form_name) == 2:
+        form_instance = split_form_name[1]
+    elif len(split_form_name) != 1:
+        raise RuntimeError(f'Unexpected form name: {full_form_name} (expected 0 or 1 colons)')
+    return split_form_name[0], form_instance

@@ -150,34 +150,27 @@ class Solver(object):
         self._unattempted_fields.sort(key=sort_keys)
 
     def _add_form(self, form_name):
-        split_form_name = form_name.split(':') 
-        form_instance = None
-        if len(split_form_name) == 2:
-            form_name = split_form_name[0]
-            form_instance = split_form_name[1]
-        elif len(split_form_name) != 1:
-            raise RuntimeError(f'Unexpected form name: {form_name} (expected 0 or 1 colons)')
-        form_name = split_form_name[0]
+        form_name, form_instance = form.name_and_instance(form_name)
 
         if form_name not in self._form_map:
             raise NotImplementedError(f'Form {form_name} is not supported.')
 
-        form = self._form_map[form_name](solver=self, instance=form_instance)
-        self.forms[form.name()] = form
+        new_form = self._form_map[form_name](solver=self, instance=form_instance)
+        self.forms[new_form.name()] = new_form
 
         # Add new inputs to our internal map of names to input objects, update
         # the input mapper so it understands how to read these inputs
-        for i in form.inputs():
+        for i in new_form.inputs():
             assert(i not in self._input_map)
             self._input_map[i.name()] = i
         self._i.update_input_spec(self._input_map)
 
-        for f in form.fields():
+        for f in new_form.fields():
             assert(f not in self._field_map)
             self._field_map[f.name()] = f
 
-        self._add_unattempted(form.required_fields())
-        self._solving_fields |= set([f.name() for f in form.required_fields()])
+        self._add_unattempted(new_form.required_fields())
+        self._solving_fields |= set([f.name() for f in new_form.required_fields()])
 
     def _attempt_input(self, input_name, needed_by):
         missing = self._input_map[input_name]

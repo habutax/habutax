@@ -12,6 +12,7 @@ class Form8889(Form):
     long_description = "Health Savings Accounts (HSAs)"
     jurisdiction = Jurisdiction.US
     sequence_no = 52
+    valid_instances = ['you', 'spouse']
 
     def __init__(self, **kwargs):
         instance = kwargs['instance']

@@ -12,6 +12,7 @@ class Form8606(Form):
     long_description = "Nondeductible IRAs"
     jurisdiction = Jurisdiction.US
     sequence_no = 48
+    valid_instances = ['you', 'spouse']
 
     def __init__(self, **kwargs):
         instance = kwargs['instance']
