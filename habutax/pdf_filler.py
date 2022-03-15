@@ -78,6 +78,7 @@ class PDFFiller(object):
     def _fill_form(self, form, pdf_filename):
         assert form.pdf_file()
         assert len(form.pdf_fields()) > 0
+        required_fields = {f.name() for f in form.required_fields()}
 
         fdf_map = {}
         for pdf_field in form.pdf_fields():
@@ -92,6 +93,7 @@ class PDFFiller(object):
                 field = self._field_map[field_name]
                 string_value = pdf_field.value(value, field)
             except values.UnmetDependency:
+                assert field_name not in required_fields
                 string_value = ""
             fdf_map[pdf_field.pdf_field_name] = string_value
 
