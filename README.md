@@ -65,20 +65,56 @@ provided to you by your employer or financial institution:
 * Form 2441, Child and Dependent Care Expenses
 * Form 8283, Noncash Charitable Contributions
 
-## Usage
+## Installation
 
-You can test HabuTax out with the following command-lines:
+HabuTax can be used either directly from a source checkout, or by installing it
+as a package.
+
+### Dependencies
+
+HabuTax requires Python >= 3.8. An installation of
+[pdftk](https://gitlab.com/pdftk-java/pdftk) is additionally required to fill
+PDF forms after solving (output to plain text does not require it).
+
+### Package Installation
+
+To install HabuTax as a local python package using pip, execute the following
+commands (noting that the version number may change from the below):
 
 ```
-% git clone https://github.com/habutax/habutax
-% cd habutax
-% python3 -m habutax solve \
+% git clone https://github.com/habutax/habutax && cd habutax
+% python -m build
+% pip install dist/habutax-0.0.1-py3-none-any.whl
+% habutax --help
+```
+
+### Running from Source Directory
+
+To run out of your source directory, clone the git repository and prefix the
+`habutax` command with `python3 -m`:
+
+```
+% git clone https://github.com/habutax/habutax && cd habutax
+% python3 -m habutax --help
+```
+
+Note that the remainder of the documentation assumes that you have HabuTax
+installed as a package, so if you choose to run it out of the source directory,
+you will need to prefix all the `habutax` commands you see with `python3 -m`,
+and ensure you are running out of the root of the directory.
+
+## Usage
+
+You can test HabuTax out with the following command-line:
+
+```
+habutax solve \
     --year 2021 \
     --form 1040 \
     --writeback-input \
     --prompt-missing \
-    taxes_2021.habutax \
-    --solution taxes_2021.solution
+    --solution taxes_2021.solution \
+    taxes_2021.habutax
 ```
 
 taxes_2021.habutax is a plain-text input file, in [INI
@@ -95,13 +131,17 @@ Once you have successfully "solved" your taxes, you can write the results to PDF
 using:
 
 ```
-% python3 -m habutax fill-pdfs \
+habutax fill-pdfs \
     taxes_2021.solution \
     taxes_2021.pdf
 ```
 
-For complete help text for the command-line interface, you can use `python3 -m
-habutax --help`.
+HabuTax also has sub-commands for listing the available forms (`habutax
+list-forms`) or list all possible inputs form a form (`habutax
+list-form-inputs`).
+
+For complete help text for the command-line interface, you can use `habutax
+--help` (`--help` is also available on the sub-commands).
 
 ## Can You Help?
 
