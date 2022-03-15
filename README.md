@@ -1,7 +1,7 @@
 # HabuTax
 
 <p align="center">
-<img src="doc/habutax_logo.svg" alt="HabuTax Logo" title="HabuTax Logo" width="384"/>
+<img src="https://github.com/habutax/habutax/raw/main/doc/habutax_logo.svg" alt="HabuTax Logo" title="HabuTax Logo" width="384"/>
 </p>
 
 HabuTax is a package designed to help you compute your United States income tax
@@ -157,16 +157,19 @@ discuss the architecture of your contribution first may be helpful to avoid
 wasted effort for more significant changes.
 
 One of the primary motivations in the design of HabuTax is to ensure it is easy
-to [add and maintain new forms](doc/adding_modifying_forms.md). Crowdsourcing
-this piece is important to ensure this project remains healthy long-term. We are
-open to ideas of how best to do so: One idea is to have contributors informally
-agree to update and/or test an individual form for coming tax year. Our guess is
-that, on average, updating a single form for a new year will take less time than
-filling out a personal income tax return!
+to [add and maintain new
+forms](https://github.com/habutax/habutax/tree/main/doc/adding_modifying_forms.md).
+Crowdsourcing this piece is important to ensure this project remains healthy
+long-term. We are open to ideas of how best to do so: One idea is to have
+contributors informally agree to update and/or test an individual form for
+coming tax year. Our guess is that, on average, updating a single form for a new
+year will take less time than filling out a personal income tax return!
 
 To learn more about the HabuTax internals, you may wish to read our
-documentation about [how the solver works](doc/solver.md) or [how to add/modify
-tax forms](doc/adding_modifying_forms.md).
+documentation about [how the solver
+works](https://github.com/habutax/habutax/tree/main/doc/solver.md) or [how to
+add/modify tax
+forms](https://github.com/habutax/habutax/tree/main/doc/adding_modifying_forms.md).
 
 ### Tests and Form Data for Them
 
