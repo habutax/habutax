@@ -64,10 +64,10 @@ class FormNCD400ChildDeductionWkst(Form):
 
         optional_fields = [
             StringField('1', lambda s, i, v: str(i['1040.filing_status'])),
-            FloatField('2', lambda s, i, v: v['nc_d-400.6']),
+            FloatField('2', lambda s, i, v: v['nc_d-400.6'], places=0),
             IntegerField('3', lambda s, i, v: sum([v[f'1040.dependent_{n}_ctc'] for n in range(i['1040.number_dependents'])])),
-            FloatField('4', deduction_per_child),
-            FloatField('5', lambda s, i, v: v['3'] * v['4']),
+            FloatField('4', deduction_per_child, places=0),
+            FloatField('5', lambda s, i, v: v['3'] * v['4'], places=0),
         ]
 
         required_fields = [

@@ -59,12 +59,12 @@ class FormNCD400ConsumerUseTaxWkst(Form):
             return v['nc_d-400.14'] * 0.000675
 
         optional_fields = [
-            FloatField('estimate', estimate),
-            FloatField('1', lambda s, i, v: i['out_of_state_purchases']),
-            FloatField('2', lambda s, i, v: i['county_tax_pct'] * v['1']),
-            FloatField('3', lambda s, i, v: min(i['other_state_sales_tax'], v['1'])),
-            FloatField('4', lambda s, i, v: round(v['3'] - v['2'], 0)),
-            FloatField('consumer_use_tax', lambda s, i, v: v['4'] if i['full_records'] else v['estimate']),
+            FloatField('estimate', estimate, places=0),
+            FloatField('1', lambda s, i, v: i['out_of_state_purchases'], places=0),
+            FloatField('2', lambda s, i, v: i['county_tax_pct'] * v['1'], places=0),
+            FloatField('3', lambda s, i, v: min(i['other_state_sales_tax'], v['1']), places=0),
+            FloatField('4', lambda s, i, v: round(v['3'] - v['2'], 0), places=0),
+            FloatField('consumer_use_tax', lambda s, i, v: v['4'] if i['full_records'] else v['estimate'], places=0),
         ]
 
         required_fields = [

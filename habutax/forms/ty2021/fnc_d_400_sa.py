@@ -39,26 +39,26 @@ class FormNCD400SA(Form):
             return 5000.0 if i['1040.filing_status'] == self.form('1040').FILING_STATUS.MarriedFilingSeparately else 10000.0
 
         optional_fields = [
-            FloatField('nc_standard_deduction', nc_standard_deduction),
-            FloatField('1', line_1),
-            FloatField('2', lambda s, i, v: min(i['1040_sa.state_local_real_estate_taxes'], real_estate_tax_limit(s, i, v))),
-            FloatField('3', lambda s, i, v: v['1'] + v['2']),
-            FloatField('4', lambda s, i, v: 20000.0),
-            FloatField('5', lambda s, i, v: min(v['3'], v['4'])),
-            FloatField('6', lambda s, i, v: min(i['1040_sa.charitable_cash_check'] + i['1040_sa.charitable_other_than_cash_check'], v['1040.11'] * 0.6)),
-            FloatField('7a', lambda s, i, v: i['1040_sa.medical_dental_expenses']),
-            FloatField('7b', lambda s, i, v: v['nc_d-400.6']),
-            FloatField('7c', lambda s, i, v: max(0.0, v['7b'] * 0.075)),
-            FloatField('7d', lambda s, i, v: 0.0 if v['7c'] > v['7a'] else v['7a'] - v['7c']),
-            FloatField('8', lambda s, i, v: i['claim_of_right_income']),
-            FloatField('9', lambda s, i, v: 0.0), # "reserved for future use"
-            FloatField('10', lambda s, i, v: v['5'] + v['6'] + v['7d'] + v['8'] + v['9']),
+            FloatField('nc_standard_deduction', nc_standard_deduction, places=0),
+            FloatField('1', line_1, places=0),
+            FloatField('2', lambda s, i, v: min(i['1040_sa.state_local_real_estate_taxes'], real_estate_tax_limit(s, i, v)), places=0),
+            FloatField('3', lambda s, i, v: v['1'] + v['2'], places=0),
+            FloatField('4', lambda s, i, v: 20000.0, places=0),
+            FloatField('5', lambda s, i, v: min(v['3'], v['4']), places=0),
+            FloatField('6', lambda s, i, v: min(i['1040_sa.charitable_cash_check'] + i['1040_sa.charitable_other_than_cash_check'], v['1040.11'] * 0.6), places=0),
+            FloatField('7a', lambda s, i, v: i['1040_sa.medical_dental_expenses'], places=0),
+            FloatField('7b', lambda s, i, v: v['nc_d-400.6'], places=0),
+            FloatField('7c', lambda s, i, v: max(0.0, v['7b'] * 0.075), places=0),
+            FloatField('7d', lambda s, i, v: 0.0 if v['7c'] > v['7a'] else v['7a'] - v['7c'], places=0),
+            FloatField('8', lambda s, i, v: i['claim_of_right_income'], places=0),
+            FloatField('9', lambda s, i, v: 0.0, places=0), # "reserved for future use"
+            FloatField('10', lambda s, i, v: v['5'] + v['6'] + v['7d'] + v['8'] + v['9'], places=0),
         ]
 
         required_fields = [
             StringField('last_name', lambda s, i, v: i['1040.last_name'][:10]),
             StringField('ssn', lambda s, i, v: i['1040.you_ssn'][:3] + "-" + i['1040.you_ssn'][3:5] + "-" + i['1040.you_ssn'][5:]),
-            FloatField('deduction', lambda s, i, v: max(v['nc_standard_deduction'], v['10'])),
+            FloatField('deduction', lambda s, i, v: max(v['nc_standard_deduction'], v['10']), places=0),
         ]
 
         pdf_fields = [
