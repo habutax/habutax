@@ -131,7 +131,7 @@ def fill_pdfs(args):
     # form data to be filled
     solution.remove_section('habutax')
 
-    p = pdf_filler.PDFFiller(solution, forms.available_forms[tax_year], args.output)
+    p = pdf_filler.PDFFiller(solution, forms.available_forms[tax_year], args.output, flatten=args.flatten)
     p.fill()
 
 def list_forms(args):
@@ -180,6 +180,7 @@ def main():
 
     # fill-pdfs argument setup
     fill_pdfs_parser = subparsers.add_parser('fill-pdfs', help='Fill PDFs using a solution previously calculated using HabuTax')
+    fill_pdfs_parser.add_argument('--no-flatten', dest='flatten', action='store_false', default=True, help='Do not "flatten" the PDF after filling, so its fields can still be edited')
     fill_pdfs_parser.add_argument('solution', type=str, help='The file containing the solution of the tax forms you want to generate PDFs of.')
     fill_pdfs_parser.add_argument('output', type=str, help='Path where you want to write the generated PDF file')
     fill_pdfs_parser.set_defaults(func=fill_pdfs)
