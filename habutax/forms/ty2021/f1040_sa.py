@@ -30,7 +30,7 @@ class Form1040SA(Form):
             BooleanInput('investment_interest', description="Did you pay interest on money you borrowed that is allocable to property held for investment in 2021?"),
             FloatInput('charitable_cash_check', description="Enter the total amount of all charitable gifts to Qualified Charitable Organizations you made in 2021 via cash or check. Ensure you have (and save for your records) contempotaneous written acknowledgement of any individual gift over $250. See the instructions for line 11 of Form 1040, Schedule A if you have any questions."),
             FloatInput('charitable_other_than_cash_check', description="Enter the total amount of all charitable gifts to Qualified Charitable Organizations you made in 2021 via methods *other than* cash or check. Ensure you have (and save for your records) contempotaneous written acknowledgement of any individual gift over $250. See the instructions for line 12 of Form 1040, Schedule A and/or Pub. 526 if you have any questions."),
-            IntegerInput('number_8283', description="You indicated you gave a charitable gift in 2021 of over $500, and the IRS requires you to fill out at least one Form 8283. How many do you need to submit? See the instructions for line 12 of Form 1040, Schedule A and Pub. 526."),
+            BooleanInput('filling_8283', description="You indicated you gave a charitable gift in 2021 of over $500, for which the IRS requires you to fill out one or more Forms 8283. Do you agree to fill out Form(s) 8283 as appropriate and include them with your tax return (you will *not* be reminded again)? See the instructions for line 12 of Form 1040, Schedule A and Pub. 526."),
             FloatInput('charitable_carryover', description="Enter any carryover for any charitable giving you were not allowed to deduct in the previous 5 years because it exceeded the amount you were allowed to decuct. See the instructions for line 12 of Form 1040, Schedule A and Pub. 526."),
             BooleanInput('casualty_theft', description="Do you have any casualty and theft loss(es) from a federally declared disaster (other than net qualified disaster losses) to report?"),
             FloatInput('other_itemized', description="Enter the amount of any other itemized deductions you want to claim. See instructions for Form 1040, Schedule A, line 13"),
@@ -64,8 +64,8 @@ class Form1040SA(Form):
             return mortgage_insurance_premiums
 
         def line_12(self, i, v):
-            if i['charitable_other_than_cash_check'] > 500:
-                [v[f'8283:{n}.name'] for n in range(i['number_8283'])]
+            if i['charitable_other_than_cash_check'] > 500 and not i['filling_8283']:
+                self.not_implemented()
             return i['charitable_other_than_cash_check']
 
         def line_18(self, i, v):
