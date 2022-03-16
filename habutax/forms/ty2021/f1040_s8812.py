@@ -136,7 +136,7 @@ class Form1040S8812(Form):
             # Line 5 Worksheet from Schedule 8812 instructions
             FloatField('5_ws_1', lambda s, i, v: v['4b'] * 3600.0),
             FloatField('5_ws_2', lambda s, i, v: v['4c'] * 3000.0),
-            FloatField('5_ws_3', lambda s, i, v: v['5_ws_1'] + v['5_ws_1']),
+            FloatField('5_ws_3', lambda s, i, v: v['5_ws_1'] + v['5_ws_2']),
             FloatField('5_ws_4', lambda s, i, v: v['4a'] * 2000.0),
             FloatField('5_ws_5', lambda s, i, v: v['5_ws_3'] - v['5_ws_4']),
             FloatField('5_ws_6', line_5_ws_6),
