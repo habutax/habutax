@@ -364,7 +364,7 @@ class Form1040(Form):
             FloatField('6a', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             FloatField('6b', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             BooleanField('7_checkbox', lambda s, i, v: not i['schedule_d_required']),
-            FloatField('7', lambda s, i, v: s.not_implemented() if i['schedule_d_required'] or i['form_8949_required'] else None),
+            FloatField('7', lambda s, i, v: s.not_implemented() if i['schedule_d_required'] or i['form_8949_required'] else float(sum([v[f'1099-div:{n}.box_2a'] for n in range(i['number_1099-div'])]))),
             BooleanField('schedule_1_additional_income', lambda s, i, v: schedule_1_additional_income(s, i, v)),
             FloatField('8', lambda s, i, v: v['1040_s1.10'] if v['schedule_1_additional_income'] else None),
             FloatField('9', lambda s, i, v: v['1'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
