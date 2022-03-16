@@ -188,7 +188,7 @@ class Form1040S8812(Form):
             TextPDFField('topmostSubform[0].Page1[0].f1_24[0]', '14e'),
             TextPDFField('topmostSubform[0].Page1[0].f1_25[0]', '14f'),
             TextPDFField('topmostSubform[0].Page1[0].f1_26[0]', '14g'),
-            TextPDFField('topmostSubform[0].Page1[0].f1_27[0]', '14b'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_27[0]', '14h'),
             TextPDFField('topmostSubform[0].Page1[0].f1_28[0]', '14i'),
 #            TextPDFField('topmostSubform[0].Page2[0].f2_01[0]', '15a'),
 #            TextPDFField('topmostSubform[0].Page2[0].f2_02[0]', '15b'),
