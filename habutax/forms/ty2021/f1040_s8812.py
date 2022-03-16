@@ -73,6 +73,8 @@ class Form1040S8812(Form):
             return max(0.0, v['29'] - v['39'])
 
         def additional_tax(self, i, v):
+            if v['14g'] > 0.001 or v['14g'] < -0.001:
+                return 0.0
             if v['29'] < 0.001 and v['29'] > -0.001:
                 return 0.0
             return v['40']
