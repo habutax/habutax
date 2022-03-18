@@ -149,14 +149,23 @@ class Solver(object):
             self._unattempted_fields.append(unattempted)
         self._unattempted_fields.sort(key=sort_keys)
 
-    def _add_form(self, form_name):
+    def _add_form(self, form_name, input_only=False):
+        """
+        Add a form to those that the solver is aware of. This typically makes
+        its fields and inputs available to to be used by other forms, and
+        causes all its required fields to be attempted. However, if
+        `input_only` is True, this does not cause the form to be filled out or
+        any of its fields to be attempted (unless later used by other forms,
+        meaning _add_form() will be called again. This `input_only` mode only
+        causes inputs to be added, and is intended to allow for de-duplicating
+        input felds when multiple forms need the same input.
+        """
         form_name, form_instance = form.name_and_instance(form_name)
 
         if form_name not in self._form_map:
             raise NotImplementedError(f'Form {form_name} is not supported.')
 
         new_form = self._form_map[form_name](solver=self, instance=form_instance)
-        self.forms[new_form.name()] = new_form
 
         # Add new inputs to our internal map of names to input objects, update
         # the input mapper so it understands how to read these inputs
@@ -164,6 +173,14 @@ class Solver(object):
             assert(i not in self._input_map)
             self._input_map[i.name()] = i
         self._i.update_input_spec(self._input_map)
+
+        # Don't add the form to our map of forms, any fields to our field map,
+        # or any fields to the lists of unattempted fields, or fields we are
+        # solving
+        if input_only:
+            return
+
+        self.forms[new_form.name()] = new_form
 
         for f in new_form.fields():
             assert(f not in self._field_map)
@@ -173,6 +190,8 @@ class Solver(object):
         self._solving_fields |= set([f.name() for f in new_form.required_fields()])
 
     def _attempt_input(self, input_name, needed_by):
+        if input_name not in self._input_map:
+            self._add_form(form_name, input_only=True)
         missing = self._input_map[input_name]
 
         value, supplied = self._prompt(missing, needed_by)
