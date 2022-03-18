@@ -1,26 +1,15 @@
 import unittest
 
-from .. import context
+from ..test_form import FormTestCase
 
 import habutax.forms.ty2021 as ty2021
-from habutax.inputs import InputStore
-from habutax.solver import Solver
 
-class Form1040SimpleTestCase(unittest.TestCase):
+class Form1040SimpleTestCase(FormTestCase):
     def setUp(self):
-        self.inputs = InputStore('tests/ty2021/fixtures/one_w2.habutax')
-        self.solver = Solver(self.inputs, ty2021.available_forms)
-
-    def assertDollarsEqual(self, solution, field, expected):
-        form, field = field.split('.')
-        calculated = float(solution[form][field])
-        self.assertAlmostEqual(calculated, expected, places=2)
+        self.fixture_setup(ty2021.available_forms, input_fixture='tests/ty2021/fixtures/one_w2.habutax')
 
     def test_simple_1040(self):
-        solved = self.solver.solve(['1040'])
-        solution = self.solver.solution()
-
-        self.assertTrue(solved)
+        solution = self.assertSolve(['1040'])
 
         self.assertIn('1040', solution)
         self.assertIn('w-2:0', solution)
