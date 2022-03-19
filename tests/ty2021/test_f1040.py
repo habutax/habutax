@@ -6,7 +6,7 @@ import habutax.forms.ty2021 as ty2021
 
 class Form1040SimpleTestCase(FormTestCase):
     def setUp(self):
-        self.fixture_setup(ty2021.available_forms, input_fixture='tests/ty2021/fixtures/one_w2.habutax')
+        self.fixture_setup(ty2021.available_forms, input_fixture='tests/ty2021/fixtures/f1040_one_w2.habutax')
 
     def test_simple_1040(self):
         solution = self.assertSolve(['1040'])
