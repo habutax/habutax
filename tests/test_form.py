@@ -67,6 +67,15 @@ class FormTestCase(unittest.TestCase):
 
         return solution
 
+    def assertUnimplementedSolution(self, form_names, field_names=[]):
+        solved = self.solver.solve(form_names, field_names=field_names)
+        solution = self.solver.solution()
+
+        self.assertFalse(solved)
+        self.assertGreater(len(self.solver.unimplemented_fields()), 0)
+
+        return solution
+
     def assertFieldEqual(self, solution, field, expected, fieldtype=StringField):
         f = fieldtype('assertFieldEqual', lambda s, i, v: None)
         form, field = field.split('.')

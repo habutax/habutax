@@ -1,0 +1,11 @@
+[1040]
+filing_status = MarriedFilingJointly
+number_1099-div = 1
+number_1099-int = 1
+
+[1040_s3]
+other_foreign_gross_income = no
+other_nonrefundable_credits = no
+child_dependent_care = no
+education_credit = no
+residential_energy_credit = no
