@@ -1,5 +1,6 @@
 import os
 
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -18,11 +19,10 @@ class Form8959(Form):
             BooleanInput('other_medicare_income', description="Do you have any unreported tip income (Form 4137, line 6) or wages on which medicare tax was not withheld? (this is not common)"),
         ]
         def additional_medicare_threshold(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
             threshold = 200000.0
-            if i['1040.filing_status'] is statuses.MarriedFilingJointly:
+            if i['1040.filing_status'] is filing_status.MarriedFilingJointly:
                 threshold = 250000.0
-            elif i['1040.filing_status'] is statuses.MarriedFilingSeparately:
+            elif i['1040.filing_status'] is filing_status.MarriedFilingSeparately:
                 threshold = 125000.0
             return threshold
 

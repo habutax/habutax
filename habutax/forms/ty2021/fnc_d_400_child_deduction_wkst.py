@@ -1,5 +1,6 @@
 import os
 
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -16,11 +17,10 @@ class FormNCD400ChildDeductionWkst(Form):
         ]
 
         def deduction_per_child(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
             status = i['1040.filing_status']
             federal_agi = v['2']
 
-            if status in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            if status in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 if federal_agi <= 40000:
                     return 2500.0
                 elif federal_agi <= 60000:
@@ -33,7 +33,7 @@ class FormNCD400ChildDeductionWkst(Form):
                     return 500.0
                 else:
                     return 0.0
-            elif status == statuses.HeadOfHousehold:
+            elif status == filing_status.HeadOfHousehold:
                 if federal_agi <= 30000:
                     return 2500.0
                 elif federal_agi <= 45000:
@@ -46,7 +46,7 @@ class FormNCD400ChildDeductionWkst(Form):
                     return 500.0
                 else:
                     return 0.0
-            elif status in [statuses.Single, statuses.MarriedFilingSeparately]:
+            elif status in [filing_status.Single, filing_status.MarriedFilingSeparately]:
                 if federal_agi <= 20000:
                     return 2500.0
                 elif federal_agi <= 30000:

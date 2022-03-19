@@ -1,6 +1,7 @@
 from math import ceil
 import os
 
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -27,21 +28,19 @@ class Form1040S8812(Form):
         ]
 
         def line_5_ws_6(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] is statuses.MarriedFilingJointly:
+            if i['1040.filing_status'] is filing_status.MarriedFilingJointly:
                 return 12500.0
-            elif i['1040.filing_status'] is statuses.QualifyingWidowWidower:
+            elif i['1040.filing_status'] is filing_status.QualifyingWidowWidower:
                 return 2500.0
-            elif i['1040.filing_status'] is statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] is filing_status.HeadOfHousehold:
                 return 4375.0
             else:
                 return 6250.0
 
         def line_5_ws_8(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            if i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 150000.0
-            elif i['1040.filing_status'] is statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] is filing_status.HeadOfHousehold:
                 return 112500.0
             else:
                 return 75000.0
@@ -59,10 +58,9 @@ class Form1040S8812(Form):
             return ceil(res / 1000.0) * 1000.0
 
         def line_33(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            if i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 60000.0
-            elif i['1040.filing_status'] is statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] is filing_status.HeadOfHousehold:
                 return 50000.0
             else:
                 return 40000.0
@@ -94,7 +92,7 @@ class Form1040S8812(Form):
             IntegerField('6', lambda s, i, v: sum([v[f'1040.dependent_{n}_odc'] for n in range(i['1040.number_dependents'])])),
             FloatField('7', lambda s, i, v: v['6'] * 500.0),
             FloatField('8', lambda s, i, v: v['5'] + v['7']),
-            FloatField('9', lambda s, i, v: 400000.0 if i['1040.filing_status'] is s.form('1040').FILING_STATUS.MarriedFilingJointly else 200000.0),
+            FloatField('9', lambda s, i, v: 400000.0 if i['1040.filing_status'] is filing_status.MarriedFilingJointly else 200000.0),
             FloatField('10', line_10),
             FloatField('11', lambda s, i, v: v['10'] * 0.05),
             FloatField('12', lambda s, i, v: max(0.0, v['8'] - v['11'])),

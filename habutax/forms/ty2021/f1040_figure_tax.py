@@ -1,3 +1,5 @@
+from habutax.enum import filing_status
+
 TAX_TABLE = (
     # income min (inclusive), income max (exclusive), single, married filing jointly/qualifying widow(er), married filing separately, head of household
     (0, 5, 0, 0, 0, 0),
@@ -1755,15 +1757,15 @@ def figure_tax_worksheet(taxable_amount, filing_status_index):
     # If we got here, something went wrong
     assert(False)
 
-def figure_tax(taxable_amount, filing_status, status_enum):
+def figure_tax(taxable_amount, filing_status):
     filing_status_index = None
-    if filing_status is status_enum.Single:
+    if filing_status is filing_status.Single:
         filing_status_index = 2
-    elif filing_status in [status_enum.MarriedFilingJointly, status_enum.QualifyingWidowWidower]:
+    elif filing_status in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
         filing_status_index = 3
-    elif filing_status is status_enum.MarriedFilingSeparately:
+    elif filing_status is filing_status.MarriedFilingSeparately:
         filing_status_index = 4
-    elif filing_status is status_enum.HeadOfHousehold:
+    elif filing_status is filing_status.HeadOfHousehold:
         filing_status_index = 5
 
     if taxable_amount < 100000:

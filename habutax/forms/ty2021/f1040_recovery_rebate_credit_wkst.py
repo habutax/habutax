@@ -1,3 +1,4 @@
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -22,7 +23,7 @@ class Form1040RecoveryRebateCreditWkst(Form):
             if v['1']:
                 return False
             if not v['2']:
-                if i['1040.filing_status'] is self.form('1040').FILING_STATUS.MarriedFilingJointly:
+                if i['1040.filing_status'] is filing_status.MarriedFilingJointly:
                     if not v['3'] and not v['4'] and not v['5']:
                         return False
                 elif not v['5']:
@@ -33,10 +34,10 @@ class Form1040RecoveryRebateCreditWkst(Form):
 
         def line_6(self, i, v):
             amount = 1400.0
-            if i['1040.filing_status'] is self.form('1040').FILING_STATUS.MarriedFilingJointly and (v['2'] or v['3']):
+            if i['1040.filing_status'] is filing_status.MarriedFilingJointly and (v['2'] or v['3']):
                 amount = 2800.0
             if not v['2']:
-                if i['1040.filing_status'] is self.form('1040').FILING_STATUS.MarriedFilingJointly:
+                if i['1040.filing_status'] is filing_status.MarriedFilingJointly:
                     if not v['3'] and not v['4'] and v['5']:
                         amount = 0.0
                 elif v['5']:
@@ -44,25 +45,23 @@ class Form1040RecoveryRebateCreditWkst(Form):
             return amount
 
         def line_9_checkbox(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
             amount = 0
-            if i['1040.filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
+            if i['1040.filing_status'] in [filing_status.Single, filing_status.MarriedFilingSeparately]:
                 amount = 75000.0
-            elif i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 amount = 150000.0
-            elif i['1040.filing_status'] == statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] == filing_status.HeadOfHousehold:
                 amount = 112.500
             else:
                 self.not_implemented()
             return v['1040.11'] > amount
 
         def line_10_amount(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
+            if i['1040.filing_status'] in [filing_status.Single, filing_status.MarriedFilingSeparately]:
                 return 80000.0
-            elif i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 160000.0
-            elif i['1040.filing_status'] == statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] == filing_status.HeadOfHousehold:
                 return 120000.0
             else:
                 self.not_implemented()
@@ -71,19 +70,18 @@ class Form1040RecoveryRebateCreditWkst(Form):
             return v['9'] > line_10_amount(self, i, v)
 
         def line_11(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
+            if i['1040.filing_status'] in [filing_status.Single, filing_status.MarriedFilingSeparately]:
                 amount = 5000.0
-            elif i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 amount = 10000.0
-            elif i['1040.filing_status'] == statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] == filing_status.HeadOfHousehold:
                 amount = 75000.0
             else:
                 self.not_implemented()
             return v['10'] / amount
 
         optional_fields = [
-            BooleanField('1', lambda s, i, v: False if i['1040.filing_status'] is s.form('1040').FILING_STATUS.MarriedFilingJointly else i['1040.claimed_as_dependent']),
+            BooleanField('1', lambda s, i, v: False if i['1040.filing_status'] is filing_status.MarriedFilingJointly else i['1040.claimed_as_dependent']),
             BooleanField('2', lambda s, i, v: i['ssn_before_due_date']),
             BooleanField('3', lambda s, i, v: i['armed_forces']),
             BooleanField('4', lambda s, i, v: i['either_ssn_before_due_date']),

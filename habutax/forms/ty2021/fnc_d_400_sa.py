@@ -1,5 +1,6 @@
 import os
 
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -19,14 +20,13 @@ class FormNCD400SA(Form):
         ]
 
         def nc_standard_deduction(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            if i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 21500.0
-            elif i['1040.filing_status'] == statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] == filing_status.HeadOfHousehold:
                 return 16125.0
-            elif i['1040.filing_status'] == statuses.Single:
+            elif i['1040.filing_status'] == filing_status.Single:
                 return 10750.0
-            elif i['1040.filing_status'] == statuses.MarriedFilingSeparately and not i['1040.standard_deduction_exceptions']:
+            elif i['1040.filing_status'] == filing_status.MarriedFilingSeparately and not i['1040.standard_deduction_exceptions']:
                 return 10750.0
             self.not_implemented()
 
@@ -36,7 +36,7 @@ class FormNCD400SA(Form):
             return mortgage_interest_points
 
         def real_estate_tax_limit(self, i, v):
-            return 5000.0 if i['1040.filing_status'] == self.form('1040').FILING_STATUS.MarriedFilingSeparately else 10000.0
+            return 5000.0 if i['1040.filing_status'] == filing_status.MarriedFilingSeparately else 10000.0
 
         optional_fields = [
             FloatField('nc_standard_deduction', nc_standard_deduction, places=0),

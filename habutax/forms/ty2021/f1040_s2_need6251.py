@@ -1,3 +1,4 @@
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -16,23 +17,21 @@ class Form1040S2Need6251(Form):
         ]
 
         def line_6(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.Single, statuses.HeadOfHousehold]:
+            if i['1040.filing_status'] in [filing_status.Single, filing_status.HeadOfHousehold]:
                 return 73600.0
-            elif i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 114600.0
-            elif i['1040.filing_status'] == statuses.MarriedFilingSeparately:
+            elif i['1040.filing_status'] == filing_status.MarriedFilingSeparately:
                 return 57300.0
             else:
                 self.not_implemented()
 
         def line_8(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.Single, statuses.HeadOfHousehold]:
+            if i['1040.filing_status'] in [filing_status.Single, filing_status.HeadOfHousehold]:
                 return 523600.0
-            elif i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 1047200.0
-            elif i['1040.filing_status'] == statuses.MarriedFilingSeparately:
+            elif i['1040.filing_status'] == filing_status.MarriedFilingSeparately:
                 return 523600.0
             else:
                 self.not_implemented()
@@ -48,7 +47,7 @@ class Form1040S2Need6251(Form):
         def need_6251(self, i, v):
             if not v['5'] > v['6']:
                 return False
-            elif v['11'] > (99950 if i['1040.filing_status'] == self.form('1040').FILING_STATUS.MarriedFilingSeparately else 199900):
+            elif v['11'] > (99950 if i['1040.filing_status'] == filing_status.MarriedFilingSeparately else 199900):
                 return True
             return v['12'] > v['13']
 

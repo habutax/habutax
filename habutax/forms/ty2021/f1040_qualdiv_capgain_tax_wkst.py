@@ -1,3 +1,4 @@
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -17,25 +18,23 @@ class Form1040QualDivCapGainTaxWkst(Form):
         ]
 
         def line_6(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
+            if i['1040.filing_status'] in [filing_status.Single, filing_status.MarriedFilingSeparately]:
                 return 40400.0
-            elif i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 80800.0
-            elif i['1040.filing_status'] == statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] == filing_status.HeadOfHousehold:
                 return 54100.0
             else:
                 self.not_implemented()
 
         def line_13(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] is statuses.Single:
+            if i['1040.filing_status'] is filing_status.Single:
                 return 445850.00
-            if i['1040.filing_status'] is statuses.MarriedFilingSeparately:
+            if i['1040.filing_status'] is filing_status.MarriedFilingSeparately:
                 return 250800.00
-            elif i['1040.filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
+            elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingWidowWidower]:
                 return 501600.00
-            elif i['1040.filing_status'] == statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] == filing_status.HeadOfHousehold:
                 return 473750.00
             else:
                 self.not_implemented()
@@ -62,9 +61,9 @@ class Form1040QualDivCapGainTaxWkst(Form):
             FloatField('19', lambda s, i, v: v['9'] + v['17']),
             FloatField('20', lambda s, i, v: v['10'] - v['19']),
             FloatField('21', lambda s, i, v: v['20'] * 0.20),
-            FloatField('22', lambda s, i, v: figure_tax(v['5'], i['1040.filing_status'], s.form('1040').FILING_STATUS)),
+            FloatField('22', lambda s, i, v: figure_tax(v['5'], i['1040.filing_status'])),
             FloatField('23', lambda s, i, v: v['18'] + v['21'] + v['22']),
-            FloatField('24', lambda s, i, v: figure_tax(v['1'], i['1040.filing_status'], s.form('1040').FILING_STATUS)),
+            FloatField('24', lambda s, i, v: figure_tax(v['1'], i['1040.filing_status'])),
             FloatField('25', lambda s, i, v: min(v['23'], v['24'])),
         ]
 

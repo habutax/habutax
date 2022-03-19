@@ -1,5 +1,6 @@
 import os
 
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -26,16 +27,15 @@ class Form1040S3(Form):
         def line_1(self, i, v):
             foreign_tax = float(sum([v[f'1099-int:{n}.box_6'] for n in range(i['1040.number_1099-int'])]))
             foreign_tax += float(sum([v[f'1099-div:{n}.box_7'] for n in range(i['1040.number_1099-div'])]))
-            f1116_limit = 600.0 if i['1040.filing_status'] is self.form('1040').FILING_STATUS.MarriedFilingJointly else 300.0
+            f1116_limit = 600.0 if i['1040.filing_status'] is filing_status.MarriedFilingJointly else 300.0
             if i['other_foreign_gross_income'] or foreign_tax > f1116_limit:
                 return self.not_implemented()
             return foreign_tax if foreign_tax > 0.001 else None
 
         def retirement_savings_limit(self, i, v):
-            statuses = self.form('1040').FILING_STATUS
-            if i['1040.filing_status'] is statuses.MarriedFilingJointly:
+            if i['1040.filing_status'] is filing_status.MarriedFilingJointly:
                 return 66000.0
-            elif i['1040.filing_status'] is statuses.HeadOfHousehold:
+            elif i['1040.filing_status'] is filing_status.HeadOfHousehold:
                 return 49500.0
             else:
                 return 33000.0

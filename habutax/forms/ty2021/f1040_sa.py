@@ -1,5 +1,6 @@
 import os
 
+from habutax.enum import filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -58,7 +59,7 @@ class Form1040SA(Form):
             mortgage_insurance_premiums = sum([v[f'1098:{n}.box_5'] for n in range(i['1040.number_1098'])])
             if mortgage_insurance_premiums < 0.001:
                 return None
-            premium_limit = 50000 if i['1040.filing_status'] == self.form('1040').FILING_STATUS.MarriedFilingSeparately else 100000
+            premium_limit = 50000 if i['1040.filing_status'] == filing_status.MarriedFilingSeparately else 100000
             if mortgage_insurance_premiums > 0.001 and i['mortgage_insurance_premiums_special'] and v['1040:11'] > premium_limit:
                 self.not_implemented()
             return mortgage_insurance_premiums
@@ -88,7 +89,7 @@ class Form1040SA(Form):
             FloatField('5b', lambda s, i, v: i['state_local_real_estate_taxes']),
             FloatField('5c', lambda s, i, v: i['state_local_personal_property_taxes']),
             FloatField('5d', lambda s, i, v: v['5a'] + v['5b'] + v['5c']),
-            FloatField('5e', lambda s, i, v: min(5000.0 if i['1040.filing_status'] == s.form('1040').FILING_STATUS.MarriedFilingSeparately else 10000.0, v['5d'])),
+            FloatField('5e', lambda s, i, v: min(5000.0 if i['1040.filing_status'] == filing_status.MarriedFilingSeparately else 10000.0, v['5d'])),
             FloatField('6', lambda s, i, v: i['other_taxes_amount']),
             FloatField('7', lambda s, i, v: v['5e'] + v['6']),
 
