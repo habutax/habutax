@@ -218,14 +218,15 @@ class InputStore(MutableMapping):
             self.config.add_section(i.section())
         self.config.set(i.section(), i.base_name(), value)
 
+    def __contains__(self, key):
+        section, base_name = key.split(".")
+        return self.config.has_option(section, base_name)
+
     def __delitem__(self, key):
-        raise NotImplementedError()
-        if key not in self.input_specs:
-            raise MissingInputSpecification(key)
-        i = self.input_specs[key]
-        self.config.remove_option(i.section(), i.base_name())
-        if len(self.config[i.section()]) == 0:
-            self.config.remove_section(i.section())
+        section, base_name = key.split(".")
+        self.config.remove_option(section, base_name)
+        if len(self.config[section]) == 0:
+            self.config.remove_section(section)
 
     def __iter__(self):
         return iter(self.config)

@@ -16,8 +16,8 @@ class Form1040S1(Form):
 
     def __init__(self, **kwargs):
         inputs = [
-            BooleanInput('state_local_income_tax_adjust', description="Do you have any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report which you have not already reported via entered 1099-G forms, or adjustments to make to the amounts on your entered 1099-Gs?"),
-            FloatInput('state_local_income_tax', description="Enter the total amount of any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report (see instructions). This typically includes amounts you received on form 1099-G. Please include the amounts even from Forms 1099-G you have entered into HabuTax separately."),
+            BooleanInput('state_local_income_tax_adjust', description="Do you have any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report which you have not already reported via entered 1099-G forms, or adjustments to make to the amounts on any forms 1099-G you have or will enter? For example, answer 'yes' if you did not itemize on your federal tax return in the year to which a refund pertains."),
+            FloatInput('state_local_income_tax', description="Enter the total amount of any refunds, credits, or offsets of state or local income taxes you received in 2021 which you are required to report (see instructions). This typically includes amounts you received on form 1099-G unless you did not itemize in the year the refund is for. Please include the amounts even from Forms 1099-G you have entered or will enter into HabuTax."),
             FloatInput('alimony_received', description="Enter amounts received as alimony or separate maintenance pursuant to a divorce or separation agreement entered into on or before December 31, 2018, unless that agreement was changed after December 31, 2018, to expressly provide that alimony received isn't included in your income"),
             StringInput('alimony_received_date', description="Date of original divorce or separation agreement for alimony received."),
             BooleanInput('business_income', description="Did you (or your spouse if filing a joint return) operate a business or practice your profession as a sole proprietor?"),
@@ -76,17 +76,17 @@ class Form1040S1(Form):
             return ""
 
         def line_13(self, i, v):
-            if not i['hsa_contribution_you'] and not i['hsa_contribution_spouse']:
+            spouse_hsa = (i['1040.filing_status'] == filing_status.MarriedFilingJointly) and i['hsa_contribution_spouse']
+            if not i['hsa_contribution_you'] and not spouse_hsa:
                 return None
 
             hsa_deduction = v['8889:you.hsa_deduction'] if i['hsa_contribution_you'] else 0.0
-            hsa_deduction += v['8889:spouse.hsa_deduction'] if i['hsa_contribution_spouse'] else 0.0
+            hsa_deduction += v['8889:spouse.hsa_deduction'] if spouse_hsa else 0.0
             return hsa_deduction
 
         optional_fields = [
             FloatField('1', line_1),
             FloatField('2a', lambda s, i, v: i['alimony_received']),
-            StringField('2b', lambda s, i, v: i['alimony_received_date'] if v['2a'] > 0.001 else None),
             FloatField('3', lambda s, i, v: s.not_implemented() if i['business_income'] else None), # Schedule C
             FloatField('4', lambda s, i, v: s.not_implemented() if i['other_gains_losses'] else None), # Form 4797
             FloatField('5', lambda s, i, v: s.not_implemented() if i['real_estate'] else None), # Schedule E
@@ -111,7 +111,7 @@ class Form1040S1(Form):
             FloatField('8z', lambda s, i, v: other_income(s, i, v)[1]),
             FloatField('9', lambda s, i, v: sum([v[f'8{l}'] for l in "abcdefghijklmnopz"])),
             FloatField('10', lambda s, i, v: v['1'] + v['2a'] + sum([v[f'{n}'] for n in range(3,8)]) + v['9']),
-            FloatField('11', lambda s, i, v: i['educator_expenses']),
+            FloatField('11', lambda s, i, v: s.not_implemented() if i['educator_expenses'] > 500.00 else i['educator_expenses']),
             FloatField('12', lambda s, i, v: s.not_implemented() if i['certain_business_expenses'] else None),
             FloatField('13', line_13), # Form 8889
             FloatField('14', lambda s, i, v: s.not_implemented() if i['moving_expenses'] else None),
@@ -120,8 +120,6 @@ class Form1040S1(Form):
             FloatField('17', lambda s, i, v: s.not_implemented() if i['self_employed_health_insurance'] else None),
             FloatField('18', line_18),
             FloatField('19a', lambda s, i, v: i['alimony_paid']),
-            StringField('19b', lambda s, i, v: i['alimony_paid_ssn'] if v['2a'] > 0.001 else None),
-            StringField('19c', lambda s, i, v: i['alimony_paid_date'] if v['2a'] > 0.001 else None),
             FloatField('20', lambda s, i, v: s.not_implemented() if i['traditional_ira_deduction'] else None),
             FloatField('21', lambda s, i, v: s.not_implemented() if i['student_loan_interest'] else None),
             FloatField('22', lambda s, i, v: ""),
@@ -142,7 +140,10 @@ class Form1040S1(Form):
             FloatField('26', lambda s, i, v: sum([v[f'{n}'] for n in list(range(11,19)) + list(range(20,24))]) + v['19a'] + v['25']),
         ]
         required_fields = [
+            StringField('2b', lambda s, i, v: i['alimony_received_date'] if v['2a'] > 0.001 else None),
             StringField('8z_type', lambda s, i, v: other_income(s, i, v)[0]),
+            StringField('19b', lambda s, i, v: i['alimony_paid_ssn'] if v['19a'] > 0.001 else None),
+            StringField('19c', lambda s, i, v: i['alimony_paid_date'] if v['19a'] > 0.001 else None),
             StringField('24z_type', lambda s, i, v: i['other_adjustments_type'] if i['need_other_adjustments'] else None),
         ]
 

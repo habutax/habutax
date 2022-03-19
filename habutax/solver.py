@@ -189,9 +189,12 @@ class Solver(object):
         self._add_unattempted(new_form.required_fields())
         self._solving_fields |= set([f.name() for f in new_form.required_fields()])
 
+    def _add_input_spec(self, input_name):
+        form_name, _ = input_name.split('.')
+        self._add_form(form_name, input_only=True)
+
     def _attempt_input(self, input_name, needed_by):
-        if input_name not in self._input_map:
-            self._add_form(form_name, input_only=True)
+        assert input_name in self._input_map
         missing = self._input_map[input_name]
 
         value, supplied = self._prompt(missing, needed_by)
@@ -226,12 +229,24 @@ class Solver(object):
             self._field_dependencies.add_unmet(ud.dependency, field)
         except inputs.MissingInput as mi:
             self._input_dependencies.add_unmet(mi.input_name, field)
+        except inputs.MissingInputSpecification as mis:
+            self._add_input_spec(mis.input_name)
+            return self._attempt_field(field)
         except fields.FieldNotImplemented as fni:
             self._unimplemented_fields.append(fni.field_name)
 
-    def solve(self, form_names):
+    def solve(self, form_names, field_names=[]):
         for form_name in form_names:
             self._add_form(form_name)
+
+        # Add any specifically-requested fields to the list of fields we need
+        # to attempt. This is probably primarily useful for testing (where we
+        # may want to test a form which has primarily optional fields without
+        # also including the forms which would typically include fields when
+        # needed).
+        for field_name in field_names:
+            self._add_unattempted(self._field_map[field_name])
+        self._solving_fields |= set(field_names)
 
         while len(self._unattempted_fields) > 0 \
                 or self._input_dependencies.has_met() \
