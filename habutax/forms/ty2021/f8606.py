@@ -54,7 +54,7 @@ class Form8606(Form):
             FloatField('11', lambda s, i, v: v['8'] * v['10']),
             FloatField('12', lambda s, i, v: v['7'] * v['10']),
             FloatField('13', lambda s, i, v: v['11'] + v['12']),
-            FloatField('14', lambda s, i, v: v['3'] if i['distribution_or_roth_conversion'] else v['3'] - v['13']),
+            FloatField('14', lambda s, i, v: v['3'] - v['13'] if i['distribution_or_roth_conversion'] else v['3']),
             FloatField('15a', lambda s, i, v: v['7'] - v['12']),
             FloatField('15b', lambda s, i, v: self.not_implemented() if i['qualified_disaster_distributions'] else None),
             FloatField('15c', lambda s, i, v: v['15a'] - v['15b']),
@@ -76,8 +76,7 @@ class Form8606(Form):
             if i['part_1_needed']:
                 if i['distribution_or_roth_conversion']:
                     total += v['15c']
-                else:
-                    v['14'] # Not returned, but needs to be populated
+                v['14'] # Not returned, but needs to be populated
             if i['part_2_needed']:
                 total += v['18']
             if i['part_3_needed']:
@@ -124,8 +123,8 @@ class Form8606(Form):
             TextPDFField('topmostSubform[0].Page1[0].f1_15[0]', '7'),
             TextPDFField('topmostSubform[0].Page1[0].f1_16[0]', '8'),
             TextPDFField('topmostSubform[0].Page1[0].f1_17[0]', '9'),
-            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '10', max_length=1, value_fn=lambda s, v, f: 1 if v > 1 else 0),
-            TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '10', value_fn=lambda s, v, f: int(round((v % 1) * 100000, 0))),
+            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '10', max_length=1, value_fn=lambda s, v, f: f'{v:.3f}'.split('.')[0]),
+            TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '10', value_fn=lambda s, v, f: f'{v:.3f}'.split('.')[1]),
             TextPDFField('topmostSubform[0].Page1[0].f1_20[0]', '11'),
             TextPDFField('topmostSubform[0].Page1[0].f1_21[0]', '12'),
             TextPDFField('topmostSubform[0].Page1[0].f1_22[0]', '13'),

@@ -119,9 +119,9 @@ class Form1040SA(Form):
             BooleanField('18', lambda s, i, v: i['itemize_though_less']),
         ]
         required_fields = [
-            FloatField('6_type', lambda s, i, v: i['other_taxes_type'] if i['other_taxes_amount'] > 0.001 else None),
-            FloatField('8b_desc', lambda s, i, v: i['other_mortgage_interest_desc'] if i['other_mortgage_interest'] > 0.001 and not i['loan_limitations'] else None),
-            FloatField('16_type', lambda s, i, v: i['other_itemized_type'] if i['other_itemized'] > 0.001 else None),
+            StringField('6_type', lambda s, i, v: i['other_taxes_type'] if i['other_taxes_amount'] > 0.001 else None),
+            StringField('8b_desc', lambda s, i, v: i['other_mortgage_interest_desc'] if i['other_mortgage_interest'] > 0.001 and not i['loan_limitations'] else None),
+            StringField('16_type', lambda s, i, v: i['other_itemized_type'] if i['other_itemized'] > 0.001 else None),
         ]
 
         pdf_fields = [
@@ -137,13 +137,13 @@ class Form1040SA(Form):
             TextPDFField('topmostSubform[0].Page1[0].f1_9[0]', '5c'),
             TextPDFField('topmostSubform[0].Page1[0].f1_10[0]', '5d'),
             TextPDFField('topmostSubform[0].Page1[0].f1_11[0]', '5e'),
-            TextPDFField('topmostSubform[0].Page1[0].f1_12[0]', '6_type'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_12[0]', '6_type'),
             TextPDFField('topmostSubform[0].Page1[0].f1_13[0]', '6_type'),
             TextPDFField('topmostSubform[0].Page1[0].f1_14[0]', '6'),
             TextPDFField('topmostSubform[0].Page1[0].f1_15[0]', '7'),
 #            ButtonPDFField('topmostSubform[0].Page1[0].Line8_ReadOrder[0].c1_2[0]', '8', '1'), # If you didn’t use all of your home mortgage loan(s) to buy, build, or improve your home, see instructions and check this box
             TextPDFField('topmostSubform[0].Page1[0].f1_16[0]', '8a'),
-#            TextPDFField('topmostSubform[0].Page1[0].f1_17[0]', '8b_person'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_17[0]', '8b_desc'),
 #            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '8b_person'),
             TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '8b'),
             TextPDFField('topmostSubform[0].Page1[0].f1_20[0]', '8c'),
