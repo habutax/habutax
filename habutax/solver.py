@@ -1,5 +1,3 @@
-import sys
-
 from habutax import fields
 from habutax import form
 from habutax import inputs

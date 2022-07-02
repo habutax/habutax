@@ -115,7 +115,7 @@ class Form1040(Form):
                 if v[f'w-2:{n}.box_13_statutory']:
                     statutory = True
             if i['unhandled_income'] or statutory:
-                s.not_implemented()
+                self.not_implemented()
             return sum([v[f'w-2:{n}.box_1'] for n in range(i['number_w-2'])]) if i['number_w-2'] > 0 else None
 
         def line_2b(self, i, v):

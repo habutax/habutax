@@ -33,7 +33,7 @@ class PDFField(object):
 
 class TextPDFField(PDFField):
     def __init__(self, name, value, max_length=None, value_fn=None):
-        self.max_length = None
+        self.max_length = max_length
         super().__init__(name, value, value_fn=value_fn)
 
     def value(self, value, field_obj):
