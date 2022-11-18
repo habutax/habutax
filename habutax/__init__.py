@@ -194,6 +194,9 @@ def list_form_inputs(args):
         print('\n' + comment.replace('\n', '\n# '))
         print(f'#{form_input.base_name()} =')
 
+def version(args):
+    print(f'HabuTax v{__version__}')
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True, help='sub-command help')
@@ -228,6 +231,9 @@ def main():
     list_form_inputs_parser.add_argument('form', type=str, help='The short name of the form for which you want to display the inputs')
     list_form_inputs_parser.add_argument('--year', type=int, default=default_year, help=f'The tax year to use (default: {default_year})')
     list_form_inputs_parser.set_defaults(func=list_form_inputs)
+
+    version_parser = subparsers.add_parser('version', help='Display current HabuTax version.')
+    version_parser.set_defaults(func=version)
 
     args = parser.parse_args()
     args.func(args)
