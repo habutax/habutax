@@ -60,10 +60,6 @@ provided to you by your employer or financial institution:
   Profit-Sharing Plans, IRAs, Insurance Contracts, etc.
 * Form W-2, Wage and Tax Statement
 
-## Coming soon
-
-* Form 2441, Child and Dependent Care Expenses
-
 ## Installation
 
 HabuTax can be used either directly from a source checkout, or by installing it
