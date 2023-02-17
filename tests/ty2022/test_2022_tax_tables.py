@@ -21,17 +21,23 @@ class FigureTaxTestCase(unittest.TestCase):
             tax = figure_tax(taxable, status)
             self.assertAlmostEqual(expected_tax, tax, places=2)
 
-    def test_figure_2022_1040_tax_try_all_values(self):
+    def test_figure_2022_1040_tax_monotonically_increasing(self):
         statuses = [enum.filing_status.Single, enum.filing_status.MarriedFilingSeparately, enum.filing_status.MarriedFilingJointly, enum.filing_status.QualifyingSurvivingSpouse, enum.filing_status.HeadOfHousehold]
-        for taxable_income in range(0, 200, 3):
-            for status in statuses:
-                figure_tax(taxable_income, status)
-        for taxable_income in range(201, 10000, 23):
-            for status in statuses:
-                figure_tax(taxable_income, status)
-        for taxable_income in range(10007, 200000, 43):
-            for status in statuses:
-                figure_tax(taxable_income, status)
-        for taxable_income in range(199999, 750000, 1967):
-            for status in statuses:
-                figure_tax(taxable_income, status)
+        for status in statuses:
+            last = 0
+            for taxable_income in range(0, 200, 3):
+                this = figure_tax(taxable_income, status)
+                self.assertGreaterEqual(this, last)
+                last = this
+            for taxable_income in range(200, 10000, 23):
+                this = figure_tax(taxable_income, status)
+                self.assertGreaterEqual(this, last)
+                last = this
+            for taxable_income in range(10000, 199999, 43):
+                this = figure_tax(taxable_income, status)
+                self.assertGreaterEqual(this, last)
+                last = this
+            for taxable_income in range(199999, 750000, 1967):
+                this = figure_tax(taxable_income, status)
+                self.assertGreaterEqual(this, last)
+                last = this
