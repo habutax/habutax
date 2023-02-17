@@ -12,7 +12,7 @@ class FigureTaxTestCase(unittest.TestCase):
             (98325.84, enum.filing_status.MarriedFilingJointly, 13129),
             (99999.99, enum.filing_status.HeadOfHousehold, 16563.00),
             (100000.00, enum.filing_status.HeadOfHousehold, 16569.00),
-            (588939, enum.filing_status.QualifyingWidowWidower, 155217.15),
+            (588939, enum.filing_status.QualifyingSurvivingSpouse, 155217.15),
             (588939, enum.filing_status.MarriedFilingJointly, 155217.15),
             (1482.40, enum.filing_status.MarriedFilingSeparately, 149),
             (8182983.94, enum.filing_status.MarriedFilingSeparately, 2995965.31),

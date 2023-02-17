@@ -12,12 +12,20 @@ def make(name, options):
         assert(isinstance(v, str)) 
     return Enum(name, options, type=StringyEnum)
 
-filing_status = make('1040 Filing Status', {
+filing_status_2021 = make('1040 Filing Status', {
 	'Single': "single, unmarried, or legally separated",
 	'MarriedFilingJointly': "married and filing a joint return",
 	'MarriedFilingSeparately': "married and file a separate return",
 	'HeadOfHousehold': "unmarried and provide a home for certain other person",
 	'QualifyingWidowWidower': "generally filed if your spouse died in the two years previous to the tax year of this return, you didn't remarry before the end of this tax year, and you have a child or stepchild whom you can claim as a dependent (see Form 1040 instructions for more)"
+})
+
+filing_status = make('1040 Filing Status', {
+	'Single': "single, unmarried, or legally separated",
+	'MarriedFilingJointly': "married and filing a joint return",
+	'MarriedFilingSeparately': "married and file a separate return",
+	'HeadOfHousehold': "unmarried and provide a home for certain other person",
+	'QualifyingSurvivingSpouse': "generally filed if your spouse died in the two years previous to the tax year of this return, you didn't remarry before the end of this tax year, and you have a child or stepchild whom you can claim as a dependent (see Form 1040 instructions for more)"
 })
 
 us_states = make('US States', {

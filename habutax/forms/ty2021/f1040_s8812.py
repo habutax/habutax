@@ -1,7 +1,7 @@
 from math import ceil
 import os
 
-from habutax.enum import filing_status
+from habutax.enum import filing_status_2021 as filing_status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *

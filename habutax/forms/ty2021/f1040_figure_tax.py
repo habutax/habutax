@@ -1,4 +1,4 @@
-from habutax.enum import filing_status
+from habutax.enum import filing_status_2021 as filing_status
 
 TAX_TABLE = (
     # income min (inclusive), income max (exclusive), single, married filing jointly/qualifying widow(er), married filing separately, head of household

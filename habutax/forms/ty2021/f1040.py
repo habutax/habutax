@@ -18,7 +18,7 @@ class Form1040(Form):
 
     def __init__(self, **kwargs):
         inputs = [
-            EnumInput('filing_status', enum.filing_status, description="Filing Status"),
+            EnumInput('filing_status', enum.filing_status_2021, description="Filing Status"),
             StringInput('first_name', description="Your first name"),
             StringInput('middle_initial', description="Your middle initial"),
             StringInput('last_name', description="Your last name"),
@@ -104,7 +104,7 @@ class Form1040(Form):
 
         def full_names(self, i, v):
             names = [f'{v["first_name"]} {v["last_name"]}']
-            if i['filing_status'] == enum.filing_status.MarriedFilingJointly:
+            if i['filing_status'] == enum.filing_status_2021.MarriedFilingJointly:
                 names.append(f'{v["spouse_first_name"]} {v["spouse_last_name"]}')
             return ", ".join(names)
 
@@ -197,7 +197,7 @@ class Form1040(Form):
             return (mort_int_refund + state_income_refund) > 0.001 or i['schedule_1_additional_income']
 
         def standard_deduction(self, i):
-            statuses = enum.filing_status
+            statuses = enum.filing_status_2021
             if i['filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
                 return 12550.00
             elif i['filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingWidowWidower]:
@@ -218,13 +218,13 @@ class Form1040(Form):
         def line_12b(self, i, v):
             if v['itemizing']:
                 return None
-            max_contrib = 600.0 if i['filing_status'] == enum.filing_status.MarriedFilingJointly else 300.0
+            max_contrib = 600.0 if i['filing_status'] == enum.filing_status_2021.MarriedFilingJointly else 300.0
             return min(i['charitable_contributions_std_ded'], max_contrib) if i['charitable_contributions_std_ded'] > 0.001 else None
 
         def line_13(self, i, v):
             section_199a = sum([v[f'1099-div:{n}.box_5'] for n in range(i['number_1099-div'])])
 
-            statuses = enum.filing_status
+            statuses = enum.filing_status_2021
             income_limit = 164900.00
             if i['filing_status'] is statuses.MarriedFilingSeparately:
                 income_limit = 64925.00
@@ -283,7 +283,7 @@ class Form1040(Form):
             for n in range(i['number_w-2']):
                 if v[f'w-2:{n}.box_5'] > 200000:
                     return True
-            statuses = enum.filing_status
+            statuses = enum.filing_status_2021
             threshold = 200000.0
             if i['filing_status'] is statuses.MarriedFilingJointly:
                 threshold = 250000.0
@@ -308,7 +308,7 @@ class Form1040(Form):
                 0: (21430, 27380)
             }
             dependents = min(3, i['number_dependents'])
-            filing_index = 1 if i['filing_status'] is enum.filing_status.MarriedFilingJointly else 0
+            filing_index = 1 if i['filing_status'] is enum.filing_status_2021.MarriedFilingJointly else 0
             eic_income_limit = dependent_map[dependents][filing_index]
             if v['11'] >= eic_income_limit:
                 return False
@@ -327,13 +327,13 @@ class Form1040(Form):
             return None
 
         required_fields = [
-            EnumField('filing_status', enum.filing_status, lambda s, i, v: i['filing_status']),
+            EnumField('filing_status', enum.filing_status_2021, lambda s, i, v: i['filing_status']),
             StringField('first_name', lambda s, i, v: f'{i["first_name"]} {i["middle_initial"]}'.strip()),
             StringField('last_name', lambda s, i, v: i['last_name']),
             StringField('you_ssn', lambda s, i, v: i['you_ssn']),
-            StringField('spouse_first_name', lambda s, i, v: f'{i["spouse_first_name"]} {i["spouse_middle_initial"]}'.strip() if i['filing_status'] == enum.filing_status.MarriedFilingJointly else None),
-            StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else None),
-            StringField('spouse_ssn', lambda s, i, v: i['spouse_ssn'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else None),
+            StringField('spouse_first_name', lambda s, i, v: f'{i["spouse_first_name"]} {i["spouse_middle_initial"]}'.strip() if i['filing_status'] == enum.filing_status_2021.MarriedFilingJointly else None),
+            StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == enum.filing_status_2021.MarriedFilingJointly else None),
+            StringField('spouse_ssn', lambda s, i, v: i['spouse_ssn'] if i['filing_status'] == enum.filing_status_2021.MarriedFilingJointly else None),
             StringField('full_names', full_names),
             StringField('home_address', lambda s, i, v: i['home_address']),
             StringField('apartment_no', lambda s, i, v: i['apartment_no']),
@@ -344,7 +344,7 @@ class Form1040(Form):
             StringField('foreign_province', lambda s, i, v: i['foreign_province']),
             StringField('foreign_postal_code', lambda s, i, v: i['foreign_postal_code']),
             BooleanField('you_presidential_election', lambda s, i, v: i['you_presidential_election']),
-            BooleanField('spouse_presidential_election', lambda s, i, v: i['spouse_presidential_election'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else False),
+            BooleanField('spouse_presidential_election', lambda s, i, v: i['spouse_presidential_election'] if i['filing_status'] == enum.filing_status_2021.MarriedFilingJointly else False),
             BooleanField('virtual_currency', lambda s, i, v: s.not_implemented() if i['virtual_currency'] else False),
             FloatField('1', line_1),
             FloatField('2a', lambda s, i, v: float(sum([v[f'1099-int:{n}.box_8'] for n in range(i['number_1099-int'])]))),
@@ -406,7 +406,7 @@ class Form1040(Form):
             FloatField('38', line_38),
             BooleanField('designee', lambda s, i, v: False),
             StringField('occupation', lambda s, i, v: i['occupation']),
-            StringField('spouse_occupation', lambda s, i, v: i['spouse_occupation'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else ""),
+            StringField('spouse_occupation', lambda s, i, v: i['spouse_occupation'] if i['filing_status'] == enum.filing_status_2021.MarriedFilingJointly else ""),
             StringField('phone_number', lambda s, i, v: i['phone_number']),
             StringField('email_address', lambda s, i, v: i['email_address']),
         ]
