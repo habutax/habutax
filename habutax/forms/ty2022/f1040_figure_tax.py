@@ -2110,9 +2110,14 @@ def figure_tax_table(taxable_amount, filing_status_column):
     assert(False)
 
 def figure_tax_worksheet(taxable_amount, filing_status_index):
+    # Note: The first row of the tax computation worksheet tables reads "At
+    # least $..." for the lower bound, the other rows read "over $..."
+    first_row = True
     for row in TAX_WORKSHEET_VALUES[filing_status_index-2]:
-        if taxable_amount >= row[0] and taxable_amount <= row[1]:
+        meets_lower_bound = taxable_amount >= row[0] if first_row else taxable_amount > row[0]
+        if meets_lower_bound and taxable_amount <= row[1]:
             return taxable_amount * row[2] - row[3]
+        first_row = False
 
     # If we got here, something went wrong
     assert(False)
