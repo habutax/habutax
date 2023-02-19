@@ -1,5 +1,5 @@
 from ..ty2021.f1040 import Form1040
-from ..ty2021.f1040_qualdiv_capgain_tax_wkst import Form1040QualDivCapGainTaxWkst
+from .f1040_qualdiv_capgain_tax_wkst import Form1040QualDivCapGainTaxWkst
 from ..ty2021.f1040_recovery_rebate_credit_wkst import Form1040RecoveryRebateCreditWkst
 from ..ty2021.f1040_s2_need6251 import Form1040S2Need6251
 from ..ty2021.f1040_s1 import Form1040S1
