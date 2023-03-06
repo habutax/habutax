@@ -14,7 +14,7 @@ from ..ty2021.f1099_r import Form1099R
 from .f8606 import Form8606
 from .f8959 import Form8959
 from .f8995 import Form8995
-from ..ty2021.fw_2 import FormW2
+from .fw_2 import FormW2
 from .f8889 import Form8889
 from .fnc_d_400 import FormNCD400
 from .fnc_d_400_child_deduction_wkst import FormNCD400ChildDeductionWkst
