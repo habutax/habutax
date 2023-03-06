@@ -6,6 +6,7 @@ itemize = no
 last_name = Smith
 need_8962 = no
 need_schedule_2 = no
+other_federal_withholding = 0.0
 need_schedule_3_part_ii = no
 number_1098 = 
 number_1099-div = 
@@ -102,4 +103,3 @@ eip_3_amount =
 [1040_s2_need_6251]
 schedule_j_needed = no
 form_4972_needed = no
-
