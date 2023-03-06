@@ -9,7 +9,7 @@ from habutax.pdf_fields import *
 
 class Form1040S8812(Form):
     form_name = "1040_s8812"
-    tax_year = 2021
+    tax_year = 2022
     description = "Schedule 8812 (Form 1040)"
     long_description = "Credits for Qualifying Children and Other Dependents"
     jurisdiction = Jurisdiction.US
