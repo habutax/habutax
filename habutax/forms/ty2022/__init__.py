@@ -10,7 +10,7 @@ from .f1098 import Form1098
 from .f1099_div import Form1099DIV
 from .f1099_g import Form1099G
 from .f1099_int import Form1099INT
-from ..ty2021.f1099_r import Form1099R
+from .f1099_r import Form1099R
 from .f8606 import Form8606
 from .f8959 import Form8959
 from .f8995 import Form8995
