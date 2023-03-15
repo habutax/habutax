@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+# Note: Some PDFs (i.e. those from North Carolina) are "encrypted". You will
+# probably wish to decrypt them using a qpdf command-line like:
+# $ qpdf --decrypt input.pdf output.pdf
+#
+# Additionally, it may be helpful to remove the first page of a PDF containing
+# a form if it is a page you do not wish to include in the output. This can be
+# accomplished with a pdftk command-line like:
+# $ pdftk input.pdf cat 2-end output chopped.pdf
+
 import argparse
 from enum import Enum
 import subprocess
