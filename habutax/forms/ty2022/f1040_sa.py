@@ -138,7 +138,7 @@ class Form1040SA(Form):
 #            TextPDFField('topmostSubform[0].Page1[0].f1_18[0]', '8b_person'),
             TextPDFField('topmostSubform[0].Page1[0].f1_19[0]', '8b'),
             TextPDFField('topmostSubform[0].Page1[0].f1_20[0]', '8c'),
-            TextPDFField('topmostSubform[0].Page1[0].f1_21[0]', '8d'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_21[0]', '8d'), # "Reserved for future use"
             TextPDFField('topmostSubform[0].Page1[0].f1_22[0]', '8e'),
             TextPDFField('topmostSubform[0].Page1[0].f1_23[0]', '9'),
             TextPDFField('topmostSubform[0].Page1[0].f1_24[0]', '10'),
