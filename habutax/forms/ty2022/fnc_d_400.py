@@ -86,7 +86,7 @@ class FormNCD400(Form):
             return tax_withheld(self, i, v, [enum.taxpayer_or_spouse.spouse, enum.taxpayer_spouse_or_both.spouse])
 
         required_fields = [
-            StringField('you_ssn', lambda s, i, v: i['1040.you_ssn'][:3] + "-" + i['1040.you_ssn'][3:5] + "-" + i['1040.you_ssn'][5:]),
+            StringField('your_ssn', lambda s, i, v: i['1040.you_ssn'][:3] + "-" + i['1040.you_ssn'][3:5] + "-" + i['1040.you_ssn'][5:]),
             StringField('spouse_ssn', lambda s, i, v: i['1040.spouse_ssn'][:3] + "-" + i['1040.spouse_ssn'][3:5] + "-" + i['1040.spouse_ssn'][5:] if i['1040.filing_status'] == enum.filing_status.MarriedFilingJointly else None),
             StringField('your_first_name', lambda s, i, v: i['1040.first_name'].upper()),
             StringField('your_middle_initial', lambda s, i, v: i['1040.middle_initial'].upper()),
@@ -172,7 +172,7 @@ class FormNCD400(Form):
 #            TextPDFField('y_d400wf_datebeg', 'fiscal_year_beginning'),
 #            ButtonPDFField('y_d400wf_amendedreturn', 'unknown', 'Yes'),
 #            TextPDFField('y_d400wf_dateend', 'fiscal_year_ending'),
-            TextPDFField('y_d400wf_ssn1', 'you_ssn'),
+            TextPDFField('y_d400wf_ssn1', 'your_ssn'),
             TextPDFField('y_d400wf_ssn2', 'spouse_ssn'),
             TextPDFField('y_d400wf_fname1', 'your_first_name', max_length=25),
             TextPDFField('y_d400wf_mi1', 'your_middle_initial', max_length=1),
@@ -208,8 +208,8 @@ class FormNCD400(Form):
             ButtonPDFField('y_d400wf_fstat4', '4', 'Yes'),
             ButtonPDFField('y_d400wf_fstat5', '5', 'Yes'),
             TextPDFField('y_d400wf_sname2', 'separate_spouse_name', max_length=36),
-            TextPDFField('y_d400wf_sssn2', 'separate_spouse_name'),
-#            ChoicePDFField('y_d400wf_dead3', 'year_spouse_died', [' ', '2019', '2020']),
+            TextPDFField('y_d400wf_sssn2', 'separate_spouse_ssn'),
+#            ChoicePDFField('y_d400wf_dead3', 'year_spouse_died', [' ', '2020', '2021']),
             TextPDFField('y_d400wf_li6_good', '6', max_length=9),
             TextPDFField('y_d400wf_li7_good', '7', max_length=8),
             TextPDFField('y_d400wf_li8_good', '8', max_length=9),
@@ -254,14 +254,14 @@ class FormNCD400(Form):
             TextPDFField('y_d400wf_li32_pg2_good', '32', max_length=8),
             TextPDFField('y_d400wf_li33_pg2_good', '33', max_length=8),
             TextPDFField('y_d400wf_li34_pg2_good', '34', max_length=8),
-#            TextPDFField('y_d400wf_sigdate', 'unknown'),
-#            TextPDFField('y_d400wf_sigdate2', 'unknown'),
+#            TextPDFField('y_d400wf_sigdate', 'date'),
+#            TextPDFField('y_d400wf_sigdate2', 'spouse_date'),
             TextPDFField('y_d400wf_dayphone', 'phone_number'),
-#            ButtonPDFField('y_d400wf_check', 'unknown', 'Yes'),
-#            TextPDFField('y_d400wf_ppsigdate', 'unknown'),
-#            TextPDFField('y_d400wf_ppssn', 'unknown', max_length=9),
-#            TextPDFField('y_d400wf_ppphoneno', 'unknown'),
-    ]
+#            ButtonPDFField('y_d400wf_check', 'prep_authorization', 'Yes'),
+#            TextPDFField('y_d400wf_ppsigdate', 'prep_date'),
+#            TextPDFField('y_d400wf_ppssn', 'prep_id', max_length=9),
+#            TextPDFField('y_d400wf_ppphoneno', 'prep_phone'),
+        ]
         pdf_file = os.path.join(os.path.dirname(__file__), 'fnc_d-400.pdf')
 
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
