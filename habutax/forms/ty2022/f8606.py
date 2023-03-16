@@ -150,10 +150,11 @@ class Form8606(Form):
 #            ButtonPDFField('topmostSubform[0].Page2[0].c2_1[0]', 'unknown', '1'),
 #            TextPDFField('topmostSubform[0].Page2[0].f2_14[0]', 'unknown', max_length=11),
 #            TextPDFField('topmostSubform[0].Page2[0].f2_15[0]', 'unknown'),
-#            TextPDFField('topmostSubform[0].Page2[0].f2_16[0]', 'unknown', max_length=10),
-#            TextPDFField('topmostSubform[0].Page2[0].f2_17[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_16[0]', 'unknown'),
+#            TextPDFField('topmostSubform[0].Page2[0].f2_17[0]', 'unknown', max_length=10),
 #            TextPDFField('topmostSubform[0].Page2[0].f2_18[0]', 'unknown'),
         ]
+
         pdf_file = os.path.join(os.path.dirname(__file__), 'f8606.pdf')
 
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
