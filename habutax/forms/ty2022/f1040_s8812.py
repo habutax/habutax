@@ -81,7 +81,7 @@ class Form1040S8812(Form):
         ]
 
         required_fields = [
-            BooleanField('dependents_match', lambda s, i, v: True if sum([v[f'1040.dependent_{n}_ctc'] for n in range(i['1040.number_dependents'])]) == v['4a'] else s.not_implemented()), # TODO would be more user-friendly to be reported as some type of error rather than "not implemented"
+            BooleanField('dependents_match', lambda s, i, v: True if sum([v[f'1040.dependent_{n}_ctc'] for n in range(i['1040.number_dependents'])]) == v['4'] else s.not_implemented()), # TODO would be more user-friendly to be reported as some type of error rather than "not implemented"
         ]
 
         pdf_fields = [
