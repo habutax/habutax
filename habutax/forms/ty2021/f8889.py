@@ -45,17 +45,17 @@ class Form8889(Form):
             BooleanField('1', lambda s, i, v: i['hdhp_plan_family']),
             FloatField('2', lambda s, i, v: i['hsa_contributions']),
             IntegerField('3', calc_contribution_max),
-            FloatField('4', lambda s, i, v:  self.not_implemented() if i['archer_msa'] else 0.0),
+            FloatField('4', lambda s, i, v: s.not_implemented() if i['archer_msa'] else 0.0),
             FloatField('5', lambda s, i, v: max(v['3'] - v['4'], 0.0)),
-            FloatField('6', lambda s, i, v: self.not_implemented() if i['1040_s1.hsa_contribution_you'] and i['1040_s1.hsa_contribution_spouse'] and i['hdhp_plan_family'] else v['5']),
-            FloatField('7', lambda s, i, v: self.not_implemented() if not i['age_under_55'] and (i['hdhp_plan_family'] or i['8889:spouse.hdhp_plan_family']) else None),
+            FloatField('6', lambda s, i, v: s.not_implemented() if i['1040_s1.hsa_contribution_you'] and i['1040_s1.hsa_contribution_spouse'] and i['hdhp_plan_family'] else v['5']),
+            FloatField('7', lambda s, i, v: s.not_implemented() if not i['age_under_55'] and (i['hdhp_plan_family'] or i['8889:spouse.hdhp_plan_family']) else None),
             FloatField('8', lambda s, i, v: v['6'] + v['7']),
             FloatField('9', lambda s, i, v: i['employer_contribution']),
-            FloatField('10', lambda s, i, v: self.not_implemented() if i['qualified_distribution'] else None),
+            FloatField('10', lambda s, i, v: s.not_implemented() if i['qualified_distribution'] else None),
             FloatField('11', lambda s, i, v: v['9'] + v['10']),
             FloatField('12', lambda s, i, v: max(v['8'] - v['11'], 0.0)),
             FloatField('13', lambda s, i, v: min(v['2'], v['12'])),
-            FloatField('hsa_deduction', lambda s, i, v: self.not_implemented() if i['part_2_needed'] or i['part_3_needed'] or v['2'] > v['13'] else v['13']),
+            FloatField('hsa_deduction', lambda s, i, v: s.not_implemented() if i['part_2_needed'] or i['part_3_needed'] or v['2'] > v['13'] else v['13']),
         ]
 
         def name_field(self, i, v):
