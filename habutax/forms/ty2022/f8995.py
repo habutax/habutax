@@ -29,7 +29,7 @@ class Form8995(Form):
             FloatField('8', lambda s, i, v: max(0.0, v['6'] + v['7'])),
             FloatField('9', lambda s, i, v: v['8'] * 0.20),
             FloatField('10', lambda s, i, v: v['5'] + v['9']),
-            FloatField('11', lambda s, i, v: v['1040.11'] - v['1040.12c']),
+            FloatField('11', lambda s, i, v: v['1040.11'] - v['1040.12']),
             FloatField('12', lambda s, i, v: v['1040.3a'] + v['1040.7'] if not i['schedule_d'] else s.not_implemented()),
             FloatField('13', lambda s, i, v: max(0.0, v['11'] - v['12'])),
             FloatField('14', lambda s, i, v: v['13'] * 0.20),
