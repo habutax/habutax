@@ -74,7 +74,7 @@ class Form1040(Form):
             BooleanInput('ira_exception3_spouse', description='Is all or part of your spouse\'s IRA distributions a qualified charitable distribution (QCD)? You will be handled separately'),
             BooleanInput('ira_exception3_spouse_total', description='Was the total amount of your spouse\'s IRA distribution a qualified charitable distribution (QCD)? You will be handled separately'),
             BooleanInput('ira_exception4_spouse', description='Is all of part of your spouse\'s IRA distributions a health savings account (HSA) funding distribution (HFD)? You will be handled separately'),
-            BooleanInput('pensions_annuities', description=f'Did you receive any pension or annuity payments in tax year {Form1040.tax_year}? These would likely have been reported on Form(s) 1099-R.'),
+            BooleanInput('pensions_annuities_adjustments', description=f'Did you receive any pension or annuity payments in tax year {Form1040.tax_year} which were either not reported on forms 1099-R, or for which the distribution or taxable amount on 1099-R need to be adjusted?'),
             BooleanInput('social_security_benefits', description=f'Did you receive any Social Security benefits in tax year {Form1040.tax_year}? These would likely have been reported on Form(s) SSA-1099 or RRB-1099.'),
             BooleanInput('schedule_d_required', description="Are you required to complete Schedule D? See the line 7 instructions for Form 1040 if you are not sure."),
             BooleanInput('form_8949_required', description="Are you required to complete form 8949 (Sales and Other Dispositions of Capital Assets)? See the line 7 instructions for Form 1040 if you are not sure."),
@@ -195,6 +195,20 @@ class Form1040(Form):
                     line_4b += ira_distributions_spouse
 
             return (line_4a, line_4b) if ira_distributions_you + ira_distributions_spouse > 0.001 else (None, None)
+
+        def line_5a_5b(self, i, v):
+            if i['pensions_annuities_adjustments']:
+                self.not_implemented()
+
+            distributions = 0.0
+            taxable_amount = 0.0
+            for n in range(i['number_1099-r']):
+                if not v[f'1099-r:{n}.box_7_ira_sep_simple']:
+                    if v[f'1099-r:{n}.box_2b_taxable_not_determined']:
+                        self.not_implemented()
+                    distributions += v[f'1099-r:{n}.box_1']
+                    taxable_amount += v[f'1099-r:{n}.box_2a']
+            return (distributions, taxable_amount) if distributions + taxable_amount > 0.001 else (None, None)
 
         def schedule_1_additional_income(self, i, v):
             mort_int_refund = sum([v[f'1098:{n}.box_4'] for n in range(i['number_1098'])])
@@ -359,8 +373,8 @@ class Form1040(Form):
             FloatField('3b', line_3b),
             FloatField('4a', lambda s, i, v: line_4a_4b(s, i, v)[0]),
             FloatField('4b', lambda s, i, v: line_4a_4b(s, i, v)[1]),
-            FloatField('5a', lambda s, i, v: s.not_implemented() if i['pensions_annuities'] else None),
-            FloatField('5b', lambda s, i, v: s.not_implemented() if i['pensions_annuities'] else None),
+            FloatField('5a', lambda s, i, v: line_5a_5b(s, i, v)[0]),
+            FloatField('5b', lambda s, i, v: line_5a_5b(s, i, v)[1]),
             FloatField('6a', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             FloatField('6b', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
             BooleanField('6c', lambda s, i, v: s.not_implemented() if i['social_security_benefits'] else None),
