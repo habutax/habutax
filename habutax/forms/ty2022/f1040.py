@@ -383,7 +383,7 @@ class Form1040(Form):
             FloatField('9', lambda s, i, v: v['1z'] + v['2b'] + v['3b'] + v['4b'] + v['5b'] + v['6b'] + v['7'] + v['8']),
             FloatField('10', lambda s, i, v: v['1040_s1.26'] if i['schedule_1_income_adjustments'] else None),
             FloatField('11', lambda s, i, v: v['9'] - v['10']), # AGI
-            BooleanField('itemizing', lambda s, i, v: i['itemize'] and (v['1040_sa.17'] >= standard_deduction(s, i) or v['1040_sa.itemize_though_less'])),
+            BooleanField('itemizing', lambda s, i, v: i['itemize'] and (v['1040_sa.17'] >= standard_deduction(s, i) or i['1040_sa.itemize_though_less'])),
             FloatField('12', line_12),
             FloatField('13', line_13),
             FloatField('14', lambda s, i, v: v['12'] + v['13']),
