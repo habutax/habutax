@@ -262,12 +262,10 @@ class Form1040(Form):
             else:
                 return None
 
-        def line_20(self, i, v):
+        def need_schedule_3_part_i(self, i, v):
             foreign_tax = float(sum([v[f'1099-int:{n}.box_6'] for n in range(i['number_1099-int'])]))
             foreign_tax += float(sum([v[f'1099-div:{n}.box_7'] for n in range(i['number_1099-div'])]))
-            if foreign_tax > 0.001 or i['need_schedule_3_part_i']:
-                return v['1040_s3.8']
-            return None
+            return foreign_tax > 0.001 or i['need_schedule_3_part_i']
 
         def line_25b(self, i, v):
             withholding = float(sum([v[f'1099-r:{n}.box_4'] for n in range(i['number_1099-r'])]))
@@ -395,7 +393,8 @@ class Form1040(Form):
             FloatField('17', lambda s, i, v: v['1040_s2.3'] if v['schedule_2_part_i_needed'] else None),
             FloatField('18', lambda s, i, v: v['16'] + v['17']),
             FloatField('19', line_19),
-            FloatField('20', line_20),
+            BooleanField('need_schedule_3_part_i', need_schedule_3_part_i),
+            FloatField('20', lambda s, i, v: v['1040_s3.8'] if v['need_schedule_3_part_i'] else None),
             FloatField('21', lambda s, i, v: v['19'] + v['20']),
             FloatField('22', lambda s, i, v: max(0.0, v['18'] - v['21'])),
             FloatField('23', lambda s, i, v: s.not_implemented() if i['need_schedule_2'] else None),

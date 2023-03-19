@@ -19,7 +19,7 @@ class Form1040S8812(Form):
         inputs = [
             BooleanInput('pr_income_forms_2555_4563', description="Did you exclude any income from Puerto Rico, or require Forms 2555 or 2563?"),
             IntegerInput('number_under_17', description="How many of your dependents eligible for the child tax credit with the required social security number were under age 17 with the required social security number at the end of 2022?"),
-            BooleanInput('credit_limit_ws_credits', description='Are you using Schedule 3 or forms 5695, 8910, 8396, 8839, 8859 or Schedule R to report credits?'),
+            BooleanInput('credit_limit_ws_b_maybe_needed', description='Are you using forms 5695, 8396, 8839, 8859 to report credits?'),
         ]
 
         def line_10(self, i, v):
@@ -71,12 +71,22 @@ class Form1040S8812(Form):
             FloatField('27', line_27),
         ]
 
+        def line_clwkst_a_2(self, i, v):
+            if not v['1040.need_schedule_3_part_i']:
+                return None
+
+            if i['1040_s3.residential_energy_credit']:
+                self.not_implemented()
+
+            amounts = sum([v[f'1040_s3.{l}'] for l in ['1', '2', '3', '4', '6d', '6e', '6f', '6l']])
+            return None if amounts < 0.001 else amounts
+
         optional_fields += [
             # Credit Limit Worksheet A
             FloatField('clwkst_a_1', lambda s, i, v: v['1040.18']),
-            FloatField('clwkst_a_2', lambda s, i, v: s.not_implemented() if i['credit_limit_ws_credits'] else None),
-            FloatField('clwkst_a_3', lambda s, i, v: s.not_implemented() if i['credit_limit_ws_credits'] else v['clwkst_a_1'] - v['clwkst_a_2']),
-            FloatField('clwkst_a_4', lambda s, i, v: s.not_implemented() if i['credit_limit_ws_credits'] else 0.0),
+            FloatField('clwkst_a_2', line_clwkst_a_2),
+            FloatField('clwkst_a_3', lambda s, i, v: v['clwkst_a_1'] - v['clwkst_a_2']),
+            FloatField('clwkst_a_4', lambda s, i, v: s.not_implemented() if i['credit_limit_ws_b_maybe_needed'] else 0.0),
             FloatField('clwkst_a_5', lambda s, i, v: v['clwkst_a_3'] - v['clwkst_a_4']),
         ]
 
