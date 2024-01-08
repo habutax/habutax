@@ -205,7 +205,13 @@ def main():
     # Solver argument setup
     solve_parser = subparsers.add_parser('solve', help='Solve taxes using HabuTax')
     solve_parser.add_argument('input_file', type=str, help='The file containing your input for the tax forms you are calculating.')
-    solve_parser.add_argument('--year', type=int, default=default_year, help=f'The tax year to use (default: {default_year})')
+    solve_parser.add_argument(
+        '--year',
+        choices=forms.available_forms.keys(),
+        type=int,
+        default=default_year,
+        help=f'The tax year to use (default: {default_year})'
+    )
     solve_parser.add_argument('--form', dest='forms', action='append', help='Which form(s) you want to calculate')
     solve_parser.add_argument('--prompt-missing', action='store_true', default=False, help='Interactively prompt for any missing input')
     solve_parser.add_argument('--writeback-input', action='store_true', default=False, help='Write any interactively-supplied input back to the config file when done (loses any comments/formatting present in file)')
