@@ -18,6 +18,7 @@ class Form1040QualDivCapGainTaxWkst(Form):
         ]
 
         def line_6(self, i, v):
+            # threshold
             if i['1040.filing_status'] in [filing_status.Single, filing_status.MarriedFilingSeparately]:
                 return 44625.0
             elif i['1040.filing_status'] in [filing_status.MarriedFilingJointly, filing_status.QualifyingSurvivingSpouse]:
@@ -28,6 +29,7 @@ class Form1040QualDivCapGainTaxWkst(Form):
                 self.not_implemented()
 
         def line_13(self, i, v):
+            # threshold
             if i['1040.filing_status'] is filing_status.Single:
                 return 492300.0
             if i['1040.filing_status'] is filing_status.MarriedFilingSeparately:
