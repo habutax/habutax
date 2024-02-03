@@ -78,7 +78,7 @@ class Form(object):
                  solver=None):
 
         self._name = child_cls.form_name
-        assert("." not in self._name)
+        assert "." not in self._name
         self._tax_year = child_cls.tax_year
         self._inputs = inputs
         self._required_fields = required_fields
@@ -106,7 +106,7 @@ class Form(object):
         return self._instance
 
     def solver(self):
-        assert(self._solver)
+        assert self._solver
         return self._solver
 
     def inputs(self):

@@ -168,7 +168,7 @@ class Solver(object):
         # Add new inputs to our internal map of names to input objects, update
         # the input mapper so it understands how to read these inputs
         for i in new_form.inputs():
-            assert(i not in self._input_map)
+            assert i not in self._input_map
             self._input_map[i.name()] = i
         self._i.update_input_spec(self._input_map)
 
@@ -181,7 +181,7 @@ class Solver(object):
         self.forms[new_form.name()] = new_form
 
         for f in new_form.fields():
-            assert(f not in self._field_map)
+            assert f not in self._field_map
             self._field_map[f.name()] = f
 
         self._add_unattempted(new_form.required_fields())
@@ -198,7 +198,7 @@ class Solver(object):
         value, supplied = self._prompt(missing, needed_by)
 
         if supplied:
-            assert(missing.valid(value))
+            assert missing.valid(value)
             self._i[missing.name()] = value
             self._input_dependencies.meet(missing.name())
         else:
@@ -220,7 +220,7 @@ class Solver(object):
                 if ud.dependency not in self._field_map:
                     form_name, field_name = ud.dependency.split('.')
                     self._add_form(form_name)
-                assert(ud.dependency in self._field_map)
+                assert ud.dependency in self._field_map
                 self._add_unattempted(self._field_map[ud.dependency])
                 self._solving_fields.add(ud.dependency)
 
@@ -267,9 +267,9 @@ class Solver(object):
             for field in list(self._input_dependencies.met_dependents()):
                 self._attempt_field(field)
 
-        assert(len(self._unattempted_fields) == 0)
-        assert(not self._input_dependencies.has_met())
-        assert(not self._field_dependencies.has_met())
+        assert len(self._unattempted_fields) == 0
+        assert not self._input_dependencies.has_met()
+        assert not self._field_dependencies.has_met()
 
         self._done_solving = True
 
@@ -283,13 +283,13 @@ class Solver(object):
     def solution(self):
         """Return a ConfigParser object representing the portions of the
         requested forms which were successfully solved"""
-        assert(self._done_solving)
+        assert self._done_solving
         return self._v.to_config(self._field_map)
 
     def unimplemented_fields(self):
         """Return a list of the unimplemented field names after a call to
         solve()"""
-        assert(self._done_solving)
+        assert self._done_solving
         return self._unimplemented_fields
 
     def _unmet_dependencies(self, dependency_tracker):
@@ -303,12 +303,12 @@ class Solver(object):
         """Return a dict mapping names of any unmet input dependencies to a
         list of the names of their (discovered) dependent fields after a call
         to solve()"""
-        assert(self._done_solving)
+        assert self._done_solving
         return self._unmet_dependencies(self._input_dependencies)
 
     def unmet_field_dependencies(self):
         """Return a dict mapping names of any unmet field dependencies to a
         list of the names of their (discovered) dependents after a call to
         solve()"""
-        assert(self._done_solving)
+        assert self._done_solving
         return self._unmet_dependencies(self._field_dependencies)

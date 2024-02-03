@@ -51,7 +51,7 @@ class PDFField(object):
         self._finalized = True
 
     def get_value(self):
-        assert(self._finalized)
+        assert self._finalized
 
         if self.type == PDFFieldType.BUTTON:
             return self.value == self.choices[0]
@@ -60,7 +60,7 @@ class PDFField(object):
         return self.value
 
     def __repr__(self):
-        assert(self._finalized)
+        assert self._finalized
 
         if self.type == PDFFieldType.TEXT:
             maxlength_str = ""

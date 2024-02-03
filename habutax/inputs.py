@@ -4,7 +4,7 @@ import re
 
 class Input(object):
     def __init__(self, name, description=None):
-        assert("." not in name)
+        assert "." not in name
         self._name = name
         self._description = name if description is None else description
 

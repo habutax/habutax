@@ -2107,7 +2107,7 @@ def figure_tax_table(taxable_amount, filing_status_column):
             return float(row[filing_status_column])
 
     # If we got here, something went wrong
-    assert(False)
+    assert False
 
 def figure_tax_worksheet(taxable_amount, filing_status_index):
     # Note: The first row of the tax computation worksheet tables reads "At
@@ -2120,7 +2120,7 @@ def figure_tax_worksheet(taxable_amount, filing_status_index):
         first_row = False
 
     # If we got here, something went wrong
-    assert(False)
+    assert False
 
 def figure_tax(taxable_amount, filing_status):
     filing_status_index = None

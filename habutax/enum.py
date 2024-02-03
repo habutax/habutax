@@ -6,10 +6,10 @@ class StringyEnum(object):
         return self.name
 
 def make(name, options):
-    assert(type(options) == dict)
+    assert type(options) == dict
     for k, v in options.items():
-        assert(isinstance(k, str)) 
-        assert(isinstance(v, str)) 
+        assert isinstance(k, str)
+        assert isinstance(v, str)
     return Enum(name, options, type=StringyEnum)
 
 filing_status_2021 = make('1040 Filing Status', {

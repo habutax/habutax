@@ -61,7 +61,7 @@ class PDFFiller(object):
         self.forms.append(form)
 
         for f in form.fields():
-            assert(f not in self._field_map)
+            assert f not in self._field_map
             self._field_map[f.name()] = f
 
         self._read_form_fields(full_form_name)

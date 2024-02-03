@@ -1747,7 +1747,7 @@ def figure_tax_table(taxable_amount, filing_status_column):
             return float(row[filing_status_column])
 
     # If we got here, something went wrong
-    assert(False)
+    assert False
 
 def figure_tax_worksheet(taxable_amount, filing_status_index):
     for row in TAX_WORKSHEET_VALUES[filing_status_index-2]:
@@ -1755,7 +1755,7 @@ def figure_tax_worksheet(taxable_amount, filing_status_index):
             return taxable_amount * row[2] - row[3]
 
     # If we got here, something went wrong
-    assert(False)
+    assert False
 
 def figure_tax(taxable_amount, filing_status):
     filing_status_index = None

@@ -10,7 +10,7 @@ class FieldNotImplemented(Exception):
 
 class Field(object):
     def __init__(self, name):
-        assert("." not in name)
+        assert "." not in name
         self._name = name
 
     def __form_init__(self, form):

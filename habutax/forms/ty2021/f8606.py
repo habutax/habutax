@@ -16,7 +16,7 @@ class Form8606(Form):
 
     def __init__(self, **kwargs):
         instance = kwargs['instance']
-        assert(instance in ['you', 'spouse'])
+        assert instance in ['you', 'spouse']
         you = "you" if instance == "you" else "your spouse"
         your = "your" if instance == "you" else "your spouse's"
 
