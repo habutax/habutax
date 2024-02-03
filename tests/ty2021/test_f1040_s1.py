@@ -1,8 +1,7 @@
-import unittest
-
 from ..test_form import FormTestCase
 
 import habutax.forms.ty2021 as ty2021
+
 
 class Form1040S1TestCase0(FormTestCase):
     def setUp(self):
@@ -38,6 +37,7 @@ class Form1040S1TestCase0(FormTestCase):
         self.assertDollarsEqual(solution, '1040_s1.25', 123.45)
         self.assertDollarsEqual(solution, '1040_s1.26', 12360.63)
 
+
 class Form1040S1TestCase1(FormTestCase):
     def setUp(self):
         values = {
@@ -61,6 +61,7 @@ class Form1040S1TestCase1(FormTestCase):
         self.assertDollarsEqual(solution, '1040_s1.25', 0.0)
         self.assertDollarsEqual(solution, '1040_s1.26', 234.50)
 
+
 class Form1040S1TestCase1_no_hsa(FormTestCase):
     def setUp(self):
         inputs = {
@@ -73,6 +74,7 @@ class Form1040S1TestCase1_no_hsa(FormTestCase):
     def test_1040_s1(self):
         solution = self.assertSolve(['1040_s1'], field_names=['1040_s1.26'])
         self.assertDollarsEqual(solution, '1040_s1.13', 0.0)
+
 
 class Form1040S1TestCase1_you_hsa(FormTestCase):
     def setUp(self):
@@ -90,6 +92,7 @@ class Form1040S1TestCase1_you_hsa(FormTestCase):
         solution = self.assertSolve(['1040_s1'], field_names=['1040_s1.26'])
         self.assertDollarsEqual(solution, '1040_s1.13', 198.30)
 
+
 class Form1040S1TestCase1_spouse_hsa(FormTestCase):
     def setUp(self):
         inputs = {
@@ -105,6 +108,7 @@ class Form1040S1TestCase1_spouse_hsa(FormTestCase):
     def test_1040_s1(self):
         solution = self.assertSolve(['1040_s1'], field_names=['1040_s1.26'])
         self.assertDollarsEqual(solution, '1040_s1.13', 1250.00)
+
 
 class Form1040S1TestCase1_both_hsa(FormTestCase):
     def setUp(self):

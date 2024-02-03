@@ -1,8 +1,7 @@
-import unittest
-
 from ..test_form import FormTestCase
 
 import habutax.forms.ty2022 as ty2022
+
 
 class Form1040SimpleTestCase(FormTestCase):
     def setUp(self):

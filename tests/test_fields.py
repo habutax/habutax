@@ -1,11 +1,10 @@
 import configparser
 import unittest
 
-from . import context
-
 import habutax.enum as enum
 from habutax.fields import *
 from habutax.form import Form
+
 
 class FieldTestForm(Form):
     form_name = "0000"
@@ -13,6 +12,7 @@ class FieldTestForm(Form):
 
     def __init__(self, **kwargs):
         super().__init__(__class__, [], [], [], **kwargs)
+
 
 class FieldTestCase(unittest.TestCase):
     def setUp(self):

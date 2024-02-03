@@ -1,11 +1,10 @@
 import configparser
 import unittest
 
-from . import context
-
 from habutax.inputs import InputStore
 from habutax.fields import *
 from habutax.solver import Solver
+
 
 class FormTestCase(unittest.TestCase):
     def prompt_input(self, missing, needed_by):
@@ -49,11 +48,14 @@ class FormTestCase(unittest.TestCase):
                 self.solver._field_map[k] = FloatField(field_name, lambda s, i, v: None)
             else:
                 raise RuntimeError("Form tests can't currently handle setting Enum fields")
+
             class FakeForm(object):
                 def __init__(self, form_name):
                     self.form_name = form_name
+
                 def name(self):
                     return self.form_name
+
             self.solver._field_map[k].__form_init__(FakeForm(form_name))
 
     def assertSolve(self, form_names, field_names=[]):

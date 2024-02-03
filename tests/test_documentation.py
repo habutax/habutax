@@ -6,6 +6,7 @@ import unittest
 
 from . import context
 
+
 class DocumentationTestCase(unittest.TestCase):
     def find_doc_code(self, documentation_filename, code_filename):
 

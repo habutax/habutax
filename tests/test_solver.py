@@ -1,12 +1,11 @@
 import unittest
 from configparser import ConfigParser
 
-from . import context
-
 from habutax.inputs import *
 from habutax.fields import *
 from habutax.form import *
 from habutax.solver import Solver, DependencyTracker, sort_keys
+
 
 class TestForm(Form):
     form_name = "test"
@@ -22,6 +21,7 @@ class TestForm(Form):
             IntegerField('else', lambda s, i, v: v['something'] - i['bar']),
         ]
         super().__init__(__class__, test_inputs, test_fields, [], **kwargs)
+
 
 class DependencyTrackerTestCase(unittest.TestCase):
     def setUp(self):
@@ -93,6 +93,7 @@ class DependencyTrackerTestCase(unittest.TestCase):
 
         self.assertFalse(self.dep.has_unmet())
         self.assertFalse(self.dep.has_met())
+
 
 class SortOrderTestCase(unittest.TestCase):
     def test_sort_keys_same_form(self):
@@ -210,6 +211,7 @@ class SortOrderTestCase(unittest.TestCase):
             "z.foobar",
         ]
         self.assertListEqual(sorted(original, key=sort_keys), expected)
+
 
 class SolverTestCase(unittest.TestCase):
     def setUp(self):

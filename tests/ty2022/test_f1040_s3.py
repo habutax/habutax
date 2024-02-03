@@ -1,8 +1,7 @@
-import unittest
-
 from ..test_form import FormTestCase
 
 import habutax.forms.ty2022 as ty2022
+
 
 class Form1040S3TestCase(FormTestCase):
     def setUp(self):
@@ -20,6 +19,7 @@ class Form1040S3TestCase(FormTestCase):
         self.assertDollarsEqual(solution, '1040_s3.1', 437.23)
         self.assertDollarsEqual(solution, '1040_s3.8', 437.23)
 
+
 class Form1040S3TestCaseTooManyForeignTaxesMFJ(FormTestCase):
     def setUp(self):
         values = {
@@ -31,6 +31,7 @@ class Form1040S3TestCaseTooManyForeignTaxesMFJ(FormTestCase):
 
     def test_1040_s3(self):
         solution = self.assertUnimplementedSolution(['1040_s3'], field_names=['1040_s3.8'])
+
 
 class Form1040S3TestCaseTooManyForeignTaxesSingle(FormTestCase):
     def setUp(self):

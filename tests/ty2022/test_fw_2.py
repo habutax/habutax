@@ -1,9 +1,8 @@
-import unittest
-
 from ..test_form import FormTestCase
 
 import habutax.forms.ty2022 as ty2022
 from habutax import enum
+
 
 class FormW2TestCase(FormTestCase):
     def setUp(self):
