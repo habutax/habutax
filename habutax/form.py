@@ -84,6 +84,7 @@ class Form(object):
                  inputs,
                  required_fields,
                  optional_fields,
+                 thresholds={},
                  pdf_fields=[],
                  pdf_file=None,
                  instance=None,
@@ -95,6 +96,7 @@ class Form(object):
         self._inputs = inputs
         self._required_fields = required_fields
         self._optional_fields = optional_fields
+        self._thresholds = thresholds
         self._pdf_fields = pdf_fields
         self._pdf_file = pdf_file
         self._instance = instance
@@ -129,6 +131,22 @@ class Form(object):
 
     def fields(self):
         return self.required_fields() + self._optional_fields
+
+    def threshold(self, name, requested_key=None):
+        assert name in self._thresholds, f'No threshold named "{name}" was found for form {self.name()}'
+        t = self._thresholds[name]
+        if isinstance(t, dict):
+            assert requested_key is not None, f'Threshold "{name}" for form {self.name()} requires requested key to be supplied, but it was not'
+            for key, value in t.items():
+                if isinstance(key, type(requested_key)):
+                    if key == requested_key:
+                        return value
+                elif requested_key in key:
+                    return value
+            assert False, f'Threshold "{name}" not found for requested key {requested_key} for form {self.name()}'
+        else:
+            assert requested_key is None, f'Threshold "{name}" for form {self.name()} did not expect a requested key to be supplied'
+            return t
 
     def pdf_fields(self):
         return self._pdf_fields

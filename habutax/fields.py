@@ -25,6 +25,9 @@ class Field(object):
         else:
             return self._form.solver().forms[form_name]
 
+    def threshold(self, name, requested_key=None):
+        return self.form().threshold(name, requested_key=requested_key)
+
     def base_name(self):
         """Return the name relative to the form it is in"""
         return self._name
