@@ -1,12 +1,23 @@
 from collections.abc import Mapping
 from enum import IntEnum, auto, unique
 
-from habutax.inputs import StringInput, BooleanInput, IntegerInput, FloatInput, EnumInput, SSNInput
-from habutax.fields import StringField, BooleanField, IntegerField, FloatField, EnumField
+from habutax.inputs import (StringInput,
+                            BooleanInput,
+                            IntegerInput,
+                            FloatInput,
+                            EnumInput,
+                            SSNInput)
+from habutax.fields import (StringField,
+                            BooleanField,
+                            IntegerField,
+                            FloatField,
+                            EnumField)
+
 
 class AutoNumber(IntEnum):
     def _generate_next_value_(name, start, count, last_values):
         return 0 if len(last_values) == 0 else max(last_values) + 1
+
 
 @unique
 class Jurisdiction(AutoNumber):
@@ -65,6 +76,7 @@ class Jurisdiction(AutoNumber):
     WI = auto()
     WV = auto()
     WY = auto()
+
 
 class Form(object):
     def __init__(self,
@@ -127,9 +139,11 @@ class Form(object):
     def needs_filing(self, values):
         raise NotImplementedError()
 
+
 class InputForm(Form):
     """Convenience class to create a form which creates fields for each
     input"""
+
     def __init__(self,
                  child_cls,
                  inputs,
@@ -138,7 +152,9 @@ class InputForm(Form):
         fields = []
         for i in inputs:
             base_name = i.base_name()
-            fn = lambda s, i, v, base_name=base_name: i[base_name]
+
+            def fn(s, i, v, base_name=base_name):
+                return i[base_name]
 
             if type(i) in [StringInput, SSNInput]:
                 fields.append(StringField(base_name, fn))
@@ -161,6 +177,7 @@ class InputForm(Form):
         # of them
         return False
 
+
 class FormAccessor(Mapping):
     def __init__(self, mapping, form):
         self.form = form
@@ -176,6 +193,7 @@ class FormAccessor(Mapping):
 
     def __len__(self):
         return len(self.mapping)
+
 
 def name_and_instance(full_form_name):
     split_form_name = full_form_name.split(':')
