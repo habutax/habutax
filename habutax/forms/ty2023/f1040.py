@@ -17,6 +17,58 @@ class Form1040(Form):
     sequence_no = 0
 
     def __init__(self, **kwargs):
+        status = enum.filing_status
+        thresholds = {
+            # Form 1040, line 2b instructions
+            'sched_b_required_interest': 1500.00,
+            # Form 1040, line 3b instructions
+            'sched_b_required_dividends': 1500.00,
+            # Form 1040, Standard Deduction sidebar
+            'standard_deduction': {
+                (status.Single, status.MarriedFilingSeparately): 13850.00,
+                (status.MarriedFilingJointly, status.QualifyingSurvivingSpouse): 27700.00,
+                status.HeadOfHousehold: 20800.00,
+            },
+            # Form 1040 line 13 instructions regarding Qualified Business Income
+            'form_8995_required': {
+                status.MarriedFilingJointly: 364200.00,
+                (status.Single, status.MarriedFilingSeparately, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 182100.00,
+            },
+            # Additional Medicare Tax Thresholds from Form 8959 Instructions
+            # (note: these are not inflation-indexed so probably shouldn't
+            # change)
+            'additional_medicare_tax_withheld': 200000,
+            'additional_medicare_tax_applies': {
+                status.MarriedFilingJointly: 250000.0,
+                status.MarriedFilingSeparately: 125000.0,
+                (status.Single, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 200000.0
+            },
+
+            # EIC eligibility, from Form 1040 line 27 instructions
+            'eic_disallowed_3_dependents': {
+                (status.Single, status.MarriedFilingSeparately, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 56838.0,
+                status.MarriedFilingJointly: 63398.0,
+            },
+            'eic_disallowed_2_dependents': {
+                (status.Single, status.MarriedFilingSeparately, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 52918.0,
+                status.MarriedFilingJointly: 59478.0,
+            },
+            'eic_disallowed_1_dependents': {
+                (status.Single, status.MarriedFilingSeparately, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 46560.0,
+                status.MarriedFilingJointly: 53120.0,
+            },
+            'eic_disallowed_0_dependents': {
+                (status.Single, status.MarriedFilingSeparately, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 17640.0,
+                status.MarriedFilingJointly: 24210.0,
+            },
+            'eic_max_investment_income': 11000.0,
+            # Form 1040 instructions, line 38. You may owe a tax penalty if
+            # "Line 37 is at least $1,000 and it is more than 10% of the tax
+            # shown on your return"
+            'tax_penalty_dollars': 1000.0,
+            'tax_penalty_pct': 0.1,  # 10%
+        }
+
         inputs = [
             StringInput('first_name', description="Your first name"),
             StringInput('middle_initial', description="Your middle initial"),
@@ -126,8 +178,8 @@ class Form1040(Form):
         def line_2b(self, i, v):
             """taxable interest"""
             total = sum([v[f'1099-int:{n}.box_1'] + v[f'1099-int:{n}.box_3'] for n in range(i['number_1099-int'])])
-            if total > 1500.0: # threshold: Form 1040 line 2b instructions
-                return v['1040_sb.4'] # Schedule B
+            if total > self.threshold('sched_b_required_interest'):
+                return v['1040_sb.4']  # Schedule B
             elif i['number_1099-oid'] > 0:
                 self.not_implemented()
             else:
@@ -143,7 +195,7 @@ class Form1040(Form):
         def line_3b(self, i, v):
             """ordinary dividends"""
             total = sum([v[f'1099-div:{n}.box_1a'] for n in range(i['number_1099-div'])])
-            if total > 1500.0: # threshold: Form 1040 line 3b instructions
+            if total > self.threshold('sched_b_required_dividends'):
                 return v['1040_sb.6'] # Schedule B
             elif i['ordinary_dividends_incorrect']:
                 self.not_implemented()
@@ -216,16 +268,7 @@ class Form1040(Form):
             return (mort_int_refund + state_income_refund) > 0.001 or i['schedule_1_additional_income']
 
         def standard_deduction(self, i):
-            statuses = enum.filing_status
-            # threshold: Form 1040, Standard Deduction sidebar
-            if i['filing_status'] in [statuses.Single, statuses.MarriedFilingSeparately]:
-                return 13850.00
-            elif i['filing_status'] in [statuses.MarriedFilingJointly, statuses.QualifyingSurvivingSpouse]:
-                return 27700.00
-            elif i['filing_status'] == statuses.HeadOfHousehold:
-                return 20800.00
-            else:
-                self.not_implemented()
+            return self.threshold('standard_deduction', i['filing_status'])
 
         def line_12(self, i, v):
             if v['itemizing']:
@@ -238,12 +281,7 @@ class Form1040(Form):
         def line_13(self, i, v):
             section_199a = sum([v[f'1099-div:{n}.box_5'] for n in range(i['number_1099-div'])])
 
-            statuses = enum.filing_status
-            # threshold: Form 1040 line 13 instructions regarding Qualified Business Income
-            if i['filing_status'] is statuses.MarriedFilingJointly:
-                income_limit = 364200.00
-            else:
-                income_limit = 182100.00
+            income_limit = self.threshold('form_8995_required', i['filing_status'])
 
             if section_199a > 0.001:
                 if v['11'] > income_limit:
@@ -292,16 +330,9 @@ class Form1040(Form):
 
         def form_8959_required(self, i, v):
             for n in range(i['number_w-2']):
-                if v[f'w-2:{n}.box_5'] > 200000:
+                if v[f'w-2:{n}.box_5'] > self.threshold('additional_medicare_tax_withheld'):
                     return True
-            statuses = enum.filing_status
-            # threshold: Form 8959 Instructions (note: these are not
-            # inflation-indexed so probably shouldn't change)
-            threshold = 200000.0
-            if i['filing_status'] is statuses.MarriedFilingJointly:
-                threshold = 250000.0
-            elif i['filing_status'] is statuses.MarriedFilingSeparately:
-                threshold = 125000.0
+            threshold = self.threshold('additional_medicare_tax_applies', i['filing_status'])
 
             medicare_wages_tips = float(sum([v[f'w-2:{n}.box_5'] for n in range(i['number_w-2'])]))
 
@@ -313,22 +344,12 @@ class Form1040(Form):
             return False
 
         def possible_eic(self, i, v):
-            dependent_map = {
-                # threshold: Form 1040 line 27 instructions
-                # dependents: (non-MFJ filers, MarriedFilingJointly)
-                3: (52918, 59478),
-                2: (52918, 59478),
-                1: (46560, 53120),
-                0: (17640, 24210)
-            }
-            dependents = min(3, i['number_dependents'])
-            filing_index = 1 if i['filing_status'] is enum.filing_status.MarriedFilingJointly else 0
-            eic_income_limit = dependent_map[dependents][filing_index]
+            eic_income_limit = self.threshold(f'eic_disallowed_{dependents}_dependents', i['filing_status'])
             if v['11'] >= eic_income_limit:
                 return False
 
             investment_income = v['2a'] + v['2b'] + v['3b'] + max(0, v['7'])
-            if investment_income > 10300 and not i['form_4797']:
+            if investment_income > self.threshold('eic_max_investment_income') and not i['form_4797']:
                 return False
             return True
 
@@ -336,7 +357,7 @@ class Form1040(Form):
             tax_shown = v['24'] - sum([v['27'], v['28'], v['29']])
             if i['need_schedule_3_part_ii']:
                 tax_shown -= sum([v[f'1040_s3.{l}'] for l in ['9', '12', '13b', '13h']])
-            if v['37'] >= 1000.0 and v['37'] > (0.1 * tax_shown):
+            if v['37'] >= self.threshold('tax_penalty_dollars') and v['37'] > (self.threshold('tax_penalty_pct') * tax_shown):
                 return i['tax_penalty']
             return None
 
@@ -579,7 +600,9 @@ class Form1040(Form):
         ]
         pdf_file = os.path.join(os.path.dirname(__file__), 'f1040.pdf')
 
-        super().__init__(__class__, inputs, required_fields, [], pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
+        super().__init__(__class__, inputs, required_fields, [],
+                         thresholds=thresholds, pdf_fields=pdf_fields,
+                         pdf_file=pdf_file, **kwargs)
 
     def needs_filing(self, values):
         return True
