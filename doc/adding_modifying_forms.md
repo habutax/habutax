@@ -330,3 +330,66 @@ The type of a field primarily specifies the types of checks done on its output
 * EnumField
 
 See [fields.py](../habutax/fields.py) in the source for more details.
+
+# Thresholds
+
+It is helpful to be able to define threshold values separately from form logic
+so that they do not become "magic constants" buried in the logic, but instead
+are easy to identify and change when updating tax forms for a new tax year.
+Form sub-classes can pass a specially-formatted dictionary with thresholds into
+its constructor and then access those thresholds from field logic later by
+calling `self.threshold()` with the key corresponding to the desired threshold.
+As shown below, it is allowed to supply a second-level dictionary when creating
+thresholds if they need to be differentiated by an enum (most frequently filing
+status in real tax forms), and the key may be a tuple of several enum values if
+they all share the same threshold value.
+
+example code: fthresholds.py
+```python
+import habutax.enum as enum
+from habutax.form import Form
+from habutax.inputs import *
+from habutax.fields import *
+
+class FormThresholds(Form):
+    form_name = "thresholds"
+    tax_year = 2023
+
+    def __init__(self, **kwargs):
+        self.EYES = enum.make("eye color", {
+            'blue': 'your eyes are blue',
+            'brown': 'your eyes are brown',
+            'green': 'your eyes are green',
+            'hazel': 'your eyes are hazel',
+            'other': 'your eyes are some other color'
+        })
+        thresholds = {
+            # Everyone has a minimum tax of 500.0, regardless of 'base_tax'
+            'min_tax': 500.0,
+            # Additional tax applies based on the color of your eyes. Note that
+            # you can specify multiple keys as a tuple if they share the same
+            # threshold value
+            'eye_color_tax': {
+              self.EYES.blue: 15.0,
+              (self.EYES.brown, self.EYES.green, self.EYES.hazel): 20.0,
+              self.EYES.other: 25.0,
+            },
+        }
+        inputs = [
+            FloatInput('base_tax', description="How much base tax is due?"),
+            EnumInput('eye_color', self.EYES, description='What color are your eyes?')
+        ]
+
+        def line_2(self, inputs, field_values):
+            # Note that the second argument to self.threshold() corresponds to
+            # the enum value for the threshold value we want to select
+            additional_tax = self.threshold('eye_color_tax', inputs['eye_color'])
+            return field_values['1'] + additional_tax
+
+        required_fields = [
+            FloatField('1', lambda s, i, v: max(i['base_tax'], s.threshold('min_tax'))),
+            FloatField('2', line_2),
+        ]
+
+        super().__init__(__class__, inputs, required_fields, [], thresholds=thresholds, **kwargs)
+```

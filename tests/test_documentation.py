@@ -129,8 +129,31 @@ class DocumentationTestCase(unittest.TestCase):
 
         values = {}
         for field in f0.required_fields():
-            values[field.name()] = field.value(inputs, values)
+            values[field.base_name()] = field.value(inputs, values)
 
-        self.assertEqual(values['something.name'], "Monty")
-        self.assertEqual(values['something.ssn'], "000-00-0000")
-        self.assertEqual(values['something.eye_color'], f0.EYES.brown)
+        self.assertEqual(values['name'], "Monty")
+        self.assertEqual(values['ssn'], "000-00-0000")
+        self.assertEqual(values['eye_color'], f0.EYES.brown)
+
+    def test_fthresholds_example(self):
+        fthresholds = self.find_compile_doc_code('adding_modifying_forms.md', 'fthresholds.py')
+
+        # Defines class FormThresholds
+        exec(fthresholds, globals())
+
+        ft = FormThresholds()
+        self.assertEqual(len(ft.inputs()), 2)
+        self.assertEqual(len(ft.required_fields()), 2)
+        self.assertEqual(len(ft.fields()), 2)
+
+        inputs = {
+            'base_tax': 121.3,
+            'eye_color': ft.EYES.brown,
+        }
+
+        values = {}
+        for field in ft.required_fields():
+            values[field.base_name()] = field.value(inputs, values)
+
+        self.assertAlmostEqual(values['1'], 500.0, places=2)
+        self.assertAlmostEqual(values['2'], 520.0, places=2)
