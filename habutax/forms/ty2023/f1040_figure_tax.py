@@ -1,5 +1,3 @@
-from habutax.enum import filing_status
-
 TAX_TABLE = (
     # income min (inclusive), income max (exclusive), single, married filing jointly/qualifying surviving spouse, married filing separately, head of household
     (0, 5, 0, 0, 0, 0),
@@ -2101,13 +2099,15 @@ TAX_WORKSHEET_VALUES = (
     ),
 )
 
+
 def figure_tax_table(taxable_amount, filing_status_column):
     for row in TAX_TABLE:
         if taxable_amount >= row[0] and taxable_amount < row[1]:
             return float(row[filing_status_column])
 
     # If we got here, something went wrong
-    assert False
+    assert False, f"Failed to find a matching entry for {taxable_amount} in the tax table"
+
 
 def figure_tax_worksheet(taxable_amount, filing_status_index):
     # Note: The first row of the tax computation worksheet tables reads "At
@@ -2120,7 +2120,8 @@ def figure_tax_worksheet(taxable_amount, filing_status_index):
         first_row = False
 
     # If we got here, something went wrong
-    assert False
+    assert False, f"Failed to find a matching entry for {taxable_amount} in the tax worksheet"
+
 
 def figure_tax(taxable_amount, filing_status):
     filing_status_index = None
