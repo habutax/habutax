@@ -200,7 +200,7 @@ def version(args):
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True, help='sub-command help')
-    default_year = 2022
+    default_year = max(forms.available_forms.keys())
 
     # Solver argument setup
     solve_parser = subparsers.add_parser('solve', help='Solve taxes using HabuTax')
