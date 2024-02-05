@@ -1,0 +1,35 @@
+[1040]
+filing_status = MarriedFilingJointly
+number_1098 = 1
+number_1099-g = 2
+number_1099-int = 1
+number_1099-oid = 0
+
+[1040_s1]
+hsa_contribution_you = no
+hsa_contribution_spouse = yes
+educator_expenses = 
+need_other_adjustments = yes
+other_adjustments_type = something
+other_adjustments_amount = 123.45
+certain_business_expenses = no
+need_other_income = no
+state_local_income_tax_adjust = no
+alimony_received = 
+business_income = no
+other_gains_losses = no
+real_estate = no
+farm_income_loss = no
+unemployment_income = 
+uncommon_income = no
+moving_expenses = no
+deductible_self_employment_tax = no
+sep_simple_qualified = no
+self_employed_health_insurance = no
+traditional_ira_deduction = 
+student_loan_interest = no
+archer_msa_deduction = no
+alimony_paid = 4983.2
+alimony_paid_ssn = 123-45-6789
+alimony_paid_date = 04/01/2011
+uncommon_deductions = no

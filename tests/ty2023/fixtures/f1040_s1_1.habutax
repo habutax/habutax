@@ -1,0 +1,31 @@
+[1040]
+filing_status = Single
+number_1098 = 0
+number_1099-g = 0
+number_1099-int = 0
+number_1099-oid = 0
+
+[1040_s1]
+hsa_contribution_you = no
+educator_expenses = 234.50
+need_other_adjustments = no
+certain_business_expenses = no
+need_other_income = no
+state_local_income_tax_adjust = no
+alimony_received = 1245.46
+alimony_received_date = 12/10/2018
+business_income = no
+other_gains_losses = no
+real_estate = no
+farm_income_loss = no
+unemployment_income = 943.00
+uncommon_income = no
+moving_expenses = no
+deductible_self_employment_tax = no
+sep_simple_qualified = no
+self_employed_health_insurance = no
+traditional_ira_deduction = 
+student_loan_interest = no
+archer_msa_deduction = no
+alimony_paid = 
+uncommon_deductions = no
