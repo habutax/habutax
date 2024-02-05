@@ -46,7 +46,7 @@ class Form1040S2Need6251(Form):
         def need_6251(self, i, v):
             if not v['5'] > v['6']:
                 return False
-            elif v['11'] > s.threshold('line_12_comparison', i['1040.filing_status']):
+            elif v['11'] > self.threshold('line_12_comparison', i['1040.filing_status']):
                 return True
             return v['12'] > v['13']
 

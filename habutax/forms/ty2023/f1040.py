@@ -29,7 +29,8 @@ class Form1040(Form):
                 (status.MarriedFilingJointly, status.QualifyingSurvivingSpouse): 27700.00,
                 status.HeadOfHousehold: 20800.00,
             },
-            # Form 1040 line 13 instructions regarding Qualified Business Income
+            # Form 1040 line 13 instructions regarding Qualified Business
+            # Income (also found on Form 8995)
             'form_8995_required': {
                 status.MarriedFilingJointly: 364200.00,
                 (status.Single, status.MarriedFilingSeparately, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 182100.00,
@@ -39,9 +40,10 @@ class Form1040(Form):
             # change)
             'additional_medicare_tax_withheld': 200000,
             'additional_medicare_tax_applies': {
-                status.MarriedFilingJointly: 250000.0,
+                status.MarriedFilingJointly:    250000.0,
                 status.MarriedFilingSeparately: 125000.0,
-                (status.Single, status.QualifyingSurvivingSpouse, status.HeadOfHousehold): 200000.0
+                (status.Single, status.QualifyingSurvivingSpouse,
+                 status.HeadOfHousehold):       200000.0
             },
 
             # EIC eligibility, from Form 1040 line 27 instructions
@@ -344,6 +346,7 @@ class Form1040(Form):
             return False
 
         def possible_eic(self, i, v):
+            dependents = min(3, i['number_dependents'])
             eic_income_limit = self.threshold(f'eic_disallowed_{dependents}_dependents', i['filing_status'])
             if v['11'] >= eic_income_limit:
                 return False

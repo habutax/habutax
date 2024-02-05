@@ -1,6 +1,6 @@
 import os
 
-from habutax.enum import filing_status
+from habutax.enum import filing_status as status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -19,17 +19,17 @@ class Form1040S3(Form):
             # Must file Form 1116 if your total foreign tax was more than this
             # threshold. Form 1040, Schedule 3, Line 1 instructions.
             'form_1116_foreign_tax': {
-                filing_status.MarriedFilingJointly:  600.0,
+                status.MarriedFilingJointly:         600.0,
                 (status.Single, status.MarriedFilingSeparately,
                  status.QualifyingSurvivingSpouse,
-                 filing_status.HeadOfHousehold):     300.0,
+                 status.HeadOfHousehold):            300.0,
             },
             # Cannot claim Retirement Savings Contributions Credit if your
             # income is over this threshold. Form 1040, Schedule 3, line 4
             # instructions
             'retirement_savings_limit': {
-                filing_status.MarriedFilingJointly: 73000.0,
-                filing_status.HeadOfHousehold:      54750.0,
+                status.MarriedFilingJointly:        73000.0,
+                status.HeadOfHousehold:             54750.0,
                 (status.Single, status.MarriedFilingSeparately,
                  status.QualifyingSurvivingSpouse): 36500.0
             },
@@ -47,7 +47,7 @@ class Form1040S3(Form):
         def line_1(self, i, v):
             foreign_tax = float(sum([v[f'1099-int:{n}.box_6'] for n in range(i['1040.number_1099-int'])]))
             foreign_tax += float(sum([v[f'1099-div:{n}.box_7'] for n in range(i['1040.number_1099-div'])]))
-            if i['other_foreign_gross_income'] or foreign_tax > s.threshold('form_1116_foreign_tax', i['1040.filing_status']):
+            if i['other_foreign_gross_income'] or foreign_tax > self.threshold('form_1116_foreign_tax', i['1040.filing_status']):
                 return self.not_implemented()
             return foreign_tax if foreign_tax > 0.001 else None
 
