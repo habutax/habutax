@@ -94,7 +94,7 @@ class Form1040(Form):
             StringInput('foreign_postal_code', description="Foreign postal code (if you have a foreign address)"),
             BooleanInput('you_presidential_election', description="Check here if you want $3 to go to this fund. Checking a box below will not change your tax or refund."),
             BooleanInput('spouse_presidential_election', description="Check here if your spouse wants $3 to go to this fund. Checking a box below will not change your tax or refund."),
-            EnumInput('filing_status', enum.filing_status, description="Filing Status"),
+            EnumInput('filing_status', status, description="Filing Status"),
             BooleanInput('digital_assets', description="At any time during 2023, did you: (a) receive (as a reward, award, or payment for property or services); or (b) sell, exchange, or otherwise dispose of a digital asset (or a financial interest in a digital asset)? (See Form 1040 instructions)"),
             IntegerInput('number_dependents', description="How many dependents can you claim for 2023? (See Form 1040 instructions)"),
             BooleanInput('claimed_as_dependent', description="Can anyone claim you (or your spouse if filing joint) as a dependent?"),
@@ -166,7 +166,7 @@ class Form1040(Form):
 
         def full_names(self, i, v):
             names = [f'{v["first_name"]} {v["last_name"]}']
-            if i['filing_status'] == enum.filing_status.MarriedFilingJointly:
+            if i['filing_status'] == status.MarriedFilingJointly:
                 names.append(f'{v["spouse_first_name"]} {v["spouse_last_name"]}')
             return ", ".join(names)
 
@@ -208,7 +208,7 @@ class Form1040(Form):
             line_4b = 0.0
 
             ira_distributions_you = sum([v[f'1099-r:{n}.box_1'] if v[f'1099-r:{n}.box_7_ira_sep_simple'] and v[f'1099-r:{n}.belongs_to'] == enum.taxpayer_or_spouse.taxpayer else 0.0 for n in range(i['number_1099-r'])])
-            ira_distributions_spouse = sum([v[f'1099-r:{n}.box_1'] if v[f'1099-r:{n}.box_7_ira_sep_simple'] and v[f'1099-r:{n}.belongs_to'] ==enum.taxpayer_or_spouse.spouse else 0.0 for n in range(i['number_1099-r'])])
+            ira_distributions_spouse = sum([v[f'1099-r:{n}.box_1'] if v[f'1099-r:{n}.box_7_ira_sep_simple'] and v[f'1099-r:{n}.belongs_to'] == enum.taxpayer_or_spouse.spouse else 0.0 for n in range(i['number_1099-r'])])
 
             if ira_distributions_you > 0.001:
                 if sum([i['ira_exception1_you'], i['ira_exception2_you'], i['ira_exception3_you'], i['ira_exception4_you']]) > 1:
@@ -365,13 +365,13 @@ class Form1040(Form):
             return None
 
         required_fields = [
-            EnumField('filing_status', enum.filing_status, lambda s, i, v: i['filing_status']),
+            EnumField('filing_status', status, lambda s, i, v: i['filing_status']),
             StringField('first_name', lambda s, i, v: f'{i["first_name"]} {i["middle_initial"]}'.strip()),
             StringField('last_name', lambda s, i, v: i['last_name']),
             StringField('you_ssn', lambda s, i, v: i['you_ssn']),
-            StringField('spouse_first_name', lambda s, i, v: f'{i["spouse_first_name"]} {i["spouse_middle_initial"]}'.strip() if i['filing_status'] == enum.filing_status.MarriedFilingJointly else None),
-            StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else None),
-            StringField('spouse_ssn', lambda s, i, v: i['spouse_ssn'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else None),
+            StringField('spouse_first_name', lambda s, i, v: f'{i["spouse_first_name"]} {i["spouse_middle_initial"]}'.strip() if i['filing_status'] == status.MarriedFilingJointly else None),
+            StringField('spouse_last_name', lambda s, i, v: i['spouse_last_name'] if i['filing_status'] == status.MarriedFilingJointly else None),
+            StringField('spouse_ssn', lambda s, i, v: i['spouse_ssn'] if i['filing_status'] == status.MarriedFilingJointly else None),
             StringField('full_names', full_names),
             StringField('home_address', lambda s, i, v: i['home_address']),
             StringField('apartment_no', lambda s, i, v: i['apartment_no']),
@@ -382,7 +382,7 @@ class Form1040(Form):
             StringField('foreign_province', lambda s, i, v: i['foreign_province']),
             StringField('foreign_postal_code', lambda s, i, v: i['foreign_postal_code']),
             BooleanField('you_presidential_election', lambda s, i, v: i['you_presidential_election']),
-            BooleanField('spouse_presidential_election', lambda s, i, v: i['spouse_presidential_election'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else False),
+            BooleanField('spouse_presidential_election', lambda s, i, v: i['spouse_presidential_election'] if i['filing_status'] == status.MarriedFilingJointly else False),
             BooleanField('digital_assets', lambda s, i, v: s.not_implemented() if i['digital_assets'] else False),
             FloatField('1a', line_1a),
             FloatField('1b', lambda s, i, v: i['non_w-2_household_employee_income'] if i['non_w-2_household_employee_income'] > 0 else None),
@@ -450,7 +450,7 @@ class Form1040(Form):
             FloatField('38', line_38),
             BooleanField('designee', lambda s, i, v: False),
             StringField('occupation', lambda s, i, v: i['occupation']),
-            StringField('spouse_occupation', lambda s, i, v: i['spouse_occupation'] if i['filing_status'] == enum.filing_status.MarriedFilingJointly else ""),
+            StringField('spouse_occupation', lambda s, i, v: i['spouse_occupation'] if i['filing_status'] == status.MarriedFilingJointly else ""),
             StringField('phone_number', lambda s, i, v: i['phone_number']),
             StringField('email_address', lambda s, i, v: i['email_address']),
         ]
