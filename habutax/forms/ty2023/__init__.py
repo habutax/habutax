@@ -7,7 +7,7 @@ from .f1040_sa import Form1040SA
 from .f1040_sb import Form1040SB
 from .f1040_s8812 import Form1040S8812
 from .f1098 import Form1098
-from ..ty2022.f1099_div import Form1099DIV
+from .f1099_div import Form1099DIV
 from ..ty2022.f1099_g import Form1099G
 from ..ty2022.f1099_int import Form1099INT
 from ..ty2022.f1099_r import Form1099R
