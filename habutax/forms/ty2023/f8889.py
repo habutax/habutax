@@ -23,8 +23,8 @@ class Form8889(Form):
 
         thresholds = {
             # HSA Contribution limits, from Form 8889 line 3 and instructions
-            'hsa_individual_contribution_limit': 3850.0,
-            'hsa_family_contribution_limit':     7750.0,
+            'hsa_individual_contribution_limit': 3850,
+            'hsa_family_contribution_limit':     7750,
         }
 
         inputs = [
