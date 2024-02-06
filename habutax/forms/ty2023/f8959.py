@@ -32,7 +32,7 @@ class Form8959(Form):
         optional_fields = [
             # Part II - Additional Medicare Tax on Self-Employment Income
             FloatField('8', lambda s, i, v: s.not_implmented() if i['1040.self_employment_income'] else None),
-            FloatField('9', s.form('1040').threshold('additional_medicare_tax_applies', i['1040.filing_status'])),
+            FloatField('9', lambda s, i, v: s.form('1040').threshold('additional_medicare_tax_applies', i['1040.filing_status'])),
             FloatField('10', lambda s, i, v: v['4']),
             FloatField('11', lambda s, i, v: max(0.0, v['9'] - v['10'])),
             FloatField('12', lambda s, i, v: max(0.0, v['8'] - v['11'])),
@@ -40,7 +40,7 @@ class Form8959(Form):
 
             # Part III - Additional Medicare Tax on  Railroad Retirement Tax Act (RRTA) Compensation
             FloatField('14', lambda s, i, v: s.not_implmented() if i['1040.rrta_compensation'] else None),
-            FloatField('15', s.form('1040').threshold('additional_medicare_tax_applies', i['1040.filing_status'])),
+            FloatField('15', lambda s, i, v: s.form('1040').threshold('additional_medicare_tax_applies', i['1040.filing_status'])),
             FloatField('16', lambda s, i, v: max(0.0, v['14'] - v['15'])),
             FloatField('17', lambda s, i, v: v['16'] * 0.009),
 
