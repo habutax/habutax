@@ -1,6 +1,6 @@
 import os
 
-from habutax.enum import filing_status
+from habutax.enum import filing_status as status
 from habutax.form import Form, Jurisdiction
 from habutax.inputs import *
 from habutax.fields import *
@@ -17,10 +17,10 @@ class Form1040SA(Form):
     def __init__(self, **kwargs):
         thresholds = {
             'tax_deduction_limit': {
-                filing_status.MarriedFilingSeparately:  5000.0,
+                status.MarriedFilingSeparately:  5000.0,
                 (status.Single, status.MarriedFilingJointly,
                  status.QualifyingSurvivingSpouse,
-                 filing_status.HeadOfHousehold):       10000.0,
+                 status.HeadOfHousehold):       10000.0,
             },
         }
 
