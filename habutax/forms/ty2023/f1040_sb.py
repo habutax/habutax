@@ -64,26 +64,26 @@ class Form1040SB(Form):
             required_fields += [int_payer, int_amount, div_payer, div_amount]
 
         pdf_fields = [
-#            TextPDFField('topmostSubform[0].Page1[0].f1_01[0]', '1040.full_names'),
-#            TextPDFField('topmostSubform[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
-#            TextPDFField('topmostSubform[0].Page1[0].Line1_ReadOrder[0].f1_03[0]', '1_payer_0'),
-#            TextPDFField('topmostSubform[0].Page1[0].f1_04[0]', '1_amount_0'),
-#            # Remaining input fields for field 1 are below in a 'for' loop
-#            TextPDFField('topmostSubform[0].Page1[0].f1_31[0]', '2'),
-#            TextPDFField('topmostSubform[0].Page1[0].f1_32[0]', '3'),
-#            TextPDFField('topmostSubform[0].Page1[0].f1_33[0]', '4'),
-#            TextPDFField('topmostSubform[0].Page1[0].ReadOrderControl[0].f1_34[0]', '5_payer_0'),
-#            TextPDFField('topmostSubform[0].Page1[0].f1_35[0]', '5_amount_0'),
-#            # Remaining input fields for field 5 are below in a 'for' loop
-#            TextPDFField('topmostSubform[0].Page1[0].f1_64[0]', '6'),
-#            ButtonPDFField('topmostSubform[0].Page1[0].c1_1[0]', '7a', '1'),
-#            ButtonPDFField('topmostSubform[0].Page1[0].c1_1[1]', '7a', '2', lambda s, v, f: not v),
-#            ButtonPDFField('topmostSubform[0].Page1[0].c1_2[0]', '7b', '1'),
-#            ButtonPDFField('topmostSubform[0].Page1[0].c1_2[1]', '7b', '2', lambda s, v, f: not v),
-#            TextPDFField('topmostSubform[0].Page1[0].f1_65[0]', '7b_country'),
-##            TextPDFField('topmostSubform[0].Page1[0].f1_66[0]', '7b_country'),
-#            ButtonPDFField('topmostSubform[0].Page1[0].c1_3[0]', '8', '1'),
-#            ButtonPDFField('topmostSubform[0].Page1[0].c1_3[1]', '8', '2', lambda s, v, f: not v),
+            TextPDFField('topmostSubform[0].Page1[0].f1_01[0]', '1040.full_names'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_02[0]', '1040.you_ssn', max_length=11),
+            TextPDFField('topmostSubform[0].Page1[0].Line1_ReadOrder[0].f1_03[0]', '1_payer_0'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_04[0]', '1_amount_0'),
+            # Remaining input fields for field 1 are below in a 'for' loop
+            TextPDFField('topmostSubform[0].Page1[0].f1_31[0]', '2'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_32[0]', '3'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_33[0]', '4'),
+            TextPDFField('topmostSubform[0].Page1[0].ReadOrderControl[0].f1_34[0]', '5_payer_0'),
+            TextPDFField('topmostSubform[0].Page1[0].f1_35[0]', '5_amount_0'),
+            # Remaining input fields for field 5 are below in a 'for' loop
+            TextPDFField('topmostSubform[0].Page1[0].f1_64[0]', '6'),
+            ButtonPDFField('topmostSubform[0].Page1[0].c1_1[0]', '7a', '1'),
+            ButtonPDFField('topmostSubform[0].Page1[0].c1_1[1]', '7a', '2', lambda s, v, f: not v),
+            ButtonPDFField('topmostSubform[0].Page1[0].c1_2[0]', '7b', '1'),
+            ButtonPDFField('topmostSubform[0].Page1[0].c1_2[1]', '7b', '2', lambda s, v, f: not v),
+            TextPDFField('topmostSubform[0].Page1[0].f1_65[0]', '7b_country'),
+#            TextPDFField('topmostSubform[0].Page1[0].f1_66[0]', '7b_country'),
+            ButtonPDFField('topmostSubform[0].Page1[0].c1_3[0]', '8', '1'),
+            ButtonPDFField('topmostSubform[0].Page1[0].c1_3[1]', '8', '2', lambda s, v, f: not v),
         ]
 
         # The first of each of the fields in this loop is handled above,
@@ -93,7 +93,7 @@ class Form1040SB(Form):
             one_amt = TextPDFField(f'topmostSubform[0].Page1[0].f1_{4+line*2:02d}[0]', f'1_amount_{line}')
             five_payer = TextPDFField(f'topmostSubform[0].Page1[0].f1_{34+line*2:02d}[0]', f'5_payer_{line}')
             five_amt = TextPDFField(f'topmostSubform[0].Page1[0].f1_{35+line*2:02d}[0]', f'5_amount_{line}')
-#            pdf_fields += [one_payer, one_amt, five_payer, five_amt]
+            pdf_fields += [one_payer, one_amt, five_payer, five_amt]
 
         pdf_file = os.path.join(os.path.dirname(__file__), 'f1040sb.pdf')
         super().__init__(__class__, inputs, required_fields, optional_fields, pdf_fields=pdf_fields, pdf_file=pdf_file, **kwargs)
