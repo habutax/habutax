@@ -89,7 +89,7 @@ class Form1040SA(Form):
             FloatField('5b', lambda s, i, v: i['state_local_real_estate_taxes']),
             FloatField('5c', lambda s, i, v: i['state_local_personal_property_taxes']),
             FloatField('5d', lambda s, i, v: v['5a'] + v['5b'] + v['5c']),
-            FloatField('5e', lambda s, i, v: min(s.thresholds('tax_deduction_limit', i['1040.filing_status']), v['5d'])),
+            FloatField('5e', lambda s, i, v: min(s.threshold('tax_deduction_limit', i['1040.filing_status']), v['5d'])),
             FloatField('6', lambda s, i, v: i['other_taxes_amount']),
             FloatField('7', lambda s, i, v: v['5e'] + v['6']),
 
