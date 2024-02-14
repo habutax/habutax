@@ -110,22 +110,22 @@ You can test HabuTax out with the following command-line:
 
 ```
 habutax solve \
-    --year 2022 \
+    --year 2023 \
     --form 1040 \
     --writeback-input \
     --prompt-missing \
-    --solution taxes_2022.solution \
-    taxes_2022.habutax
+    --solution taxes_2023.solution \
+    taxes_2023.habutax
 ```
 
-taxes_2022.habutax is a plain-text input file, in [INI
+taxes_2023.habutax is a plain-text input file, in [INI
 format](https://en.wikipedia.org/wiki/INI_file#Format). Each form has its own
 section in the input file. If you don't want to supply anything up front, you
 don't need to: the `--prompt` option causes HabuTax to prompt you for any
 missing input, while `--writeback-input` causes any values you enter
 interactively in this way to be written back to the input file.
 
-The above example saves the results to a file named `taxes_2022.solution`. If
+The above example saves the results to a file named `taxes_2023.solution`. If
 you omit the `--solution` argument, it will print the results to stdout instead.
 
 Once you have successfully "solved" your taxes, you can write the results to PDF
@@ -133,8 +133,8 @@ using:
 
 ```
 habutax fill-pdfs \
-    taxes_2022.solution \
-    taxes_2022.pdf
+    taxes_2023.solution \
+    taxes_2023.pdf
 ```
 
 HabuTax also has sub-commands for listing the available forms (`habutax
