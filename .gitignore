@@ -1,2 +1,33 @@
-__pycache__/
+--- STANDARD PYTHON IGNORES ---
+
+pycache/
 *.py[cod]
+*$py.class
+*.pdf
+.pytest_cache/
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+--- ADDED TO SECURE PERSONAL TAX DATA ---
+
+Ignore Personal Tax Input Files
+
+*.yml
+*.yaml
+!package.yml
+!test.yml
+
+Ignore Extracted Master Records
+
+*.md
+!README.md
+!adding_modifying_forms.md
+!solver.md
+
+Ignore AI Scripts
+
+tax_record_organizer.py
+integrate_habutax.py
+workflow_advice.md
